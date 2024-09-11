@@ -1,15 +1,25 @@
-import express, { urlencoded, json } from "express";
+// import * as bodyParser from "body-parser"
+import express, { Request, Response } from "express"
+import { AppDataSource } from "./data-source.js"
+// import { Routes } from "./routes"
+import User from "./entity/User"
 
-const port = process.env.PORT || 8000;
-const app = express();
+const app = express()
+const port = 4000;
 
-app.use(urlencoded({ extended: true }));
-app.use(json());
+AppDataSource.initialize()
+  .then(async () => {
+    console.log("Data Source has been initialized!");
 
-app.get("/", (req, res) => {
-  res.status(200).json({ msg: "Server is up and running" });
+  })
+  .catch((error) =>
+    console.log("Error during Data Source initialization: ", error)
+  );
+
+app.get("/", (_: Request, res: Response) => {
+  res.send("Hello World!");
 });
 
 app.listen(port, () => {
-  console.log(`Server is listening at port ${port}`);
+  console.log(`Example app listening on port ${port}`);
 });

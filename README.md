@@ -94,3 +94,26 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Server is listening at port ${port}`);
 });
+
+*--------typeoRM setup----**
+install the package
+# yarn add typeorm
+install reflect-metadata shim and import it in your app global space
+# yarn add reflect-metadata
+install node typings
+# yarn add @types/node -dev
+install database driver
+# yarn add pg
+
+install body parser
+# yarn add body-parser
+
+`Also, make sure you are using TypeScript version 4.5 or higher, and you have enabled the following settings in tsconfig.json:`
+# "emitDecoratorMetadata": true,
+# "experimentalDecorators": true,
+
+`You may also need to enable es6 in the lib section of compiler options, or install es6-shim from @types.`
+# yarn add @types/es6-shim
+
+
+`follow the guide on docs on how to create entity, data source and initializing the data source`
