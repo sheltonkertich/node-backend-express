@@ -1,37 +1,48 @@
-// import * as bodyParser from "body-parser"
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import http from 'http';
+import cors from 'cors';
 import express, { Request, Response } from "express";
 import { AppDataSource } from "./data-source.js";
-// import { Routes } from "./routes"
 import User from "./entity/User.js";
+import {typeDefs, resolvers} from './schema.js';
 
+interface MyContext {
+  token?: string;
+}
+
+
+// Required logic for integrating with Express
 const app = express();
-const port = 4000;
+// Our httpServer handles incoming requests to our Express app.
+// Below, we tell Apollo Server to "drain" this httpServer,
+// enabling our servers to shut down gracefully.
+const httpServer = http.createServer(app);
 
-AppDataSource.initialize()
-  .then(async () => {
-    console.log("Data Source has been initialized!");
-    //crteate new user
-    const user1 = new User();
-    user1.age = 20;
-    user1.firstName = "john";
-    user1.id = 33568888;
-    user1.lastName = "dere";
-    //save user to db
-    await AppDataSource.manager.save(user1);
-    console.log("user 1 has been saved", user1)
-
-    //load users from db
-    const users = await AppDataSource.manager.find(User);
-    console.log("loaded users: ", users)
-  })
-  .catch((error) =>
-    console.log("Error during Data Source initialization: ", error)
-  );
-
-app.get("/", (_: Request, res: Response) => {
-  res.send("Hello World!");
+// Same ApolloServer initialization as before, plus the drain plugin
+// for our httpServer.
+const server = new ApolloServer<MyContext>({
+  typeDefs,
+  resolvers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+// Ensure we wait for our server to start
+await server.start();
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// Set up our Express middleware to handle CORS, body parsing,
+// and our expressMiddleware function.
+app.use(
+  '/',
+  cors<cors.CorsRequest>(),
+  express.json(),
+  // expressMiddleware accepts the same arguments:
+  // an Apollo Server instance and optional configuration options
+  expressMiddleware(server, {
+    context: async ({ req }) => ({ token: req.headers.token }),
+  }),
+);
+
+// Modified server startup
+await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
+console.log(`🚀 Server ready at http://localhost:4000/`);

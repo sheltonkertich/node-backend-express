@@ -118,3 +118,41 @@ install body parser
 
 `follow the guide on docs on how to create entity, data source and initializing the data source`
 
+*---------------Apollo Express Middleware-------**
+`first setup top level await in your project`
+install deoendencies
+# yarn add @apollo/server graphql
+# yarn add --dev typescript @types/node
+edit tsconfig file to below
+{
+  "compilerOptions": {
+    "rootDirs": ["src"],
+    "outDir": "dist",
+    "lib": ["es2020"],
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "types": ["node"]
+  }
+}
+
+replace the default scripts entry in your package.json file with the following type and scripts entries:
+{
+  // ...etc.
+  "type": "module",
+  "scripts": {
+    "compile": "tsc",
+    "start": "npm run compile && node ./dist/index.js"
+  }
+  // other dependencies
+}
+`setup CORS option for apollo server` this will help to regulate which origins can access your servers resources, whether your server accepts user credentials(ie cookies) with requests
+
+# yarn add cors
+# yarn add --dev @types/cors
+
+install other graphql dependencies for typescript
+# yarn add graphql express-graphql 
+# yarn add --dev @types/graphql
+# yarn add graphql-tools
