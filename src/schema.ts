@@ -9,7 +9,7 @@ export const typeDefs = `
 
 export const resolvers = {
     Query: {
-        hello: () => 'Hello from GraphQL!'
+        hello: () => 'Hello from GraphQL! and its working okay'
     }
 };
 

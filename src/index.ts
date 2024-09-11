@@ -22,13 +22,13 @@ const httpServer = http.createServer(app);
 
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
-const server = new ApolloServer<MyContext>({
+const apolloserver = new ApolloServer<MyContext>({
   typeDefs,
   resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 // Ensure we wait for our server to start
-await server.start();
+await apolloserver.start();
 
 // Set up our Express middleware to handle CORS, body parsing,
 // and our expressMiddleware function.
@@ -38,7 +38,7 @@ app.use(
   express.json(),
   // expressMiddleware accepts the same arguments:
   // an Apollo Server instance and optional configuration options
-  expressMiddleware(server, {
+  expressMiddleware(apolloserver, {
     context: async ({ req }) => ({ token: req.headers.token }),
   }),
 );
