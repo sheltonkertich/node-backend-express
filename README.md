@@ -155,4 +155,12 @@ replace the default scripts entry in your package.json file with the following t
 install other graphql dependencies for typescript
 # yarn add graphql express-graphql 
 # yarn add --dev @types/graphql
-# yarn add graphql-tools
+# yarn add @graphql-tools/schema @graphql-tools/utils
+
+ideal folder structure - https://chatgpt.com/share/66e69fa7-0320-8000-9955-a136e05f036f
+
+
+at this point you shound ;
+
+mutate users with graphql and apollo
+all working well

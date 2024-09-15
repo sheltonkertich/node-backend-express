@@ -5,8 +5,8 @@ import http from 'http';
 import cors from 'cors';
 import express, { Request, Response } from "express";
 import { AppDataSource } from "./data-source.js";
-import User from "./entity/User.js";
-import {typeDefs, resolvers} from './schema.js';
+import User from "./entities/User.js";
+import {schema} from "./schema/schema.js"
 
 interface MyContext {
   token?: string;
@@ -15,6 +15,10 @@ interface MyContext {
 
 // Required logic for integrating with Express
 const app = express();
+
+//iniitializing the database sourec
+await AppDataSource.initialize();
+
 // Our httpServer handles incoming requests to our Express app.
 // Below, we tell Apollo Server to "drain" this httpServer,
 // enabling our servers to shut down gracefully.
@@ -23,8 +27,7 @@ const httpServer = http.createServer(app);
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
 const apolloserver = new ApolloServer<MyContext>({
-  typeDefs,
-  resolvers,
+  schema,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 // Ensure we wait for our server to start
