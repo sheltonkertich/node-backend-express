@@ -15,7 +15,8 @@
     "migrations-run":"typeorm-ts-node-esm migration:run -d ./src/data-source.ts",
     "migrations-revert":"typeorm-ts-node-esm migration:revert -d ./src/data-source.ts",
     "migrations-run-fake":"typeorm-ts-node-esm migration:run -d ./src/data-source.ts --fake",
-     "migrations-revert-fake":"typeorm-ts-node-esm migration:revert -d ./src/data-source.ts --fakef"
+     "migrations-revert-fake":"typeorm-ts-node-esm migration:revert -d ./src/data-source.ts --fake",
+      "migrations-show":"typeorm-ts-node-esm migration:show -d ./src/data-source.ts "
   },
   "keywords": [],
   "author": "",

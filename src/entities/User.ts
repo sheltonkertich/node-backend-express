@@ -15,6 +15,6 @@ export default class User {
     @Column()
     age: number
     @Column()
-    emaill: string
+    email: string
 
 }
