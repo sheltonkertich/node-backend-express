@@ -108,6 +108,24 @@ install database driver
 install body parser
 # yarn add body-parser
 
+`typeorm migration`
+
+Install ts-node:
+
+# yarn add ts-node --dev
+Add typeorm command under scripts section in package.json
+
+"scripts": {
+    ...
+    "typeorm": "typeorm-ts-node-commonjs"
+}
+For ESM projects add this instead:
+
+"scripts": {
+    ...
+    "typeorm": "typeorm-ts-node-esm"
+}
+
 `Also, make sure you are using TypeScript version 4.5 or higher, and you have enabled the following settings in tsconfig.json:`
 # "emitDecoratorMetadata": true,
 # "experimentalDecorators": true,

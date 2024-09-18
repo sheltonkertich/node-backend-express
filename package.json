@@ -8,7 +8,14 @@
     "dev": "nodemon --loader=ts-node/esm --env-file=.env --watch /src/index.ts  --trace-warnings ",
     "build": "tsc -watch",
     "start": "node dist/index.js",
-    "start2": "npm run compile && node ./dist/index.js"
+    "start2": "npm run compile && node ./dist/index.js",
+    "typeorm": "typeorm-ts-node-esm",
+    "migrations-create":"typeorm-ts-node-esm migration:create ./src/migrations/migration",
+    "migrations-generate":"typeorm-ts-node-esm migration:generate ./src/migrations/migration -d ./src/data-source.ts",
+    "migrations-run":"typeorm-ts-node-esm migration:run -d ./src/data-source.ts",
+    "migrations-revert":"typeorm-ts-node-esm migration:revert -d ./src/data-source.ts",
+    "migrations-run-fake":"typeorm-ts-node-esm migration:run -d ./src/data-source.ts --fake",
+     "migrations-revert-fake":"typeorm-ts-node-esm migration:revert -d ./src/data-source.ts --fakef"
   },
   "keywords": [],
   "author": "",
