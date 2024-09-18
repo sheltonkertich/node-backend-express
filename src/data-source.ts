@@ -13,6 +13,6 @@ export const AppDataSource = new DataSource({
     //logging: true,
     entities: [User],
     subscribers: [],
-    migrations: ['src/migrations/**/*.ts'],
+    migrations: ['src/migrations/**/*.{js,ts}'],
     
 })
