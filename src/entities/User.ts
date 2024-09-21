@@ -16,7 +16,5 @@ export default class User {
     age: number
     @Column()
     email: string
-    @Column()
-    password: string
 
 }

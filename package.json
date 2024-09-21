@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --loader=ts-node/esm --env-file=.env --watch /src/index.ts  --trace-warnings ",
+    "dev": "nodemon --loader=ts-node/esm --watch /src/index.ts  --trace-warnings ",
     "build": "tsc -watch",
     "start": "node dist/index.js",
     "start2": "npm run compile && node ./dist/index.js",
