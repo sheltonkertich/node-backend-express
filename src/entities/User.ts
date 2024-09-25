@@ -1,20 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
+} from "typeorm";
 
+// User entity
 @Entity()
 export default class User {
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @PrimaryGeneratedColumn()
-    id!: number
+  @Column({ type: "varchar", length: 50, nullable:false})
+  firstName: string;
 
-    @Column()
-    firstName: string
+  @Column({ type: "varchar", length: 50, nullable:false})
+  lastName: string;
 
-    @Column()
-    lastName: string
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @Column()
-    age: number
-    @Column()
-    email: string
+  @UpdateDateColumn()
+  updatedAt: Date;
 
+  @Column({ type: "int", nullable: true })
+  age?: number; // Make age optional if it's not always provided
+
+  @Index({ unique: true }) // Ensure email is unique
+  @Column({ type: "varchar", length: 100 })
+  email: string;
 }
