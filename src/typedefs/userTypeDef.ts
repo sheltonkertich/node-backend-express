@@ -1,5 +1,3 @@
-import { graphql } from "graphql";
-
 export const userTypeDefs = `#graphql
   type User {
     id: ID!
