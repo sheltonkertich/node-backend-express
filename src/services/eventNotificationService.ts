@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { EventNotifications } from "../entities/Event";
 
-export class EvenNotifictaionService {
+export class EventNotificationService {
   private eventNotificationsRepository: Repository<EventNotifications>;
 
   constructor(eventNotificationsRepository: Repository<EventNotifications>) {
