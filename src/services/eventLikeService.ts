@@ -7,7 +7,9 @@ export class EventLikeService {
   constructor(eventLikesRepository: Repository<EventLikes>) {
     this.eventLikesRepository = eventLikesRepository;
   }
-
+  async getAllLikes(): Promise<EventLikes[]> {
+    return await this.eventLikesRepository.find();
+  }
   async createLike(userId: string, eventId: number){
     const newLike = this.eventLikesRepository.create({ userId, event: { id: eventId } });
     return await this.eventLikesRepository.save(newLike);

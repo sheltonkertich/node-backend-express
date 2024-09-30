@@ -8,7 +8,9 @@ export class EventRatingService {
     this.eventRatingsRepository = eventRatingsRepository;
   }
 
-
+  async getAllRatings(): Promise<EventRatings[]> {
+    return await this.eventRatingsRepository.find();
+  }
   async createRating(userId: string, eventId: number, scoreRating: number){
     const newRating = this.eventRatingsRepository.create({ userId, event: { id: eventId }, scoreRating });
     return await this.eventRatingsRepository.save(newRating);

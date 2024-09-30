@@ -62,6 +62,9 @@ export class Event {
 
   @OneToMany(() => EventNotifications, (notifications) => notifications.event)
   notifications: EventNotifications[];
+
+  @OneToMany(() => EventCategories, (categories) => categories.event)
+  categories: EventCategories[];
 }
 
 @Entity()
@@ -119,6 +122,8 @@ export class EventCategories {
 
   @CreateDateColumn()
   createdAt: Date; // Fixed typo (creaedAt to createdAt)
+
+  @ManyToOne((type) => Event, (event) => event.category) event: Event;
 }
 
 @Entity()

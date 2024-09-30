@@ -14,17 +14,26 @@ import { EventBookmarkService } from "../services/eventBookmarkService.js";
 import { EventLikeService } from "../services/eventLikeService.js";
 import { EvenNotifictaionService } from "../services/eventNotificationService.js";
 import { EventRatingService } from "../services/eventRatingService.js";
+import { EventCategoryService } from "../services/eventCategoryService.js";
 
 const eventService = new EventService(AppDataSource.getRepository(Event));
+const bookmarkService = new EventBookmarkService( AppDataSource.getRepository(EventBookmarks));
+const bookingsService = new EventBookingService(AppDataSource.getRepository(EventBookings));
+const likesService = new EventLikeService(AppDataSource.getRepository(EventLikes));
+const categoriesService = new EventCategoryService(AppDataSource.getRepository(EventCategories));
+const ratingsService = new EventRatingService(AppDataSource.getRepository(EventRatings));
+const notifictaionsService = new EvenNotifictaionService(AppDataSource.getRepository(EventNotifications));
 
 export const eventResolvers = {
   Query: {
-    getEvents: async () => {
-      return await eventService.getAllEvents();
-    },
-    getEvent: async (_: any, { id }: { id: number }) => {
-      return await eventService.getEventById(id);
-    },
+    getEvents: async () => await eventService.getAllEvents(),
+    getEvent: async (_: any, { id }: { id: number }) => await eventService.getEventById(id),
+    getBookmarks: async () => await bookmarkService.getAllBookmarks(),
+    getEventBookings: async () => await bookingsService.getAllBookings(),
+    getEventLikes: async () => await likesService.getAllLikes(),
+    getEventCategories: async () => await categoriesService.getAllCategories(),
+    getEventRatings: async () => await ratingsService.getAllRatings(),
+    getEventNotifications: async () => await notifictaionsService.getAllNotifications(),
 
     Mutation: {
       createEvent: async () => {
