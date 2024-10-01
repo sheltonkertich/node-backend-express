@@ -1,6 +1,6 @@
 import User from "../entities/User.js";
 import { AppDataSource } from "../data-source.js";
-import { UserService } from "../services/userService.js";
+import { UserService } from "../services/UserService.js";
 
 const userRepository = AppDataSource.getRepository(User);
 const userService = new UserService(userRepository);

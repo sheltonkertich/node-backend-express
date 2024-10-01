@@ -36,9 +36,17 @@ export const eventResolvers = {
     getEventNotifications: async () => await notificationService.getAllNotifications(),
   },
   Mutation: {
-    createEvent: async (_:any, { input }:any) => {
-      // Implement logic to create an event
-      // Return the created event
+    createEvent: async (_:any, { organizer, time, location, category, status, coverImage, description, cost, seatAvailable }:{organizer: string,
+      time: Date,
+      location: string,
+      category: string,
+      status: string,
+      coverImage: string,
+      description: string,
+      cost: number,
+      seatAvailable: number}) => {
+  
+      return await eventService.createEvent({organizer, time, location, category, status, coverImage, description, cost, seatAvailable })
     },
     updateEvent: async (_:any, { id, input }:any) => {
       // Implement logic to update an event
