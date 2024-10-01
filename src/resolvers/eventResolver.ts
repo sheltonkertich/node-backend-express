@@ -15,6 +15,7 @@ import { EventLikeService } from "../services/eventLikeService.js";
 import { EventNotificationService } from "../services/eventNotificationService.js";
 import { EventRatingService } from "../services/eventRatingService.js";
 import { EventCategoryService } from "../services/eventCategoryService.js";
+import { Timestamp } from "typeorm";
 
 const eventService = new EventService(AppDataSource.getRepository(Event));
 const bookmarkService = new EventBookmarkService(AppDataSource.getRepository(EventBookmarks));
@@ -37,7 +38,7 @@ export const eventResolvers = {
   },
   Mutation: {
     createEvent: async (_:any, { organizer, time, location, category, status, coverImage, description, cost, seatAvailable }:{organizer: string,
-      time: Date,
+      time: any,
       location: string,
       category: string,
       status: string,

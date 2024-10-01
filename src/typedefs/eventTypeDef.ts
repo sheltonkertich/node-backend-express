@@ -97,7 +97,7 @@ type Mutation {
   updateEvent(
     id: ID!,
     organizer: String,
-    time: Date,
+    time: String,
     location: String,
     category: String,
     status: String,
