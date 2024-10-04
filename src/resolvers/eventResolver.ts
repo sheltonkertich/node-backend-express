@@ -15,31 +15,30 @@ import { EventLikeService } from "../services/eventLikeService.js";
 import { EventNotificationService } from "../services/eventNotificationService.js";
 import { EventRatingService } from "../services/eventRatingService.js";
 import { EventCategoryService } from "../services/eventCategoryService.js";
-import { Timestamp } from "typeorm";
 
-const eventService = new EventService(AppDataSource.getRepository(Event));
-const bookmarkService = new EventBookmarkService(
-	AppDataSource.getRepository(EventBookmarks)
-);
-const bookingsService = new EventBookingService(
-	AppDataSource.getRepository(EventBookings)
-);
-const likesService = new EventLikeService(
-	AppDataSource.getRepository(EventLikes)
-);
-const categoriesService = new EventCategoryService(
-	AppDataSource.getRepository(EventCategories)
-);
-const ratingsService = new EventRatingService(
-	AppDataSource.getRepository(EventRatings)
-);
-const notificationService = new EventNotificationService(
-	AppDataSource.getRepository(EventNotifications)
-);
+const repositories = {
+	event: AppDataSource.getRepository(Event),
+	eventBookings: AppDataSource.getRepository(EventBookings),
+	eventCategories: AppDataSource.getRepository(EventCategories),
+	eventLikes: AppDataSource.getRepository(EventLikes),
+	eventRatings: AppDataSource.getRepository(EventRatings),
+	eventNotifications: AppDataSource.getRepository(EventNotifications),
+	eventBookmarks: AppDataSource.getRepository(EventBookmarks),
+};
+
+const services = {
+	eventService: new EventService(repositories.event),
+	bookmarkService: new EventBookmarkService(repositories.eventBookmarks),
+	bookingsService: new EventBookingService(repositories.eventBookings),
+	likesService: new EventLikeService(repositories.eventLikes),
+	categoriesService: new EventCategoryService(repositories.eventCategories),
+	ratingsService: new EventRatingService(repositories.eventRatings),
+	notificationService: new EventNotificationService(repositories.eventNotifications),
+};
 
 type EventType = {
 	organizer: string;
-	time: any;
+	time: Date;
 	location: string;
 	category: string;
 	status: string;
@@ -50,66 +49,57 @@ type EventType = {
 };
 
 type EventUpdates = {
-	id: number; // Changed `id!` to `number`
+	id: number;
 	organizer: string;
-	time: string;
+	time: Date;
 	location: string;
 	category: string;
 	status: string;
 	coverImage: string;
 	description: string;
-	cost: number; // Changed `float` to `number`
-	seatAvailable: number; // Changed `Int` to `number`
-	updatedAt: string;
+	cost: number;
+	seatAvailable: number;
+	updatedAt: Date;
 };
 
 export const eventResolvers = {
 	Query: {
-		getEvents: async () => await eventService.getAllEvents(),
-		getEvent: async (_: any, { id }: { id: number }) =>
-			await eventService.getEventById(id),
-		getBookmarks: async () => await bookmarkService.getAllBookmarks(),
-		getEventBookings: async () => await bookingsService.getAllBookings(),
-		getEventLikes: async () => await likesService.getAllLikes(),
-		getEventCategories: async () => await categoriesService.getAllCategories(),
-		getEventRatings: async () => await ratingsService.getAllRatings(),
-		getEventNotifications: async () => await notificationService.getAllNotifications(),
+		getEvents: async () => await services.eventService.getAllEvents(),
+		getEvent: async (_: any, { id }: { id: number }) => await services.eventService.getEventById(id),
+		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
+		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
+		// getEventLikes: async () => await services.likesService.getAllLikes(),
+		// getEventCategories: async () => await services.categoriesService.getAllCategories(),
+		// getEventRatings: async () => await services.ratingsService.getAllRatings(),
+		// getEventNotifications: async () => await services.notificationService.getAllNotifications(),
 	},
 	Mutation: {
-		createEvent: async (
-			_: any,
-			{
-				organizer,
-				time,
-				location,
-				category,
-				status,
-				coverImage,
-				description,
-				cost,
-				seatAvailable,
-			}: EventType
-		) => {
-			return await eventService.createEvent({
-				organizer,
-				time,
-				location,
-				category,
-				status,
-				coverImage,
-				description,
-				cost,
-				seatAvailable,
-			});
+		createEvent: async (_: any, eventData: EventType) => {
+			try {
+				return await services.eventService.createEvent(eventData);
+			} catch (error) {
+				console.error("Error creating event:", error);
+				throw new Error("Failed to create event.");
+			}
 		},
-		updateEvent: async (_: any, { id, ...eventData }: EventUpdates) => {
-			return await eventService.updateEvent(id, eventData); // Removed unnecessary `{eventData}`
+		updateEvent: async (_: any, eventData: EventUpdates) => {
+			try {
+				const { id, ...updateData } = eventData;
+				return await services.eventService.updateEvent(id, updateData);
+			} catch (error) {
+				console.error("Error updating event:", error);
+				throw new Error("Failed to update event.");
+			}
 		},
-		deleteEvent: async (_: any, { id }: any) => {
-			// Implement logic to delete an event
-			return true; // You may want to return the deleted event or a confirmation message
+		deleteEvent: async (_: any, { id }: { id: number }) => {
+			try {
+				// Implement logic to delete an event
+				return true; // Return a confirmation message or the deleted event
+			} catch (error) {
+				console.error("Error deleting event:", error);
+				throw new Error("Failed to delete event.");
+			}
 		},
 		// Other mutation resolvers
 	},
-	// Define resolvers for nested fields if necessary
 };

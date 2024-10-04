@@ -7,5 +7,5 @@ import { eventResolvers } from "../resolvers/eventResolver.js";
 
 export const schema: GraphQLSchema = makeExecutableSchema({
   typeDefs: [userTypeDefs, eventTypeDef],
-  resolvers: [userResolvers],
+  resolvers: [userResolvers,eventResolvers],
 });
