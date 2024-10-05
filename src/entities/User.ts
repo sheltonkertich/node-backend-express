@@ -16,7 +16,7 @@ export default class User {
   @Column({ type: "varchar", length: 50, nullable:false})
   firstName: string;
 
-  @Column({ type: "varchar", length: 50, nullable:false})
+  @Column({ type: "varchar", length: 50, nullable:true})
   lastName: string;
 
   @CreateDateColumn()
