@@ -1,5 +1,11 @@
 export const eventTypeDef = `#graphql
 # Event Entity
+type MutationResponse {
+    success: Boolean!
+    message: String
+    user: User
+  }
+
 type Event {
   id: ID!
   organizer: String!
@@ -19,6 +25,43 @@ type Event {
   ratings: [EventRating!]!
   notifications: [EventNotification!]!
 }
+type EventInput {
+  organizer: String!
+  time: String! # ISO format for timestamp
+  location: String!
+  category: String!
+  status: String!
+  coverImage: String
+  description: String!
+  cost: Float!
+  seatAvailable: Int!
+  createdAt: Date!
+  updatedAt: String!
+  likes: [EventLike]
+  bookings: [EventBooking]
+  bookmarks: [EventBookmark]
+  ratings: [EventRating]
+  notifications: [EventNotification]
+}
+type EventUpdates {
+  organizer: String
+  time: String # ISO format for timestamp
+  location: String
+  category: String
+  status: String
+  coverImage: String
+  description: String
+  cost: Float
+  seatAvailable: Int
+  createdAt: String
+  updatedAt: String
+  likes: [EventLike]
+  bookings: [EventBooking]
+  bookmarks: [EventBookmark]
+  ratings: [EventRating]
+  notifications: [EventNotification]
+}
+
 
 # Event Bookmark Entity
 type EventBookmark {
@@ -82,34 +125,11 @@ type Query {
 
 # Mutations for creating, updating, and deleting data
 type Mutation {
-  createEvent(
-    organizer: String!,
-    time: String!,
-    location: String!,
-    category: String!,
-    status: String!,
-    coverImage: String!,
-    description: String!,
-    cost: Float!,
-    seatAvailable: Int!
-  ): Event!
-
-  updateEvent(
-    id: ID!,
-    organizer: String,
-    time: String,
-    location: String,
-    category: String,
-    status: String,
-    coverImage: String,
-    description: String,
-    cost: Float,
-    seatAvailable: Int
-  ): Event!
-
-  deleteEvent(id: ID!): Boolean!
-
-  createEventBookmark(userId: String!, eventId: ID!): EventBookmark!
+  createEvent( input:EventInput! ): MutationResponse
+  updateEvent(id:ID!, input:EventUpdates): MutationResponse
+  deleteEvent(id: ID!): MutationResponse
+  createEventBookmark(userId: String!, eventId: ID!): MutationResponse
+  # --------first section trial
   createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
   createEventLike(userId: String!, eventId: ID!): EventLike!
   createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!

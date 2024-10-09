@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  JoinColumn
 } from "typeorm";
 
 @Entity()
@@ -49,21 +50,27 @@ export class Event {
   updatedAt: Date;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event)
+  @JoinColumn()
   likes: EventLikes[];
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event)
+  @JoinColumn()
   bookings: EventBookings[];
 
   @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event)
+  @JoinColumn()
   bookmarks: EventBookmarks[];
 
   @OneToMany(() => EventRatings, (ratings) => ratings.event)
+  @JoinColumn()
   ratings: EventRatings[];
 
   @OneToMany(() => EventNotifications, (notifications) => notifications.event)
+  @JoinColumn()
   notifications: EventNotifications[];
 
   @OneToMany(() => EventCategories, (categories) => categories.event)
+  @JoinColumn()
   categories: EventCategories[];
 }
 

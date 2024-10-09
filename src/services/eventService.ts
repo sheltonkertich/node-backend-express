@@ -32,9 +32,11 @@ export class EventService {
     try {
       const event = this.eventRepository.create(eventData);
       return await this.eventRepository.save(event);
-    } catch (error) {
-      console.error("Error creating event:", error);
-      throw new Error("Failed to create event.");
+    } catch (error:any) {
+      const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+      const errorMessage = error.detail || 'An unexpected error occurred.';
+      console.error(`Service Error creating event: ${errorMessage}`, error);
+      throw new Error(`Failed to create event. Error Code: ${errorCode}. Message: ${errorMessage}`);
     }
   }
 

@@ -15,6 +15,7 @@ import { EventLikeService } from "../services/eventLikeService.js";
 import { EventNotificationService } from "../services/eventNotificationService.js";
 import { EventRatingService } from "../services/eventRatingService.js";
 import { EventCategoryService } from "../services/eventCategoryService.js";
+import { EventInput, MutationResponse } from "../types/eventTypes.js";
 
 const repositories = {
 	event: AppDataSource.getRepository(Event),
@@ -36,17 +37,6 @@ const services = {
 	notificationService: new EventNotificationService(repositories.eventNotifications),
 };
 
-type EventType = {
-	organizer: string;
-	time: Date;
-	location: string;
-	category: string;
-	status: string;
-	coverImage: string;
-	description: string;
-	cost: number;
-	seatAvailable: number;
-};
 
 type EventUpdates = {
 	id: number;
@@ -74,14 +64,27 @@ export const eventResolvers = {
 		// getEventNotifications: async () => await services.notificationService.getAllNotifications(),
 	},
 	Mutation: {
-		createEvent: async (_: any, eventData: EventType) => {
+	    createEvent: async (_: any, { input }: { input: EventInput }): Promise<MutationResponse> => {
 			try {
-				return await services.eventService.createEvent(eventData);
-			} catch (error) {
-				console.error("Error creating event:", error);
-				throw new Error("Failed to create event.");
+			  const event = await services.eventService.createEvent(input);
+			  return {
+				success: true,
+				message: "Event created successfully.",
+				event,
+			  };
+			} catch (error:any) {
+			  console.error("Error in CreatingEvent resolver:", error);
+			  const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+			  const errorMessage = error.message || 'An unexpected error occurred.';
+			  return {
+				success: false,
+				message: errorMessage,
+				event: null,
+				errorCode: errorCode,
+				errorDetail: error, // Optionally include the full error object for more details
+			  };
 			}
-		},
+		  },
 		updateEvent: async (_: any, eventData: EventUpdates) => {
 			try {
 				const { id, ...updateData } = eventData;
