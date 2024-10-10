@@ -25,7 +25,7 @@ type Event {
   ratings: [EventRating!]!
   notifications: [EventNotification!]!
 }
-type EventInput {
+input EventInput {
   organizer: String!
   time: String! # ISO format for timestamp
   location: String!
@@ -35,15 +35,15 @@ type EventInput {
   description: String!
   cost: Float!
   seatAvailable: Int!
-  createdAt: Date!
+  # createdAt: Date!
   updatedAt: String!
-  likes: [EventLike]
-  bookings: [EventBooking]
-  bookmarks: [EventBookmark]
-  ratings: [EventRating]
-  notifications: [EventNotification]
+  # likes: [EventLike]
+  # bookings: [EventBooking]
+  # bookmarks: [EventBookmark]
+  # ratings: [EventRating]
+  # notifications: [EventNotification]
 }
-type EventUpdates {
+input EventUpdates {
   organizer: String
   time: String # ISO format for timestamp
   location: String
@@ -55,11 +55,11 @@ type EventUpdates {
   seatAvailable: Int
   createdAt: String
   updatedAt: String
-  likes: [EventLike]
-  bookings: [EventBooking]
-  bookmarks: [EventBookmark]
-  ratings: [EventRating]
-  notifications: [EventNotification]
+  # likes: [EventLike]
+  # bookings: [EventBooking]
+  # bookmarks: [EventBookmark]
+  # ratings: [EventRating]
+  # notifications: [EventNotification]
 }
 
 

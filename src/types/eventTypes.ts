@@ -6,14 +6,14 @@ import { EventCategories } from "../entities/Event";
 export interface MutationResponse {
     success: boolean;
     message: string;
-    event: Event | null; // Assuming User type is defined elsewhere
-    errorCode: any; 
-    errorDetail: any;
+    event: EventInput | null; // Assuming User type is defined elsewhere
+    errorCode?: any; 
+    errorDetail?: any;
 }
 
 // Event Type
 export interface Event {
-    id: string;
+    id: number;
     organizer: string;
     time: Date; // ISO format for timestamp
     location: string;
@@ -45,11 +45,11 @@ export interface EventInput {
     seatAvailable: number;
     createdAt: Date; // ISO format
     updatedAt: Date; // ISO format
-    likes: EventLikes[];
-    bookings: EventBookings[];
-    bookmarks: EventBookmarks[];
-    ratings: EventRatings[];
-    notifications: EventNotification[];
+//    likes: EventLikes[];
+//     bookings: EventBookings[];
+//     bookmarks: EventBookmarks[];
+//     ratings: EventRatings[];
+//     notifications: EventNotification[];
 }
 
 // Event Updates Type
@@ -74,14 +74,14 @@ export interface EventUpdates {
 
 // Event Bookmark Entity
 export interface EventBookmarks {
-    id: string;
+    id: number;
     userId: string;
     event: Event;
 }
 
 // Event Booking Entity
 export interface EventBookings {
-    id: string;
+    id: number;
     event: Event;
     userId: string;
     bookedDate: string; // ISO format
@@ -91,21 +91,21 @@ export interface EventBookings {
 
 // Event Like Entity
 export interface EventLikes {
-    id: string;
+    id: number;
     event: Event;
     userId: string;
 }
 
 // Event Category Entity
 export interface EventCategory {
-    id: string;
+    id: number;
     categoryName: string;
     createdAt: string; // ISO format
 }
 
 // Event Rating Entity
 export interface EventRatings {
-    id: string;
+    id: number;
     event: Event;
     userId: string;
     scoreRating: number; // Range from 1.0 to 5.0
@@ -113,7 +113,7 @@ export interface EventRatings {
 
 // Event Notification Entity
 export interface EventNotification {
-    id: string;
+    id: number;
     event: Event;
     userId: string;
     content: string;
@@ -122,8 +122,12 @@ export interface EventNotification {
 
 // User Type (Assuming it's defined)
 export interface User {
-    id: string;
+    id: number;
     name: string;
     email: string;
     // Add other fields as necessary
+}
+export interface Category{
+    id: number;
+    categoryName: string;
 }

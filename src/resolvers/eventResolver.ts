@@ -41,7 +41,7 @@ const services = {
 type EventUpdates = {
 	id: number;
 	organizer: string;
-	time: Date;
+	//time: Date;
 	location: string;
 	category: string;
 	status: string;
@@ -49,7 +49,7 @@ type EventUpdates = {
 	description: string;
 	cost: number;
 	seatAvailable: number;
-	updatedAt: Date;
+	//updatedAt: Date;
 };
 
 export const eventResolvers = {

@@ -18,8 +18,8 @@ export class Event {
   @Column()
   organizer: string;
 
-  @Column({ type: "timestamp" })
-  time: Date;
+  // @Column({ type: "timestamp" })
+  // time: Date;
 
   @Column()
   location: string;
@@ -43,10 +43,10 @@ export class Event {
   @Column()
   seatAvailable: number; // Assuming this is a numeric value
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamp"})
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: "timestamp" })
   updatedAt: Date;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event)
@@ -97,7 +97,7 @@ export class EventBookings {
   @Column()
   userId: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamp" })
   bookedDate: Date;
 
   @Column()
