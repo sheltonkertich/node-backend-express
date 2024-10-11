@@ -35,7 +35,7 @@ export interface Event {
 // Event Input Type
 export interface EventInput {
     organizer: string;
-    time: Date; // ISO format for timestamp
+    time?: Date; // ISO format for timestamp
     location: string;
     categories: EventCategories[];
     status: string;

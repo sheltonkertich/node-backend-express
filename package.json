@@ -17,7 +17,9 @@
     "migrations-revert": "typeorm-ts-node-esm migration:revert -d ./src/data-source.ts",
     "migrations-run-fake": "typeorm-ts-node-esm migration:run -d ./src/data-source.ts --fake",
     "migrations-revert-fake": "typeorm-ts-node-esm migration:revert -d ./src/data-source.ts --fake",
-    "migrations-show": "typeorm-ts-node-esm migration:show -d ./src/data-source.ts "
+    "migrations-show": "typeorm-ts-node-esm migration:show -d ./src/data-source.ts ",
+    "lint": "eslint . --fix",
+    "test": "jest --coverage --detectOpenHandles --forceExit --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -42,7 +44,16 @@
     "@types/express": "^4.17.21",
     "@types/graphql": "^14.5.0",
     "@types/node": "^22.5.4",
+    "eslint": "^8.58.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.2.2",
+    "jest": "^30.5.0",
     "nodemon": "^3.1.4",
+    "prettier": "^3.0.1",
+    "ts-jest": "^31.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
-  }}
+  },
+  "packageManager": "yarn@3.6.1+sha512.de524adec81a6c3d7a26d936d439d2832e351cdfc5728f9d91f3fc85dd20b04391c038e9b4ecab11cae2b0dd9f0d55fd355af766bc5c1a7f8d25d96bb2a0b2ca"
+}
+

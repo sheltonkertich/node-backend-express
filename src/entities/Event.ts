@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-  JoinColumn
+  JoinColumn,
 } from "typeorm";
 
 @Entity()
@@ -18,8 +18,8 @@ export class Event {
   @Column()
   organizer: string;
 
-  // @Column({ type: "timestamp" })
-  // time: Date;
+  @Column({ type: "timestamp" })
+  time: Date;
 
   @Column()
   location: string;
@@ -43,33 +43,57 @@ export class Event {
   @Column()
   seatAvailable: number; // Assuming this is a numeric value
 
-  @CreateDateColumn({ type: "timestamp"})
+  @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt: Date;
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.event)
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   likes: EventLikes[];
 
-  @OneToMany(() => EventBookings, (bookings) => bookings.event)
+  @OneToMany(() => EventBookings, (bookings) => bookings.event, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   bookings: EventBookings[];
 
-  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event)
+  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   bookmarks: EventBookmarks[];
 
-  @OneToMany(() => EventRatings, (ratings) => ratings.event)
+  @OneToMany(() => EventRatings, (ratings) => ratings.event, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   ratings: EventRatings[];
 
-  @OneToMany(() => EventNotifications, (notifications) => notifications.event)
+  @OneToMany(() => EventNotifications, (notifications) => notifications.event, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   notifications: EventNotifications[];
 
-  @OneToMany(() => EventCategories, (categories) => categories.event)
+  @OneToMany(() => EventCategories, (categories) => categories.event, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   categories: EventCategories[];
 }
@@ -82,7 +106,10 @@ export class EventBookmarks {
   @Column()
   userId: string; // Consistent naming (userId instead of userID)
 
-  @ManyToOne(() => Event, (event) => event.bookmarks)
+  @ManyToOne(() => Event, (event) => event.bookmarks, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   event: Event;
 }
 
@@ -91,7 +118,10 @@ export class EventBookings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.bookings)
+  @ManyToOne(() => Event, (event) => event.bookings, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   event: Event;
 
   @Column()
@@ -112,7 +142,10 @@ export class EventLikes {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.likes)
+  @ManyToOne(() => Event, (event) => event.likes, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   event: Event;
 
   @Column()
@@ -130,7 +163,11 @@ export class EventCategories {
   @CreateDateColumn()
   createdAt: Date; // Fixed typo (creaedAt to createdAt)
 
-  @ManyToOne((type) => Event, (event) => event.category) event: Event;
+  @ManyToOne((type) => Event, (event) => event.category, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  event: Event;
 }
 
 @Entity()
@@ -138,7 +175,10 @@ export class EventRatings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.ratings)
+  @ManyToOne(() => Event, (event) => event.ratings, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   event: Event;
 
   @Column()
@@ -153,7 +193,10 @@ export class EventNotifications {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.notifications)
+  @ManyToOne(() => Event, (event) => event.notifications, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   event: Event;
 
   @Column()
@@ -165,3 +208,4 @@ export class EventNotifications {
   @Column()
   status: string;
 }
+

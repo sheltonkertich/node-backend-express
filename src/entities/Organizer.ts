@@ -5,31 +5,32 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
   } from "typeorm";
-  
+
   @Entity()
   export default class Organizer {
     @PrimaryGeneratedColumn()
     id!: number;
-  
-    @Column({ type: 'varchar', length: 50 })
+
+    @Column('varchar', { length: 50, select: false })
     userName: string;
-  
-    @Column({ type: 'varchar', length: 100 })
+
+    @Column('varchar', { length: 100, select: false })
     displayName: string;
-  
-    @CreateDateColumn()
+
+    @CreateDateColumn({ select: false })
     createdAt: Date;
-  
-    @UpdateDateColumn()
+
+    @UpdateDateColumn({ select: false })
     updatedAt: Date;
-  
-    @Column({ type: 'varchar', length: 255 })
+
+    @Column('varchar', { length: 255, select: false })
     contacts: string;
-  
-    @Column({ type: 'boolean', default: false })
+
+    @Column('boolean', { default: false, select: false })
     isEventsCreator: boolean;
-  
-    @Column({ type: 'boolean', default: false })
+
+    @Column('boolean', { default: false, select: false })
     isTourCreator: boolean;
   }
+
 
