@@ -15,7 +15,7 @@ import { EventLikeService } from "../services/eventLikeService.js";
 import { EventNotificationService } from "../services/eventNotificationService.js";
 import { EventRatingService } from "../services/eventRatingService.js";
 import { EventCategoryService } from "../services/eventCategoryService.js";
-import { EventInput, MutationResponse } from "../types/eventTypes.js";
+import { EventInput, MutationResponse, EventUpdates } from "../types/eventTypes.js";
 
 const repositories = {
 	event: AppDataSource.getRepository(Event),
@@ -36,22 +36,6 @@ const services = {
 	ratingsService: new EventRatingService(repositories.eventRatings),
 	notificationService: new EventNotificationService(repositories.eventNotifications),
 };
-
-
-type EventUpdates = {
-	id: number;
-	organizer: string;
-	//time: Date;
-	location: string;
-	category: string;
-	status: string;
-	coverImage: string;
-	description: string;
-	cost: number;
-	seatAvailable: number;
-	//updatedAt: Date;
-};
-
 export const eventResolvers = {
 	Query: {
 		getEvents: async () => await services.eventService.getAllEvents(),

@@ -19,7 +19,7 @@ export class Event {
   organizer: string;
 
   @Column({ type: "timestamp" })
-  time: Date;
+  //time: Date;
 
   @Column()
   location: string;

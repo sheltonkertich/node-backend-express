@@ -35,7 +35,7 @@ export interface Event {
 // Event Input Type
 export interface EventInput {
     organizer: string;
-    time?: Date; // ISO format for timestamp
+    //time?: Date; // ISO format for timestamp
     location: string;
     categories: EventCategories[];
     status: string;
@@ -54,22 +54,23 @@ export interface EventInput {
 
 // Event Updates Type
 export interface EventUpdates {
+    id: number;
     organizer?: string;
-    time?: string; // ISO format for timestamp
+    //time?: Date; // ISO format for timestamp
     location?: string;
-    category?: string;
+    categories?: EventCategories[];
     status?: string;
     coverImage?: string;
     description?: string;
     cost?: number;
     seatAvailable?: number;
-    createdAt?: string; // ISO format
-    updatedAt?: string; // ISO format
-    likes?: EventLikes[];
-    bookings?: EventBookings[];
-    bookmarks?: EventBookmarks[];
-    ratings?: EventRatings[];
-    notifications?: EventNotification[];
+    createdAt?: Date; // ISO format
+    updatedAt?: Date; // ISO format
+    // likes?: EventLikes[];
+    // bookings?: EventBookings[];
+    // bookmarks?: EventBookmarks[];
+    // ratings?: EventRatings[];
+    // notifications?: EventNotification[];
 }
 
 // Event Bookmark Entity
