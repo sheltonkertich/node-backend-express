@@ -38,8 +38,23 @@ const services = {
 };
 export const eventResolvers = {
 	Query: {
-		getEvents: async () => await services.eventService.getAllEvents(),
-		getEvent: async (_: any, { id }: { id: number }) => await services.eventService.getEventById(id),
+		getEvents: async (): Promise<Event[]> => {
+
+			try {
+				return await services.eventService.getAllEvents();
+			} catch (error) {
+				console.error("Error in getEvents resolver:", error);
+				throw new Error("Could not retrieve events. Please try again later.");
+			}
+		},
+		getEvent: async (_: any, { id }: { id: number }): Promise<Event | null> => {
+			try {
+				return await services.eventService.getEventById(id);
+			} catch (error) {
+				console.error(`Error in getEvent resolver for id ${id}:`, error);
+				throw new Error("Could not retrieve the event. Please check the user ID and try again.");
+			}
+		}
 		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
 		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
 		// getEventLikes: async () => await services.likesService.getAllLikes(),
@@ -48,36 +63,63 @@ export const eventResolvers = {
 		// getEventNotifications: async () => await services.notificationService.getAllNotifications(),
 	},
 	Mutation: {
-	    createEvent: async (_: any, { input }: { input: EventInput }): Promise<MutationResponse> => {
+		createEvent: async (_: any, { input }: { input: EventInput }): Promise<MutationResponse> => {
 			try {
-			  const event = await services.eventService.createEvent(input);
-			  return {
-				success: true,
-				message: "Event created successfully.",
-				event,
-			  };
-			} catch (error:any) {
-			  console.error("Error in CreatingEvent resolver:", error);
-			  const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-			  const errorMessage = error.message || 'An unexpected error occurred.';
-			  return {
-				success: false,
-				message: errorMessage,
-				event: null,
-				errorCode: errorCode,
-				errorDetail: error, // Optionally include the full error object for more details
-			  };
-			}
-		  },
-		updateEvent: async (_: any, eventData: EventUpdates) => {
-			try {
-				const { id, ...updateData } = eventData;
-				return await services.eventService.updateEvent(id, updateData);
-			} catch (error) {
-				console.error("Error updating event:", error);
-				throw new Error("Failed to update event.");
+				const event = await services.eventService.createEvent(input);
+				return {
+					success: true,
+					message: "Event created successfully.",
+					event,
+				};
+			} catch (error: any) {
+				console.error("Error in CreatingEvent resolver:", error);
+				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
+				return {
+					success: false,
+					message: errorMessage,
+					event: null,
+					errorCode: errorCode,
+					errorDetail: error, // Optionally include the full error object for more details
+				};
 			}
 		},
+		updateEvent: async (_: any, { id, eventUpdates }: { id: number, eventUpdates: EventUpdates }): Promise<MutationResponse> => {
+			try {
+				console.log('eventUpdates in resolver:', eventUpdates);
+				const updatedEvent = await services.eventService.updateEvent(id, eventUpdates);
+
+				if (!updatedEvent) {
+					return {
+						success: false,
+						message: `Event with id ${id} not found. Update failed.`,
+						event: null,
+					};
+				}
+
+				return {
+					success: true,
+					message: "Event updated successfully.",
+					event: updatedEvent,
+				};
+
+			} catch (error: any) {
+				console.error(`Error in updateEvent resolver for id ${id}:`, error);
+
+				const errorCode = error.code || 'UNKNOWN_ERROR';
+				const errorMessage = error.message || 'An unexpected error occurred.';
+
+				return {
+					success: false,
+					message: errorMessage,
+					event: null,
+					errorCode: errorCode,
+					errorDetail: error,
+				};
+			}
+		},
+
+
 		deleteEvent: async (_: any, { id }: { id: number }) => {
 			try {
 				// Implement logic to delete an event

@@ -1,14 +1,12 @@
-// types.ts
-
 import { EventCategories } from "../entities/Event";
 
 // Mutation Response
 export interface MutationResponse {
     success: boolean;
     message: string;
-    event: EventInput | null; // Assuming User type is defined elsewhere
-    errorCode?: any; 
-    errorDetail?: any;
+    event: Event | null;
+    errorCode?: string;
+    errorDetail?: string;
 }
 
 // Event Type
@@ -33,9 +31,8 @@ export interface Event {
 }
 
 // Event Input Type
-export interface EventInput {
+export type EventInput = {
     organizer: string;
-    //time?: Date; // ISO format for timestamp
     location: string;
     categories: EventCategories[];
     status: string;
@@ -45,18 +42,12 @@ export interface EventInput {
     seatAvailable: number;
     createdAt: Date; // ISO format
     updatedAt: Date; // ISO format
-//    likes: EventLikes[];
-//     bookings: EventBookings[];
-//     bookmarks: EventBookmarks[];
-//     ratings: EventRatings[];
-//     notifications: EventNotification[];
 }
 
 // Event Updates Type
-export interface EventUpdates {
-    id: number;
+export type EventUpdates = {
     organizer?: string;
-    //time?: Date; // ISO format for timestamp
+    time?: Date; // ISO format for timestamp
     location?: string;
     categories?: EventCategories[];
     status?: string;
@@ -66,11 +57,6 @@ export interface EventUpdates {
     seatAvailable?: number;
     createdAt?: Date; // ISO format
     updatedAt?: Date; // ISO format
-    // likes?: EventLikes[];
-    // bookings?: EventBookings[];
-    // bookmarks?: EventBookmarks[];
-    // ratings?: EventRatings[];
-    // notifications?: EventNotification[];
 }
 
 // Event Bookmark Entity
@@ -85,7 +71,7 @@ export interface EventBookings {
     id: number;
     event: Event;
     userId: string;
-    bookedDate: string; // ISO format
+    bookedDate: Date; // ISO format
     slotSet: string;
     slotsBooked: number;
 }
@@ -101,7 +87,7 @@ export interface EventLikes {
 export interface EventCategory {
     id: number;
     categoryName: string;
-    createdAt: string; // ISO format
+    createdAt: Date; // ISO format
 }
 
 // Event Rating Entity
@@ -128,7 +114,9 @@ export interface User {
     email: string;
     // Add other fields as necessary
 }
-export interface Category{
+
+// Category Type (if it's the same as EventCategory, unify them)
+export interface Category {
     id: number;
     categoryName: string;
 }

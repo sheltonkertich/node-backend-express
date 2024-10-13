@@ -1,29 +1,32 @@
 export const eventTypeDef = `#graphql
 # Event Entity
 type MutationResponse {
-    success: Boolean!
+    success: Boolean
     message: String
-    user: User
+    Event: Event
+    errorDetail: String
+    errorCode: String
+
   }
 
 type Event {
   id: ID!
-  organizer: String!
-  time: String! # ISO format for timestamp
-  location: String!
-  category: String!
-  status: String!
-  coverImage: String!
-  description: String!
-  cost: Float!
-  seatAvailable: Int!
-  createdAt: String!
-  updatedAt: String!
-  likes: [EventLike!]!
-  bookings: [EventBooking!]!
-  bookmarks: [EventBookmark!]!
-  ratings: [EventRating!]!
-  notifications: [EventNotification!]!
+  organizer: String
+  time: String # ISO format for timestamp
+  location: String
+  category: String
+  status: String
+  coverImage: String
+  description: String
+  cost: Float
+  seatAvailable: Int
+  createdAt: String
+  updatedAt: String
+  likes: [EventLike!]
+  bookings: [EventBooking!]
+  bookmarks: [EventBookmark!]
+  ratings: [EventRating!]
+  notifications: [EventNotification!]
 }
 input EventInput {
   organizer: String!
@@ -35,7 +38,7 @@ input EventInput {
   description: String!
   cost: Float!
   seatAvailable: Int!
-  # createdAt: Date!
+  createdAt: String! # ISO format for timestamp
   updatedAt: String!
   # likes: [EventLike]
   # bookings: [EventBooking]
@@ -114,7 +117,7 @@ type EventNotification {
 # Queries for fetching data
 type Query {
     getEvent(id: ID!): Event
-    getEvents: [Event!]!
+    getEvents: [Event]
     getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
     getEventLikes: [EventLike!]!
@@ -126,7 +129,7 @@ type Query {
 # Mutations for creating, updating, and deleting data
 type Mutation {
   createEvent( input:EventInput! ): MutationResponse
-  updateEvent(id:ID!, input:EventUpdates): MutationResponse
+  updateEvent(id: ID!, eventUpdates:EventUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
   createEventBookmark(userId: String!, eventId: ID!): MutationResponse
   # --------first section trial

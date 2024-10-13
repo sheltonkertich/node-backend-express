@@ -3,10 +3,10 @@
 export const userTypeDefs = `#graphql
   type User {
     id: ID!
-    firstName: String!
+    firstName: String
     lastName: String
     age: Int
-    email: String!
+    email: String
   }
 
   input UserInput {
@@ -24,7 +24,7 @@ export const userTypeDefs = `#graphql
   }
 
   type MutationResponse {
-    success: Boolean!
+    success: Boolean
     message: String
     user: User
   }
@@ -36,7 +36,7 @@ export const userTypeDefs = `#graphql
 
   type Mutation {
     createUser(input: UserInput!): MutationResponse
-    updateUser(id: ID!, input: UserUpdates): MutationResponse
+    updateUser(id: ID!, userUpdates: UserUpdates): MutationResponse
     deleteUser(id: ID!): MutationResponse
   }
 `;
