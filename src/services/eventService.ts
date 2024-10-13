@@ -22,7 +22,7 @@ export class EventService {
 
   async getEventById(id: number): Promise<Event | null> {
     try {
-      return await this.eventRepository.findOneBy({ id });
+      return await this.eventRepository.findOne({ where: { id } });
     } catch (error) {
       console.error(`Error fetching event with id ${id}:`, error);
       throw new Error("Failed to retrieve event.");
@@ -34,17 +34,17 @@ export class EventService {
       const event = this.eventRepository.create(eventData);
       return await this.eventRepository.save(event);
     } catch (error: any) {
-      const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+      const errorCode = error.code || 'UNKNOWN_ERROR';
       const errorMessage = error.detail || 'An unexpected error occurred.';
       console.error(`Service Error creating event: ${errorMessage}`, error);
       throw new Error(`Failed to create event. Error Code: ${errorCode}. Message: ${errorMessage}`);
     }
   }
+
   async updateEvent(id: number, eventUpdates: Partial<EventUpdates> = {}): Promise<Event | null> {
     try {
-      // Check if eventData is defined and is an object
-      console.log('id:', id, 'eventData:', eventUpdates);
-      if (!eventUpdates || typeof eventUpdates !== 'object' || !Object.keys(eventUpdates).length) {
+      console.log('id:', id, 'eventUpdates:', eventUpdates);
+      if (!Object.keys(eventUpdates).length) {
         throw new Error("No valid fields provided for update.");
       }
 
@@ -53,9 +53,9 @@ export class EventService {
         throw new Error(`Event with id ${id} not found.`);
       }
 
-      return await this.eventRepository.findOneBy({ id });
+      return await this.eventRepository.findOne({ where: { id } });
     } catch (error: any) {
-      const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+      const errorCode = error.code || 'UNKNOWN_ERROR';
       const errorMessage = error.detail || error.message || 'An unexpected error occurred.';
       console.error(`Service Error updating event: ${errorMessage}`, error);
       throw new Error(`Failed to update event. Error Code: ${errorCode}. Message: ${errorMessage}`);
@@ -64,12 +64,12 @@ export class EventService {
 
   async deleteEvent(id: number): Promise<Event | null> {
     try {
-      const event = await this.eventRepository.findOneBy({ id });
+      const event = await this.eventRepository.findOne({ where: { id } });
       if (!event) {
         throw new Error(`Event with id ${id} not found.`);
       }
       await this.eventRepository.softDelete({ id });
-      return event; // Returning the deleted event
+      return event; // Consider returning a confirmation message instead
     } catch (error) {
       console.error(`Error deleting event with id ${id}:`, error);
       throw new Error("Failed to delete event.");

@@ -10,6 +10,7 @@ import {
   JoinColumn,
   DeleteDateColumn,
 } from "typeorm";
+import User from "./User";
 
 @Entity()
 export class Event {
@@ -19,7 +20,7 @@ export class Event {
   @Column()
   organizer: string;
 
-  @Column({ type: "timestamp" , nullable: true})
+  @Column({ type: "timestamp", nullable: true })
   time: Date;
 
   @Column()
@@ -51,12 +52,10 @@ export class Event {
   updatedAt: Date;
 
   @DeleteDateColumn()
-    deletedAt?: Date;
+  deletedAt?: Date;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
   })
   @JoinColumn()
   likes: EventLikes[];
@@ -103,6 +102,24 @@ export class Event {
 }
 
 @Entity()
+export class EventLikes {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+  
+  @ManyToOne(() => Event, (event) => event.likes, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  event: Event;
+
+  @ManyToOne(() => User, (user) => user.eventLikes, { onDelete: "CASCADE" })
+  userId: User;
+}
+
+@Entity()
 export class EventBookmarks {
   @PrimaryGeneratedColumn()
   id: number;
@@ -139,21 +156,6 @@ export class EventBookings {
 
   @Column()
   slotsBooked: number; // Assuming this is a numeric value
-}
-
-@Entity()
-export class EventLikes {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @ManyToOne(() => Event, (event) => event.likes, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  event: Event;
-
-  @Column()
-  userId: string;
 }
 
 @Entity()

@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToMany,
+  JoinColumn,
 } from "typeorm";
+import { EventLikes } from "./Event";
 
 // User entity
 @Entity()
@@ -31,4 +34,8 @@ export default class User {
   @Index({ unique: true }) // Ensure email is unique
   @Column({ type: "varchar", length: 100 })
   email: string;
+
+  @OneToMany(()=>EventLikes,(eventLikes)=>eventLikes.userId,{onDelete:"SET NULL", nullable:true})
+  @JoinColumn()
+  eventLikes:EventLikes[]
 }

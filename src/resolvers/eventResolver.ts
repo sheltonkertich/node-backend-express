@@ -55,10 +55,11 @@ export const eventResolvers = {
 				console.error(`Error in getEvent resolver for id ${id}:`, error);
 				throw new Error("Could not retrieve the event. Please check the user ID and try again.");
 			}
-		}
+		},
+		getAllLikes: async () => await services.likesService.getAllLikes(),
+		getEventLike: async () => await services.likesService.getEventLike(1),
 		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
 		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
-		// getEventLikes: async () => await services.likesService.getAllLikes(),
 		// getEventCategories: async () => await services.categoriesService.getAllCategories(),
 		// getEventRatings: async () => await services.ratingsService.getAllRatings(),
 		// getEventNotifications: async () => await services.notificationService.getAllNotifications(),

@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import { EventLikes } from "../entities/Event";
+import { Event } from "../entities/Event";
 
 export class EventLikeService {
   private eventLikesRepository: Repository<EventLikes>;
@@ -10,15 +11,24 @@ export class EventLikeService {
   async getAllLikes(): Promise<EventLikes[]> {
     return await this.eventLikesRepository.find();
   }
-  async createLike(userId: string, eventId: number){
-    const newLike = this.eventLikesRepository.create({ userId, event: { id: eventId } });
-    return await this.eventLikesRepository.save(newLike);
+  async getEventLike(eventId: number): Promise<EventLikes[]> {
+    return await this.eventLikesRepository.find({ where: { event: { id: eventId } } });
+  }
+  async createLike(userId: string, eventId: number):Promise<EventLikes> {
+    const event = await this.eventLikesRepository.manager.findOne(Event, { where: { id: eventId } });
+    if (!event) {
+      throw new Error(`Event with id ${eventId} not found.`);
+    }
+
+    const like = this.eventLikesRepository.create({ event });
+    return await this.eventLikesRepository.save(like);
   }
 
-  async deleteLike(id: number){
-    const like = await this.eventLikesRepository.findOneBy({ id });
-    if (!like) return null;
-    await this.eventLikesRepository.softDelete({ id });
-    return like;
+  async deleteLike(id: number):Promise<void> {
+    const result = await this.eventLikesRepository.delete({ id: id });
+    if (result.affected === 0) {
+      throw new Error(`Like with id ${id} not found.`);
   }
+
+}
 }
