@@ -16,6 +16,7 @@ import { EventNotificationService } from "../services/eventNotificationService.j
 import { EventRatingService } from "../services/eventRatingService.js";
 import { EventCategoryService } from "../services/eventCategoryService.js";
 import { EventInput, MutationResponse, EventUpdates } from "../types/eventTypes.js";
+import e from "express";
 
 const repositories = {
 	event: AppDataSource.getRepository(Event),
@@ -69,7 +70,7 @@ export const eventResolvers = {
 				return {
 					success: true,
 					message: "Event created successfully.",
-					event,
+					event: event,
 				};
 			} catch (error: any) {
 				console.error("Error in CreatingEvent resolver:", error);
@@ -120,13 +121,23 @@ export const eventResolvers = {
 		},
 
 
-		deleteEvent: async (_: any, { id }: { id: number }) => {
+		deleteEvent: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
 			try {
-				// Implement logic to delete an event
-				return true; // Return a confirmation message or the deleted event
+				const deletedEvent = await services.eventService.deleteEvent(id);
+				return {
+					success: true,
+					message: "Event deleted successfully.",
+					event: deletedEvent,
+
+				}; // Return a confirmation message or the deleted event
 			} catch (error) {
 				console.error("Error deleting event:", error);
-				throw new Error("Failed to delete event.");
+				return {
+					success: false,
+					message: `Event with id ${id} not found. Delete failed.`,
+					event: null,
+				};
+
 			}
 		},
 		// Other mutation resolvers

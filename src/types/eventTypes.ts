@@ -4,7 +4,7 @@ import { EventCategories } from "../entities/Event";
 export interface MutationResponse {
     success: boolean;
     message: string;
-    event: Event | null;
+    event?: Event | null;
     errorCode?: string;
     errorDetail?: string;
 }

@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   Index,
   JoinColumn,
+  DeleteDateColumn,
 } from "typeorm";
 
 @Entity()
@@ -48,6 +49,9 @@ export class Event {
 
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt: Date;
+
+  @DeleteDateColumn()
+    deletedAt?: Date;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {
     cascade: true,
