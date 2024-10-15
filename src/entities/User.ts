@@ -7,12 +7,13 @@ import {
   Index,
   OneToMany,
   JoinColumn,
+  Relation
 } from "typeorm";
-import { EventLikes } from "./Event";
+import { EventLikes } from "./Event.js";
 
 // User entity
 @Entity()
-export default class User {
+export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -35,7 +36,6 @@ export default class User {
   @Column({ type: "varchar", length: 100 })
   email: string;
 
-  @OneToMany(()=>EventLikes,(eventLikes)=>eventLikes.userId,{onDelete:"SET NULL", nullable:true})
-  @JoinColumn()
-  eventLikes:EventLikes[]
+  @OneToMany(()=>EventLikes,(eventLikes)=>eventLikes.user,{onDelete:"SET NULL", nullable:true})
+  eventLikes:Relation<EventLikes[]>
 }

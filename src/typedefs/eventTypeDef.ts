@@ -118,9 +118,10 @@ type EventNotification {
 type Query {
     getEvent(id: ID!): Event
     getEvents: [Event]
+    getEventLike(id:ID!):EventLike
+    getAllLikes: [EventLike!]!
     getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
-    getEventLikes: [EventLike!]!
     getEventCategories: [EventCategory!]!
     getEventRatings: [EventRating!]!
     getEventNotifications: [EventNotification!]!

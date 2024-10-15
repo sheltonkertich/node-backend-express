@@ -5,7 +5,7 @@ import http from 'http';
 import cors from 'cors';
 import express, { Request, Response } from "express";
 import { AppDataSource } from "./data-source.js";
-import User from "./entities/User.js";
+import {User} from "./entities/User.js";
 import {schema} from "./schema/schema.js"
 
 interface MyContext {

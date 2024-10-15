@@ -9,28 +9,29 @@ import {
   Index,
   JoinColumn,
   DeleteDateColumn,
+  Relation
 } from "typeorm";
-import User from "./User";
+import {User} from "./User.js";
 
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: "text" })
   organizer: string;
 
   @Column({ type: "timestamp", nullable: true })
   time: Date;
 
-  @Column()
+  @Column({ type: "text" })
   location: string;
 
   @Index()
-  @Column()
+  @Column({ type: "text" })
   category: string;
 
-  @Column()
+  @Column({ type: "text" })
   status: string;
 
   @Column()
@@ -42,7 +43,7 @@ export class Event {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   cost: number;
 
-  @Column()
+  @Column({ type: "numeric" })
   seatAvailable: number; // Assuming this is a numeric value
 
   @CreateDateColumn({ type: "timestamp" })
@@ -116,7 +117,7 @@ export class EventLikes {
   event: Event;
 
   @ManyToOne(() => User, (user) => user.eventLikes, { onDelete: "CASCADE" })
-  userId: User;
+  user: Relation<User>;
 }
 
 @Entity()

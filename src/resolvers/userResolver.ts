@@ -1,4 +1,4 @@
-import User from "../entities/User.js";
+import {User} from "../entities/User.js";
 import { AppDataSource } from "../data-source.js";
 import { UserService } from "../services/userService.js";
 import { UserInput, UserUpdates, MutationResponse } from "../types/userTypes.js";

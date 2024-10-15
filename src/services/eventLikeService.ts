@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
-import { EventLikes } from "../entities/Event";
-import { Event } from "../entities/Event";
+import { EventLikes } from "../entities/Event.js";
+import { Event } from "../entities/Event.js";
 
 export class EventLikeService {
   private eventLikesRepository: Repository<EventLikes>;
