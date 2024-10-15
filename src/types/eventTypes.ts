@@ -79,7 +79,7 @@ export interface EventBookings {
 // Event Like Entity
 export interface EventLikes {
     id: number;
-    event: Event;
+    eventId: Event;
     userId: User;
 }
 

@@ -36,6 +36,7 @@ export class User {
   @Column({ type: "varchar", length: 100 })
   email: string;
 
-  @OneToMany(()=>EventLikes,(eventLikes)=>eventLikes.user,{onDelete:"SET NULL", nullable:true})
+  @OneToMany(()=>EventLikes,(eventLikes)=>eventLikes.userId,{onDelete:"SET NULL", nullable:true})
+  @JoinColumn()
   eventLikes:Relation<EventLikes[]>
 }

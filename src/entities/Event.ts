@@ -18,20 +18,20 @@ export class Event {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "text" })
+  @Column({ type: "text", nullable: true })
   organizer: string;
 
   @Column({ type: "timestamp", nullable: true })
   time: Date;
 
-  @Column({ type: "text" })
+  @Column({ type: "text", nullable: true })
   location: string;
 
   @Index()
-  @Column({ type: "text" })
+  @Column({ type: "text", nullable: true })
   category: string;
 
-  @Column({ type: "text" })
+  @Column({ type: "text" , nullable: true})
   status: string;
 
   @Column()
@@ -43,7 +43,7 @@ export class Event {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   cost: number;
 
-  @Column({ type: "numeric" })
+  @Column({ type: "numeric", nullable: true })
   seatAvailable: number; // Assuming this is a numeric value
 
   @CreateDateColumn({ type: "timestamp" })
@@ -55,11 +55,9 @@ export class Event {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {
-    onDelete: "SET NULL",
-  })
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.eventId, { onDelete: "SET NULL", nullable:true})
   @JoinColumn()
-  likes: EventLikes[];
+  eventLikes:Relation<EventLikes[]>
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event, {
     cascade: true,
@@ -110,14 +108,11 @@ export class EventLikes {
   @CreateDateColumn()
   createdAt: Date;
   
-  @ManyToOne(() => Event, (event) => event.likes, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  event: Event;
+  @ManyToOne(() => Event, (event) => event.eventLikes, { onDelete: "CASCADE" })
+  eventId: Relation<Event>;
 
   @ManyToOne(() => User, (user) => user.eventLikes, { onDelete: "CASCADE" })
-  user: Relation<User>;
+  userId: Relation<User>;
 }
 
 @Entity()

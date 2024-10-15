@@ -119,7 +119,7 @@ type Query {
     getEvent(id: ID!): Event
     getEvents: [Event]
     getEventLike(id:ID!):EventLike
-    getAllLikes: [EventLike!]!
+    getAllLikes: [EventLike]
     getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
     getEventCategories: [EventCategory!]!
@@ -132,10 +132,10 @@ type Mutation {
   createEvent( input:EventInput! ): MutationResponse
   updateEvent(id: ID!, eventUpdates:EventUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
+  createEventLike(userId: ID!, eventId: ID!):MutationResponse
   createEventBookmark(userId: String!, eventId: ID!): MutationResponse
   # --------first section trial
   createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
-  createEventLike(userId: String!, eventId: ID!): EventLike!
   createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!
   createEventNotification(userId: String!, eventId: ID!, content: String!, status: String!): EventNotification!
 

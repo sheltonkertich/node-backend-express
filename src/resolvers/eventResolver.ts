@@ -142,5 +142,27 @@ export const eventResolvers = {
 			}
 		},
 		// Other mutation resolvers
+
+		createEventLike: async (_: any, { userId,eventId }: { userId: number, eventId: number }): Promise<MutationResponse> => {
+			try {
+				const event = await services.likesService.createLike(userId, eventId);
+				return {
+					success: true,
+					message: "EventLike created successfully.",
+					event: event,
+				};
+			} catch (error: any) {
+				console.error("Error in CreatingEventLike resolver:", error);
+				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
+				return {
+					success: false,
+					message: errorMessage,
+					event: null,
+					errorCode: errorCode,
+					errorDetail: error, // Optionally include the full error object for more details
+				};
+			}
+		},
 	},
 };
