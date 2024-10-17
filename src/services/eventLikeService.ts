@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { EventLikes } from "../entities/Event.js";
 import { Event } from "../entities/Event.js";
+import { User } from "../entities/User.js";
 
 export class EventLikeService {
   private eventLikesRepository: Repository<EventLikes>;
@@ -11,15 +12,34 @@ export class EventLikeService {
   async getAllLikes(): Promise<EventLikes[]> {
     return await this.eventLikesRepository.find();
   }
-  async getEventLike(eventId: number): Promise<EventLikes[]> {
-    return await this.eventLikesRepository.find({
-      where: {
-        eventId: {
-          id: eventId
-        }
+  async getEventLike(eventId: number, userId: number, id: number): Promise<EventLikes | null> {
+    try {
+      console.log(`Fetching like for eventId: ${eventId}, userId: ${userId}, id: ${id}`);
+      
+      // Fetch the eventLike record directly with relationships
+      const eventLike = await this.eventLikesRepository.findOne({
+        where: {
+          id,
+          eventId: { id: eventId },
+          userId: { id: userId },
+        },
+        relations: ['eventId', 'userId'], // Ensure relations are loaded
+      });
+  
+      if (!eventLike) {
+        console.log(`No like found for eventId: ${eventId}, userId: ${userId}, id: ${id}`);
+        return null; // Explicit null return if not found
       }
-    });
+  
+      console.log('Like found:', eventLike);
+      return eventLike;
+    } catch (error) {
+      console.error('Error fetching like:', error);
+      throw error;
+    }
   }
+  
+
   async createLike(userId: number, eventId: number): Promise<EventLikes> {
     try {
       const event = await this.eventLikesRepository.manager.findOne(Event, { where: { id: eventId } });

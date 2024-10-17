@@ -57,7 +57,7 @@ export const eventResolvers = {
 			}
 		},
 		getAllLikes: async () => await services.likesService.getAllLikes(),
-		getEventLike: async () => await services.likesService.getEventLike(1),
+		getEventLike: async (_: any, { eventId,userId,id }: { eventId: number,userId:number,id:number },) => await services.likesService.getEventLike(eventId,userId,id),
 		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
 		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
 		// getEventCategories: async () => await services.categoriesService.getAllCategories(),

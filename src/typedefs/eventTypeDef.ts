@@ -118,7 +118,7 @@ type EventNotification {
 type Query {
     getEvent(id: ID!): Event
     getEvents: [Event]
-    getEventLike(id:ID!):EventLike
+    getEventLike(id:ID!, userId: String, eventId: ID):MutationResponse
     getAllLikes: [EventLike]
     getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
