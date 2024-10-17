@@ -55,7 +55,7 @@ export class Event {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.eventId, { onDelete: "SET NULL", nullable:true})
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.eventId, { onDelete: "SET NULL", nullable:true, cascade:["insert", "update"] })
   @JoinColumn()
   eventLikes:Relation<EventLikes[]>
 
