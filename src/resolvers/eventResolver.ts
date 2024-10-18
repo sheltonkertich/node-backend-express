@@ -57,7 +57,29 @@ export const eventResolvers = {
 			}
 		},
 		getAllLikes: async () => await services.likesService.getAllLikes(),
-		getEventLike: async (_: any, { eventId,userId,id }: { eventId: number,userId:number,id:number },) => await services.likesService.getEventLike(eventId,userId,id),
+		getEventLike: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<MutationResponse | null> => {
+			try {
+				const like:any = await services.likesService.getEventLike(eventID, userID, id);
+				console.log(like)
+				return {
+					success: true,
+					message: "event fetch successfully.",
+					eventLike:like
+				};
+			} catch (error:any) {
+				console.error('Error fetching event like:', error);
+				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
+				const errorCode = error.code || 'UNKNOWN_ERROR';
+				return {
+					success: false,
+					message: errorMessage,
+					event: null,
+					errorCode: errorCode,
+					errorDetail: error, // Optionally include the full error object for more details
+				}; // or handle it according to your needs
+			}
+		}
+		
 		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
 		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
 		// getEventCategories: async () => await services.categoriesService.getAllCategories(),
@@ -143,7 +165,7 @@ export const eventResolvers = {
 		},
 		// Other mutation resolvers
 
-		createEventLike: async (_: any, { userId,eventId }: { userId: number, eventId: number }): Promise<MutationResponse> => {
+		createEventLike: async (_: any, { userId, eventId }: { userId: number, eventId: number }): Promise<MutationResponse> => {
 			try {
 				const event = await services.likesService.createLike(userId, eventId);
 				return {

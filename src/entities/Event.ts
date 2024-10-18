@@ -11,7 +11,7 @@ import {
   DeleteDateColumn,
   Relation
 } from "typeorm";
-import {User} from "./User.js";
+import { User } from "./User.js";
 
 @Entity()
 export class Event {
@@ -31,7 +31,7 @@ export class Event {
   @Column({ type: "text", nullable: true })
   category: string;
 
-  @Column({ type: "text" , nullable: true})
+  @Column({ type: "text", nullable: true })
   status: string;
 
   @Column()
@@ -55,9 +55,9 @@ export class Event {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.eventId, { onDelete: "SET NULL", nullable:true, cascade:["insert", "update"] })
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { onDelete: "SET NULL", nullable: true, cascade: ["insert", "update"] })
   @JoinColumn()
-  eventLikes:Relation<EventLikes[]>
+  eventLikes: Relation<EventLikes[]>
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event, {
     cascade: true,
@@ -107,12 +107,12 @@ export class EventLikes {
 
   @CreateDateColumn()
   createdAt: Date;
-  
-  @ManyToOne(() => Event, (event) => event.eventLikes, { onDelete: "CASCADE" })
-  eventId: Relation<Event>;
+
+  @ManyToOne(() => Event, (event) => event.eventLikes, { onDelete: "CASCADE"})
+  event: Relation<Event>;
 
   @ManyToOne(() => User, (user) => user.eventLikes, { onDelete: "CASCADE" })
-  userId: Relation<User>;
+  user: Relation<User>;
 }
 
 @Entity()

@@ -10,24 +10,31 @@ export class EventLikeService {
     this.eventLikesRepository = eventLikesRepository;
   }
   async getAllLikes(): Promise<EventLikes[]> {
-    return await this.eventLikesRepository.find();
-  }
-  async getEventLike(eventId: number, userId: number, id: number): Promise<EventLikes | null> {
     try {
-      console.log(`Fetching like for eventId: ${eventId}, userId: ${userId}, id: ${id}`);
+      return await this.eventLikesRepository.find({
+        relations: ["event", "user"],
+      });
+    } catch (error) {
+      console.error("Error fetching all likes:", error);
+      throw new Error("Failed to retrieve likes.");
+    }
+  }
+  async getEventLike(eventID: number, userID: number, id: number): Promise<EventLikes | null> {
+    try {
+      console.log(`Fetching like for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
       
       // Fetch the eventLike record directly with relationships
       const eventLike = await this.eventLikesRepository.findOne({
         where: {
           id,
-          eventId: { id: eventId },
-          userId: { id: userId },
+          event: { id: eventID },
+          user: { id: userID },
         },
-        relations: ['eventId', 'userId'], // Ensure relations are loaded
+        relations: ['event', 'user'], // Ensure relations are loaded
       });
   
       if (!eventLike) {
-        console.log(`No like found for eventId: ${eventId}, userId: ${userId}, id: ${id}`);
+        console.log(`No like found for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
         return null; // Explicit null return if not found
       }
   
@@ -40,22 +47,22 @@ export class EventLikeService {
   }
   
 
-  async createLike(userId: number, eventId: number): Promise<EventLikes> {
+  async createLike(user: number, event: number): Promise<EventLikes> {
     try {
-      const event = await this.eventLikesRepository.manager.findOne(Event, { where: { id: eventId } });
-      if (!event) {
-        throw new Error(`Event with id ${eventId} not found.`);
+      const like = await this.eventLikesRepository.manager.findOne(Event, { where: { id: event } });
+      if (!like) {
+        throw new Error(`Event with id ${event} not found.`);
       }
 
-      console.log('User liking the event with id:', eventId);
+      console.log('User liking the event with id:', event);
 
       // Create a single like object
-      const like = this.eventLikesRepository.create({
-        eventId: { id: eventId },
-        userId: { id: userId },
+      const newLike = this.eventLikesRepository.create({
+        event: { id: event },
+        user: { id: user },
       });
 
-      return await this.eventLikesRepository.save(like);
+      return await this.eventLikesRepository.save(newLike);
     } catch (error) {
       console.error('Error creating like:', error);
       throw error; // or handle the error as needed

@@ -5,6 +5,7 @@ export interface MutationResponse {
     success: boolean;
     message: string;
     event?: EventUpdates | null;
+    eventLike?:EventLikes[]
     errorCode?: string;
     errorDetail?: string;
 }
@@ -79,8 +80,8 @@ export interface EventBookings {
 // Event Like Entity
 export interface EventLikes {
     id: number;
-    eventId: Event;
-    userId: User;
+    event: Event;
+    user: User;
 }
 
 // Event Category Entity

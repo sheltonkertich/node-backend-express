@@ -4,6 +4,7 @@ type MutationResponse {
     success: Boolean
     message: String
     Event: Event
+    EventLike:EventLike
     errorDetail: String
     errorCode: String
 
@@ -22,11 +23,11 @@ type Event {
   seatAvailable: Int
   createdAt: String
   updatedAt: String
-  likes: [EventLike!]
-  bookings: [EventBooking!]
-  bookmarks: [EventBookmark!]
-  ratings: [EventRating!]
-  notifications: [EventNotification!]
+  likes: [EventLike]
+  bookings: [EventBooking]
+  bookmarks: [EventBookmark]
+  ratings: [EventRating]
+  notifications: [EventNotification]
 }
 input EventInput {
   organizer: String!
@@ -86,8 +87,8 @@ type EventBooking {
 # Event Like Entity
 type EventLike {
   id: ID!
-  event: Event!
-  userId: String!
+  event: Event
+  user: User
 }
 
 # Event Category Entity
@@ -118,7 +119,7 @@ type EventNotification {
 type Query {
     getEvent(id: ID!): Event
     getEvents: [Event]
-    getEventLike(id:ID!, userId: String, eventId: ID):MutationResponse
+    getEventLike(id:ID!, userID: ID, eventID: ID):MutationResponse
     getAllLikes: [EventLike]
     getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
