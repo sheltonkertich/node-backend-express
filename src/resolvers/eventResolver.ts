@@ -1,72 +1,89 @@
-import {
-	Event,
-	EventBookings,
-	EventCategories,
-	EventLikes,
-	EventRatings,
-	EventNotifications,
-	EventBookmarks,
-} from "../entities/Event.js";
-import { AppDataSource } from "../data-source.js";
-import { EventService } from "../services/eventService.js";
-import { EventBookingService } from "../services/eventBookingService.js";
-import { EventBookmarkService } from "../services/eventBookmarkService.js";
-import { EventLikeService } from "../services/eventLikeService.js";
-import { EventNotificationService } from "../services/eventNotificationService.js";
-import { EventRatingService } from "../services/eventRatingService.js";
-import { EventCategoryService } from "../services/eventCategoryService.js";
-import { EventInput, MutationResponse, EventUpdates } from "../types/eventTypes.js";
-import e from "express";
+import { services } from "../services/index.js";
+import { EventResponse, EventInputType, EventLikesType, MutationResponse, EventUpdatesType } from "../types/eventTypes.js";
 
-const repositories = {
-	event: AppDataSource.getRepository(Event),
-	eventBookings: AppDataSource.getRepository(EventBookings),
-	eventCategories: AppDataSource.getRepository(EventCategories),
-	eventLikes: AppDataSource.getRepository(EventLikes),
-	eventRatings: AppDataSource.getRepository(EventRatings),
-	eventNotifications: AppDataSource.getRepository(EventNotifications),
-	eventBookmarks: AppDataSource.getRepository(EventBookmarks),
-};
-
-const services = {
-	eventService: new EventService(repositories.event),
-	bookmarkService: new EventBookmarkService(repositories.eventBookmarks),
-	bookingsService: new EventBookingService(repositories.eventBookings),
-	likesService: new EventLikeService(repositories.eventLikes),
-	categoriesService: new EventCategoryService(repositories.eventCategories),
-	ratingsService: new EventRatingService(repositories.eventRatings),
-	notificationService: new EventNotificationService(repositories.eventNotifications),
-};
 export const eventResolvers = {
 	Query: {
-		getEvents: async (): Promise<Event[]> => {
+		getEvents: async (): Promise<EventResponse | null> => {
 
 			try {
-				return await services.eventService.getAllEvents();
+				const EventsResult = await services.eventService.getAllEvents()
+				if (!EventsResult) {
+					return {
+						success: false,
+						message: "no events found",
+						events: null
+					}
+				}
+				return {
+					success: true,
+					message: " events found",
+					events: EventsResult,
+				};
+
 			} catch (error) {
 				console.error("Error in getEvents resolver:", error);
 				throw new Error("Could not retrieve events. Please try again later.");
 			}
 		},
-		getEvent: async (_: any, { id }: { id: number }): Promise<Event | null> => {
+		getEvent: async (_: any, { id }: { id: number }): Promise<EventResponse> => {
 			try {
-				return await services.eventService.getEventById(id);
+				const EventsResult = await services.eventService.getEventById(id);
+				if (EventsResult) {
+					return {
+						success: true,
+						message: "event fetch successfully.",
+						event: EventsResult,
+					}
+				}
+				return {
+					success: true,
+					message: `No event for event id ${id} in the DB`,
+					event: null
+				};
 			} catch (error) {
 				console.error(`Error in getEvent resolver for id ${id}:`, error);
 				throw new Error("Could not retrieve the event. Please check the user ID and try again.");
 			}
 		},
-		getAllLikes: async () => await services.likesService.getAllLikes(),
-		getEventLike: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<MutationResponse | null> => {
+		getAllLikes: async (): Promise<EventResponse | null> => {
+
 			try {
-				const like:any = await services.likesService.getEventLike(eventID, userID, id);
-				console.log(like)
+				const EventLikesResult = await services.likesService.getAllLikes()
+				if (!EventLikesResult) {
+					return {
+						success: false,
+						message: "no event likes found",
+						eventLikes: null
+					}
+				}
 				return {
 					success: true,
-					message: "event fetch successfully.",
-					eventLike:like
+					message: " events likes found",
+					eventLikes: EventLikesResult,
 				};
-			} catch (error:any) {
+
+			} catch (error) {
+				console.error("Error in getEvents resolver:", error);
+				throw new Error("Could not retrieve events. Please try again later.");
+			}
+		},
+		getEventLike: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<EventResponse | null> => {
+			try {
+				const eventLike = await services.likesService.getEventLike(eventID, userID, id);
+				console.log(eventLike)
+				if (eventLike) {
+					return {
+						success: true,
+						message: "eventLike fetch successfully.",
+						eventLike: eventLike
+					};
+				}
+				return {
+					success: false,
+					message: "no like found",
+					eventLike: null
+				};
+			} catch (error: any) {
 				console.error('Error fetching event like:', error);
 				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
 				const errorCode = error.code || 'UNKNOWN_ERROR';
@@ -79,7 +96,7 @@ export const eventResolvers = {
 				}; // or handle it according to your needs
 			}
 		}
-		
+
 		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
 		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
 		// getEventCategories: async () => await services.categoriesService.getAllCategories(),
@@ -87,13 +104,13 @@ export const eventResolvers = {
 		// getEventNotifications: async () => await services.notificationService.getAllNotifications(),
 	},
 	Mutation: {
-		createEvent: async (_: any, { input }: { input: EventInput }): Promise<MutationResponse> => {
+		createEvent: async (_: any, { input }: { input: EventInputType }): Promise<MutationResponse> => {
 			try {
 				const event = await services.eventService.createEvent(input);
 				return {
 					success: true,
 					message: "Event created successfully.",
-					event: event,
+					singleEvent: event,
 				};
 			} catch (error: any) {
 				console.error("Error in CreatingEvent resolver:", error);
@@ -102,29 +119,28 @@ export const eventResolvers = {
 				return {
 					success: false,
 					message: errorMessage,
-					event: null,
+					singleEvent: null,
 					errorCode: errorCode,
 					errorDetail: error, // Optionally include the full error object for more details
 				};
 			}
 		},
-		updateEvent: async (_: any, { id, eventUpdates }: { id: number, eventUpdates: EventUpdates }): Promise<MutationResponse> => {
+		updateEvent: async (_: any, { id, eventUpdates }: { id: number, eventUpdates: EventUpdatesType }): Promise<MutationResponse> => {
 			try {
-				console.log('eventUpdates in resolver:', eventUpdates);
 				const updatedEvent = await services.eventService.updateEvent(id, eventUpdates);
 
 				if (!updatedEvent) {
 					return {
 						success: false,
 						message: `Event with id ${id} not found. Update failed.`,
-						event: null,
+						singleEvent: null,
 					};
 				}
 
 				return {
 					success: true,
 					message: "Event updated successfully.",
-					event: updatedEvent,
+					singleEvent: updatedEvent,
 				};
 
 			} catch (error: any) {
@@ -136,7 +152,7 @@ export const eventResolvers = {
 				return {
 					success: false,
 					message: errorMessage,
-					event: null,
+					singleEvent: null,
 					errorCode: errorCode,
 					errorDetail: error,
 				};
@@ -150,7 +166,7 @@ export const eventResolvers = {
 				return {
 					success: true,
 					message: "Event deleted successfully.",
-					event: deletedEvent,
+					singleEvent: deletedEvent,
 
 				}; // Return a confirmation message or the deleted event
 			} catch (error) {
@@ -158,7 +174,7 @@ export const eventResolvers = {
 				return {
 					success: false,
 					message: `Event with id ${id} not found. Delete failed.`,
-					event: null,
+					singleEvent: null,
 				};
 
 			}
@@ -167,11 +183,11 @@ export const eventResolvers = {
 
 		createEventLike: async (_: any, { userId, eventId }: { userId: number, eventId: number }): Promise<MutationResponse> => {
 			try {
-				const event = await services.likesService.createLike(userId, eventId);
+				const eventLike = await services.likesService.createLike(userId, eventId);
 				return {
 					success: true,
 					message: "EventLike created successfully.",
-					event: event,
+					singleEventLike: eventLike,
 				};
 			} catch (error: any) {
 				console.error("Error in CreatingEventLike resolver:", error);
@@ -180,7 +196,7 @@ export const eventResolvers = {
 				return {
 					success: false,
 					message: errorMessage,
-					event: null,
+					singleEventLike: null,
 					errorCode: errorCode,
 					errorDetail: error, // Optionally include the full error object for more details
 				};

@@ -3,12 +3,21 @@ export const eventTypeDef = `#graphql
 type MutationResponse {
     success: Boolean
     message: String
-    Event: Event
-    EventLike:EventLike
-    errorDetail: String
+    singleEvent:Event
+    singleEventLike:EventLike
     errorCode: String
-
-  }
+    errorDetail: String
+}
+type EventsResponse {
+    success: Boolean
+    message: String
+    events: [Event]
+    event: Event
+    eventLikes:[EventLike]
+    eventLike:EventLike
+    errorCode: String
+    errorDetail: String
+}
 
 type Event {
   id: ID!
@@ -65,7 +74,12 @@ input EventUpdates {
   # ratings: [EventRating]
   # notifications: [EventNotification]
 }
-
+# Event Like Entity
+type EventLike {
+  id: ID!
+  event: Event
+  user: User
+}
 
 # Event Bookmark Entity
 type EventBookmark {
@@ -84,12 +98,7 @@ type EventBooking {
   slotsBooked: Int!
 }
 
-# Event Like Entity
-type EventLike {
-  id: ID!
-  event: Event
-  user: User
-}
+
 
 # Event Category Entity
 type EventCategory {
@@ -117,10 +126,11 @@ type EventNotification {
 
 # Queries for fetching data
 type Query {
-    getEvent(id: ID!): Event
-    getEvents: [Event]
-    getEventLike(id:ID!, userID: ID, eventID: ID):MutationResponse
-    getAllLikes: [EventLike]
+    getEvent(id: ID!): EventsResponse
+    getEvents: EventsResponse
+    getEventLike(id:ID!, userID: ID, eventID: ID):EventsResponse
+    getAllLikes: EventsResponse
+    
     getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
     getEventCategories: [EventCategory!]!
@@ -130,6 +140,8 @@ type Query {
 
 # Mutations for creating, updating, and deleting data
 type Mutation {
+  #deleteMultipleEvents()
+  #deleteMultipleUsers()
   createEvent( input:EventInput! ): MutationResponse
   updateEvent(id: ID!, eventUpdates:EventUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
