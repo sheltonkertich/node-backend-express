@@ -1,16 +1,5 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-  JoinColumn,
-  DeleteDateColumn,
-  Relation,
-  Unique
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, DeleteDateColumn, Relation, Unique
 } from "typeorm";
 import { User } from "./User.js";
 
@@ -60,47 +49,23 @@ export class Event {
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { onDelete: "SET NULL", nullable: true })
   eventLikes: EventLikes[]
 
-  @OneToMany(() => EventBookings, (bookings) => bookings.event, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  @JoinColumn()
-  bookings: EventBookings[];
-
-  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  @JoinColumn()
+  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event)
   bookmarks: EventBookmarks[];
 
-  @OneToMany(() => EventRatings, (ratings) => ratings.event, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  @JoinColumn()
+  @OneToMany(() => EventBookings, (bookings) => bookings.event)
+  bookings: EventBookings[]
+
+  @OneToMany(() => EventCategories, (categories) => categories.event)
+  categories: EventCategories[];
+
+  @OneToMany(() => EventRatings, (ratings) => ratings.event)
   ratings: EventRatings[];
 
-  @OneToMany(() => EventNotifications, (notifications) => notifications.event, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  @JoinColumn()
+  @OneToMany(() => EventNotifications, (notifications) => notifications.event)
   notifications: EventNotifications[];
 
-  @OneToMany(() => EventCategories, (categories) => categories.event, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  @JoinColumn()
-  categories: EventCategories[];
 }
-
+// -----------------------------------------------------------------------------------------------------------------//
 @Entity()
 @Unique(["event", "user"])
 export class EventLikes {
@@ -117,37 +82,38 @@ export class EventLikes {
   user: Relation<User>;
 }
 
+// -----------------------------------------------------------------------------------------------------------------//
 @Entity()
+@Unique(["event", "user"])
 export class EventBookmarks {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  userId: string; // Consistent naming (userId instead of userID)
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date; // Consistent naming (userId instead of userID)
 
-  @ManyToOne(() => Event, (event) => event.bookmarks, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
+  @ManyToOne(() => Event, (event) => event.bookmarks)
   event: Event;
+
+  @ManyToOne(() => User, (user) => user.bookmarks)
+  user: Relation<User>
 }
 
+// -----------------------------------------------------------------------------------------------------------------//
 @Entity()
+@Unique(["event", "user"])
 export class EventBookings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.bookings, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  event: Event;
-
-  @Column()
-  userId: string;
-
   @CreateDateColumn({ type: "timestamp" })
   bookedDate: Date;
+
+  @ManyToOne(() => Event, (event) => event.bookings)
+  event: Event;
+
+  @ManyToOne(() => User, (user) => user.bookings)
+  user: Relation<User>
 
   @Column()
   slotSet: string;
@@ -156,7 +122,9 @@ export class EventBookings {
   slotsBooked: number; // Assuming this is a numeric value
 }
 
+// -----------------------------------------------------------------------------------------------------------------//
 @Entity()
+@Unique(["event"])
 export class EventCategories {
   @PrimaryGeneratedColumn()
   id: number;
@@ -167,44 +135,46 @@ export class EventCategories {
   @CreateDateColumn()
   createdAt: Date; // Fixed typo (creaedAt to createdAt)
 
-  @ManyToOne((type) => Event, (event) => event.category, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
+  @ManyToOne(() => Event, (event) => event.categories)
   event: Event;
 }
 
+// -----------------------------------------------------------------------------------------------------------------//
 @Entity()
+@Unique(["event", "user"])
 export class EventRatings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.ratings, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
+  @ManyToOne(() => Event, (event) => event.ratings)
   event: Event;
 
-  @Column()
-  userId: string;
+  @CreateDateColumn()
+  createdAt: Date; // Fixed typo (creaedAt to createdAt)
+
+  @ManyToOne(() => User, (user) => user.ratings)
+  user: Relation<User>
 
   @Column({ type: "decimal", precision: 2, scale: 1 })
   scoreRating: number; // Assuming a rating system from 1.0 to 5.0
 }
 
+
+// -----------------------------------------------------------------------------------------------------------------//
 @Entity()
+@Unique(["event", "user"])
 export class EventNotifications {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.notifications, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
+  @CreateDateColumn()
+  createdAt: Date; // Fixed typo (creaedAt to createdAt)
+
+  @ManyToOne(() => Event, (event) => event.notifications)
   event: Event;
 
-  @Column()
-  userId: string;
+  @ManyToOne(() => User, (user) => user.notifications)
+  user: Relation<User>
 
   @Column({ type: "text" })
   content: string;

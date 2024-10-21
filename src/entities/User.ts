@@ -1,15 +1,7 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-  OneToMany,
-  JoinColumn,
-  Relation
+Entity,  PrimaryGeneratedColumn,Column,CreateDateColumn,UpdateDateColumn, Index, OneToMany, JoinColumn, Relation
 } from "typeorm";
-import { EventLikes } from "./Event.js";
+import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings } from "./Event.js";
 
 // User entity
 @Entity()
@@ -38,4 +30,16 @@ export class User {
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.user, { onDelete: "SET NULL", nullable: true })
   eventLikes: Relation<EventLikes[]>
+
+  @OneToMany(()=> EventBookmarks, (eventBookmark) => eventBookmark.user, { onDelete: "SET NULL", nullable: true })
+  bookmarks: Relation<EventBookmarks[]>
+
+  @OneToMany(()=> EventBookings, (eventBooking) => eventBooking.user, { onDelete: "SET NULL", nullable: true })
+  bookings: Relation<EventBookings[]>
+
+  @OneToMany(()=> EventRatings, (eventRating) => eventRating.user, { onDelete: "SET NULL", nullable: true })
+  ratings: Relation<EventRatings[]>
+
+  @OneToMany(()=>EventNotifications, (eventNotification) => eventNotification.user, { onDelete: "SET NULL", nullable: true }) 
+  notifications: Relation<EventNotifications[]>
 }
