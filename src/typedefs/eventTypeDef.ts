@@ -32,7 +32,7 @@ type Event {
   seatAvailable: Int
   createdAt: String
   updatedAt: String
-  likes: [EventLike]
+  eventLikes: [EventLike]
   bookings: [EventBooking]
   bookmarks: [EventBookmark]
   ratings: [EventRating]

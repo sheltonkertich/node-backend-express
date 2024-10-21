@@ -12,7 +12,10 @@ export class EventLikeService {
   async getAllLikes(): Promise<EventLikes[]> {
     try {
       return await this.eventLikesRepository.find({
-        relations: ["event", "user"],
+        relations: {
+          event: true,
+          user: true
+        },
       });
     } catch (error) {
       console.error("Error fetching all likes:", error);
@@ -30,7 +33,10 @@ export class EventLikeService {
           event: { id: eventID },
           user: { id: userID },
         },
-        relations: ['event', 'user'], // Ensure relations are loaded
+        relations: {
+          event: true,
+          user: true
+        }, // Ensure relations are loaded
       });
   
       if (!eventLike) {

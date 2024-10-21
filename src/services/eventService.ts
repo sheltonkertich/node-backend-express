@@ -1,6 +1,5 @@
 import { Repository } from "typeorm";
 import { Event } from "../entities/Event";
-import { EventUpdatesType } from "../types/eventTypes";
 
 export class EventService {
   private eventRepository: Repository<Event>;
@@ -12,7 +11,13 @@ export class EventService {
   async getAllEvents(): Promise<Event[]> {
     try {
       return await this.eventRepository.find({
-        relations: ["eventLikes", "bookings", "bookmarks", "ratings", "notifications"],
+        relations: {
+          eventLikes: true,
+          // bookings: true,
+          // bookmarks: true,
+          // ratings: true,
+          // notifications: true
+        }
       });
     } catch (error) {
       console.error("Error fetching all events:", error);
@@ -22,7 +27,9 @@ export class EventService {
 
   async getEventById(id: number): Promise<Event | null> {
     try {
-      return await this.eventRepository.findOne({ where: { id } });
+      return await this.eventRepository.findOne({ where: { id }, relations: {
+        eventLikes: true,
+      } });
     } catch (error) {
       console.error(`Error fetching event with id ${id}:`, error);
       throw new Error("Failed to retrieve event.");

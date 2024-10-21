@@ -9,7 +9,8 @@ import {
   Index,
   JoinColumn,
   DeleteDateColumn,
-  Relation
+  Relation,
+  Unique
 } from "typeorm";
 import { User } from "./User.js";
 
@@ -55,9 +56,9 @@ export class Event {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { onDelete: "SET NULL", nullable: true, cascade: ["insert", "update"] })
-  @JoinColumn()
-  eventLikes: Relation<EventLikes[]>
+
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { onDelete: "SET NULL", nullable: true })
+  eventLikes: EventLikes[]
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event, {
     cascade: true,
@@ -101,6 +102,7 @@ export class Event {
 }
 
 @Entity()
+@Unique(["event", "user"])
 export class EventLikes {
   @PrimaryGeneratedColumn()
   id: number;
@@ -108,10 +110,10 @@ export class EventLikes {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => Event, (event) => event.eventLikes, { onDelete: "CASCADE"})
+  @ManyToOne(() => Event, (event) => event.eventLikes)
   event: Relation<Event>;
 
-  @ManyToOne(() => User, (user) => user.eventLikes, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user) => user.eventLikes)
   user: Relation<User>;
 }
 
