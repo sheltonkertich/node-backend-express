@@ -95,7 +95,59 @@ export const eventResolvers = {
 					errorDetail: error, // Optionally include the full error object for more details
 				}; // or handle it according to your needs
 			}
-		}
+		},
+		getAllEventBookmarks: async (): Promise<EventResponse | null> => {
+
+			try {
+				const EventBookmarks = await services.bookmarkService.getAllEventBookmarks()
+				if (!EventBookmarks) {
+					return {
+						success: false,
+						message: "no Bookmarks found",
+						eventLikes: null
+					}
+				}
+				return {
+					success: true,
+					message: " events bookmarks found",
+					eventBookmarks: EventBookmarks,
+				};
+
+			} catch (error) {
+				console.error("Error in getAllBookmarks resolver:", error);
+				throw new Error("Could not retrieve bookmarks. Please try again later.");
+			}
+		},
+		getEventBookmark: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<EventResponse | null> => {
+			try {
+				const eventBookmark = await services.bookmarkService.getEventBookmark(eventID, userID, id);
+				console.log(eventBookmark)
+				if (eventBookmark) {
+					return {
+						success: true,
+						message: "eventBookmark fetch successfully.",
+						eventBookmark: eventBookmark
+					};
+				}
+				return {
+					success: false,
+					message: "no bookmark found",
+					eventBookmark: null
+				};
+			} catch (error: any) {
+				console.error('Error fetching event bookmark:', error);
+				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
+				const errorCode = error.code || 'UNKNOWN_ERROR';
+				return {
+					success: false,
+					message: errorMessage,
+					event: null,
+					errorCode: errorCode,
+					errorDetail: error, // Optionally include the full error object for more details
+				}; // or handle it according to your needs
+			}
+		},
+
 
 		// getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
 		// getEventBookings: async () => await services.bookingsService.getAllBookings(),
@@ -200,6 +252,65 @@ export const eventResolvers = {
 					errorCode: errorCode,
 					errorDetail: error, // Optionally include the full error object for more details
 				};
+			}
+		},
+		deleteLike: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
+			try {
+				await services.likesService.deleteLike(id)
+				return {
+					success: true,
+					message: "Event Like deleted successfully.",
+					singleEventLike: null,
+
+				}; // Return a confirmation message or the deleted event
+			} catch (error) {
+				console.error("Error deleting event like:", error);
+				return {
+					success: false,
+					message: `like with id ${id} not found. Delete failed.`,
+					singleEventLike: null,
+				};
+
+			}
+		},
+		createEventBookmark: async (_: any, { userId, eventId }: { userId: number, eventId: number }): Promise<MutationResponse> => {
+			try {
+				const eventBookmark = await services.bookmarkService.createEventBookmark(userId, eventId);
+				return {
+					success: true,
+					message: "EventBookmark created successfully.",
+					singleEventBookmark: eventBookmark,
+				};
+			} catch (error: any) {
+				console.error("Error in CreatingEventBookmark resolver:", error);
+				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
+				return {
+					success: false,
+					message: errorMessage,
+					singleEventBookmark: null,
+					errorCode: errorCode,
+					errorDetail: error, // Optionally include the full error object for more details
+				};
+			}
+		},
+		deleteEventBookmark: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
+			try {
+				await services.bookmarkService.deleteEventBookmark(id)
+				return {
+					success: true,
+					message: "Event Bookmark deleted successfully.",
+					singleEventBookmark: null,
+
+				}; // Return a confirmation message or the deleted event
+			} catch (error) {
+				console.error("Error deleting event bookmark:", error);
+				return {
+					success: false,
+					message: `bookmark with id ${id} not found. Delete failed.`,
+					singleEventBookmark: null,
+				};
+
 			}
 		},
 	},

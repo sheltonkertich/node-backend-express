@@ -15,6 +15,8 @@ type EventsResponse {
     event: Event
     eventLikes:[EventLike]
     eventLike:EventLike
+    eventBookmarks:[EventBookmark]
+    eventBookmark:EventBookmark
     errorCode: String
     errorDetail: String
 }
@@ -124,21 +126,22 @@ type EventNotification {
   status: String!
 }
 
-# Queries for fetching data
+# ---------------------------------------------- Queries -------------------------------------------------------------------------- #
 type Query {
     getEvent(id: ID!): EventsResponse
     getEvents: EventsResponse
     getEventLike(id:ID!, userID: ID, eventID: ID):EventsResponse
     getAllLikes: EventsResponse
+    getEventBookmark(id:ID!, userID: ID, eventID: ID):EventsResponse
+    getAllEventBookmarks: EventsResponse
     
-    getEventBookmarks: [EventBookmark!]!
     getEventBookings: [EventBooking!]!
     getEventCategories: [EventCategory!]!
     getEventRatings: [EventRating!]!
     getEventNotifications: [EventNotification!]!
 }
 
-# Mutations for creating, updating, and deleting data
+# -------------------------------------------------- mutations ---------------------------------------------------------------------- #
 type Mutation {
   #deleteMultipleEvents()
   #deleteMultipleUsers()
@@ -146,13 +149,14 @@ type Mutation {
   updateEvent(id: ID!, eventUpdates:EventUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
+  deleteLike(id: ID!): MutationResponse
   createEventBookmark(userId: String!, eventId: ID!): MutationResponse
+  deleteEventBookmark(id: ID!): MutationResponse
   # --------first section trial
   createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
   createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!
   createEventNotification(userId: String!, eventId: ID!, content: String!, status: String!): EventNotification!
-
-  deleteEventBookmark(id: ID!): Boolean!
+  
   deleteEventBooking(id: ID!): Boolean!
   deleteEventLike(id: ID!): Boolean!
   deleteEventRating(id: ID!): Boolean!

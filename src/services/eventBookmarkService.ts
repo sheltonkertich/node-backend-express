@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { EventBookmarks } from "../entities/Event";
+import { EventBookmarks } from "../entities/Event.js";
 
 export class EventBookmarkService {
   private eventBookmarksRepository: Repository<EventBookmarks>;
@@ -8,19 +8,76 @@ export class EventBookmarkService {
     this.eventBookmarksRepository = eventBookmarksRepository;
   }
 
-  async getAllBookmarks(): Promise<EventBookmarks[]> {
-    return await this.eventBookmarksRepository.find({ relations: ['event'] });
+  async getAllEventBookmarks(): Promise<EventBookmarks[]> {
+    try {
+      return await this.eventBookmarksRepository.find({
+        relations: {
+          event: true,
+          user: true
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching all bookmarks:", error);
+      throw new Error("Failed to retrieve bookmarks.");
+    }
   }
 
-  async createBookmark(userId: string, eventId: number): Promise<EventBookmarks> {
-    const newBookmark = this.eventBookmarksRepository.create({ userId, event: { id: eventId } });
-    return await this.eventBookmarksRepository.save(newBookmark);
+  async getEventBookmark(eventID: number, userID: number, id: number): Promise<EventBookmarks | null> {
+    try {
+      console.log(`Fetching bookmark for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
+      
+      // Fetch the eventLike record directly with relationships
+      const eventBookmark = await this.eventBookmarksRepository.findOne({
+        where: {
+          id,
+          event: { id: eventID },
+          user: { id: userID },
+        },
+        relations: {
+          event: true,
+          user: true
+        }, // Ensure relations are loaded
+      });
+  
+      if (!eventBookmark) {
+        console.log(`No bookmark found for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
+        return null; // Explicit null return if not found
+      }
+  
+      console.log('bookmark found:', eventBookmark);
+      return eventBookmark;
+    } catch (error) {
+      console.error('Error fetching bookmark:', error);
+      throw error;
+    }
   }
 
-  async deleteBookmark(id: number): Promise<EventBookmarks | null> {
-    const bookmark = await this.eventBookmarksRepository.findOneBy({ id });
-    if (!bookmark) return null;
-    await this.eventBookmarksRepository.softDelete({ id });
-    return bookmark;
+  async createEventBookmark(user: number, event: number): Promise<EventBookmarks> {
+    try {
+      const bookmark = await this.eventBookmarksRepository.manager.findOne(EventBookmarks, { where: { id: event } });
+      if (!bookmark) {
+        throw new Error(`Bookmark with id ${event} not found.`);
+      }
+
+      console.log('Booking with id:', event);
+
+      // Create a single like object
+      const newBookmark = this.eventBookmarksRepository.create({
+        event: { id: event },
+        user: { id: user },
+      });
+
+      return await this.eventBookmarksRepository.save(newBookmark);
+    } catch (error) {
+      console.error('Error creating bookmark:', error);
+      throw error; // or handle the error as needed
+    }
+  }
+
+  async deleteEventBookmark(id: number): Promise<void> {
+    const result = await this.eventBookmarksRepository.delete({ id:id });
+    if (result.affected === 0) {
+      throw new Error(`bookmark with id ${id} not found.`);
+    }
   }
 }

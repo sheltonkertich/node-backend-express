@@ -12,9 +12,9 @@ export class EventNotificationService {
     return await this.eventNotificationsRepository.find({ relations: ['event'] });
   }
 
-  async createNotification(userId: string, eventId: number, content: string, status: string): Promise<EventNotifications> {
-    const newNotification = this.eventNotificationsRepository.create({ userId, event: { id: eventId }, content, status });
-    return await this.eventNotificationsRepository.save(newNotification);
+  async createNotification() {
+    // const newNotification = this.eventNotificationsRepository.create({ userId, event: { id: eventId }, content, status });
+    // return await this.eventNotificationsRepository.save(newNotification);
   }
 
   async deleteNotification(id: number): Promise<EventNotifications | null> {

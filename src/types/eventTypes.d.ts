@@ -1,4 +1,4 @@
-import {Event, EventCategories, EventLikes } from "../entities/Event";
+import {Event, EventBookmarks, EventCategories, EventLikes } from "../entities/Event";
 
 
 export type MutationResponse = {
@@ -6,6 +6,7 @@ export type MutationResponse = {
     message?: string;
     singleEvent?: Event | null;
     singleEventLike?:EventLikes | null
+    singleEventBookmark?:EventBookmarks | null
     errorCode?: string;
     errorDetail?: string;
 }
@@ -17,6 +18,8 @@ export type EventResponse = {
     event?: Event | null
     eventLikes?: EventLikes[] | null
     eventLike?: EventLikes | null
+    eventBookmarks?: EventBookmarks[] | null
+    eventBookmark?: EventBookmarks | null
     errorCode?: String
     errorDetail?: String
 }

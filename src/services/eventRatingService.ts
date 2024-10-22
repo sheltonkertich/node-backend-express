@@ -12,8 +12,8 @@ export class EventRatingService {
     return await this.eventRatingsRepository.find();
   }
   async createRating(userId: string, eventId: number, scoreRating: number){
-    const newRating = this.eventRatingsRepository.create({ userId, event: { id: eventId }, scoreRating });
-    return await this.eventRatingsRepository.save(newRating);
+    // const newRating = this.eventRatingsRepository.create({ userId, event: { id: eventId }, scoreRating });
+    // return await this.eventRatingsRepository.save(newRating);
   }
 
   async deleteRating(id: number){

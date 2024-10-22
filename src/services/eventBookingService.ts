@@ -17,24 +17,12 @@ export class EventBookingService {
   }
 
   async createBooking(
-    userId: string,
-    eventId: number,
-    slotSet: string,
-    slotsBooked: number
-  ): Promise<EventBookings> {
-    const newBooking = this.eventBookingsRepository.create({
-      userId,
-      event: { id: eventId },
-      slotSet,
-      slotsBooked,
-    });
-    return await this.eventBookingsRepository.save(newBooking);
+
+  ) {
+   
   }
 
-  async deleteBooking(id: number): Promise<EventBookings | null> {
-    const booking = await this.eventBookingsRepository.findOneBy({ id });
-    if (!booking) return null;
-    await this.eventBookingsRepository.softDelete({ id });
-    return booking;
+  async deleteBooking(id: number){
+   
   }
 }
