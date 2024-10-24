@@ -49,7 +49,7 @@ export class Event {
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { onDelete: "SET NULL", nullable: true })
   eventLikes: EventLikes[]
 
-  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event)
+  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event,{ onDelete: "SET NULL", nullable: true })
   bookmarks: EventBookmarks[];
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event)
@@ -72,7 +72,7 @@ export class EventLikes {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
   @ManyToOne(() => Event, (event) => event.eventLikes)
