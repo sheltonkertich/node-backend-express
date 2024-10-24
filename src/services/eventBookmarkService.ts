@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import { EventBookmarks } from "../entities/Event.js";
+import { Event } from "../entities/Event.js";
 
 export class EventBookmarkService {
   private eventBookmarksRepository: Repository<EventBookmarks>;
@@ -25,7 +26,7 @@ export class EventBookmarkService {
   async getEventBookmark(eventID: number, userID: number, id: number): Promise<EventBookmarks | null> {
     try {
       console.log(`Fetching bookmark for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
-      
+
       // Fetch the eventLike record directly with relationships
       const eventBookmark = await this.eventBookmarksRepository.findOne({
         where: {
@@ -38,12 +39,12 @@ export class EventBookmarkService {
           user: true
         }, // Ensure relations are loaded
       });
-  
+
       if (!eventBookmark) {
         console.log(`No bookmark found for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
         return null; // Explicit null return if not found
       }
-  
+
       console.log('bookmark found:', eventBookmark);
       return eventBookmark;
     } catch (error) {
@@ -54,12 +55,12 @@ export class EventBookmarkService {
 
   async createEventBookmark(user: number, event: number): Promise<EventBookmarks> {
     try {
-      const bookmark = await this.eventBookmarksRepository.manager.findOne(EventBookmarks, { where: { id: event } });
+      const bookmark = await this.eventBookmarksRepository.manager.findOne(Event,{where: {id:event}})
       if (!bookmark) {
-        throw new Error(`Bookmark with id ${event} not found.`);
+        throw new Error(`Event with id ${event} not found.`);
       }
 
-      console.log('Booking with id:', event);
+      console.log('Booki marking with id:', event);
 
       // Create a single like object
       const newBookmark = this.eventBookmarksRepository.create({
@@ -75,7 +76,7 @@ export class EventBookmarkService {
   }
 
   async deleteEventBookmark(id: number): Promise<void> {
-    const result = await this.eventBookmarksRepository.delete({ id:id });
+    const result = await this.eventBookmarksRepository.delete({ id: id });
     if (result.affected === 0) {
       throw new Error(`bookmark with id ${id} not found.`);
     }

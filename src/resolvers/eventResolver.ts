@@ -284,7 +284,7 @@ export const eventResolvers = {
 			} catch (error: any) {
 				console.error("Error in CreatingEventBookmark resolver:", error);
 				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
+				const errorMessage = error.detail || 'default errer An unexpected error occurred.';
 				return {
 					success: false,
 					message: errorMessage,

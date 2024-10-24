@@ -5,6 +5,7 @@ type MutationResponse {
     message: String
     singleEvent:Event
     singleEventLike:EventLike
+    singleEventBookmark: EventBookmark
     errorCode: String
     errorDetail: String
 }
@@ -79,14 +80,14 @@ input EventUpdates {
 # Event Like Entity
 type EventLike {
   id: ID!
-  event: Event
+  event: Event!
   user: User
 }
 
 # Event Bookmark Entity
 type EventBookmark {
   id: ID!
-  userId: String!
+  user: User!
   event: Event!
 }
 
@@ -150,13 +151,13 @@ type Mutation {
   deleteEvent(id: ID!): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
   deleteLike(id: ID!): MutationResponse
-  createEventBookmark(userId: String!, eventId: ID!): MutationResponse
+  createEventBookmark(userId: ID!, eventId: ID!): MutationResponse
   deleteEventBookmark(id: ID!): MutationResponse
   # --------first section trial
   createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
   createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!
   createEventNotification(userId: String!, eventId: ID!, content: String!, status: String!): EventNotification!
-  
+
   deleteEventBooking(id: ID!): Boolean!
   deleteEventLike(id: ID!): Boolean!
   deleteEventRating(id: ID!): Boolean!
