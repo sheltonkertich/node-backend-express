@@ -1,42 +1,59 @@
 import {User} from "../entities/User.js";
-import { AppDataSource } from "../data-source.js";
-import { UserService } from "../services/userService.js";
-import { UserInput, UserUpdates, MutationResponse } from "../types/userTypes.js";
-
-const userRepository = AppDataSource.getRepository(User);
-const userService = new UserService(userRepository);
+import { services } from "../services/index.js";
+import { UserInput, UserUpdates, UserMutationResponse, UserQueryResponse } from "../types/userTypes.js";
 
 export const userResolvers = {
   Query: {
-    getUsers: async (): Promise<User[]> => {
+    getUsers: async (): Promise<UserQueryResponse | null> => {
       try {
-        return await userService.getAllUsers();
-      } catch (error) {
-        console.error("Error in getUsers resolver:", error);
-        throw new Error("Could not retrieve users. Please try again later.");
-      }
+				const UsersResult = await services.userService.getAllUsers()
+				if (!UsersResult) {
+					return {
+						success: false,
+						message: "no users found",
+						users: null
+					}
+				}
+				return {
+					success: true,
+					message: " users found",
+					users:UsersResult
+				};
+
+			} catch (error) {
+				console.error("Error in getUsers resolver:", error);
+				throw new Error("Could not retrieve users. Please try again later.");
+			}
     },
-    getUser: async (_: any, { id }: { id: number }): Promise<User | null> => {
+    getUser: async (_: any, { id }: { id: number }): Promise<UserQueryResponse | null> => {
       try {
-        const user = await userService.getUserById(id);
-        if (!user) {
-          throw new Error(`User with id ${id} not found.`);
-        }
-        return user;
-      } catch (error) {
-        console.error(`Error in getUser resolver for id ${id}:`, error);
-        throw new Error("Could not retrieve the user. Please check the user ID and try again.");
-      }
+				const UserResult = await services.userService.getUserById(id);
+				if (UserResult) {
+					return {
+						success: true,
+						message: "user fetch successfully.",
+						user: UserResult,
+					}
+				}
+				return {
+					success: false,
+					message: `No user for user id ${id} in the DB`,
+					user: null
+				};
+			} catch (error) {
+				console.error(`Error in getEvent resolver for id ${id}:`, error);
+				throw new Error("Could not retrieve the event. Please check the user ID and try again.");
+			}
     },
   },
   Mutation: {
-    createUser: async (_: any, { input }: { input: UserInput }): Promise<MutationResponse> => {
+    createUser: async (_: any, { input }: { input: UserInput }): Promise<UserMutationResponse> => {
       try {
-        const user = await userService.createUser(input);
+        const user = await services.userService.createUser(input);
         return {
           success: true,
           message: "User created successfully.",
-          user,
+          singleUser:user
         };
       } catch (error:any) {
         console.error("Error in createUser resolver:", error);
@@ -45,28 +62,27 @@ export const userResolvers = {
         return {
           success: false,
           message: errorMessage,
-          user: null,
+          singleUser: null,
           errorCode: errorCode,
           errorDetail: error, // Optionally include the full error object for more details
         };
       }
     },
-    updateUser: async (_: any, { id, input }: { id: number; input: UserUpdates }): Promise<MutationResponse> => {
-      // Optional: Validate the input here
-    
+    updateUser: async (_: any, { id, userUpdates }: { id: number; userUpdates: UserUpdates }): Promise<UserMutationResponse> => {   
       try {
-        const updatedUser = await userService.updateUser(id, input);
+        const updatedUser = await services.userService.updateUser(id, userUpdates);
+       
         if (!updatedUser) {
           return {
             success: false,
             message: `User with id ${id} not found. Update failed.`,
-            user: null,
+            singleUser: null,
           };
         }
         return {
           success: true,
           message: "User updated successfully.",
-          user: updatedUser,
+          singleUser: updatedUser,
         };
       } catch (error:any) {
         console.error(`Error in updateUser resolver for id ${id}:`, error); // Log the full error object
@@ -78,27 +94,27 @@ export const userResolvers = {
         return {
           success: false,
           message: errorMessage,
-          user: null,
+          singleUser: null,
           errorCode: errorCode,
           errorDetail: error, // Optionally include the full error object for more details
         };
       }
     },
     
-    deleteUser: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
+    deleteUser: async (_: any, { id }: { id: number }): Promise<UserMutationResponse> => {
       try {
-        const deletedUser = await userService.deleteUser(id);
+        const deletedUser = await services.userService.deleteUser(id);
         return {
           success: true,
           message: `User with id ${id} deleted successfully.`,
-          user: deletedUser,
+          singleUser: deletedUser,
         };
       } catch (error) {
         console.error(`Error in deleteUser resolver for id ${id}:`, error);
         return {
           success: false,
           message: "Could not delete the user. Please check the user ID and try again.",
-          user: null,
+          singleUser: null,
         };
       }
     },

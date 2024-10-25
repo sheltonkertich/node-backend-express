@@ -26,14 +26,47 @@ export const userTypeDefs = `#graphql
   type MutationResponse {
     success: Boolean
     message: String
-    user: User
+    singleUser: User
+  }
+#-----------------------------------------------------------------------------------------------#
+  type UserQueryResponse{
+    success: Boolean
+    message: String
+    users:[User]
+    user:User
+    userEventLikes:[EventLike]
+    userEventLike:EventLike
+    UserEventBookmarks:[EventBookmark]
+    UserEventBookmark:EventBookmark
+    UserEventRatings:[EventRating]
+    UserEventRating:EventRating
+    UserErrorCode: String
+    UserErrorDetail: String
   }
 
+  type EventLike {
+  id: ID!
+  event: Event!
+  user: User!
+}
+type EventBookmark {
+  id: ID!
+  user: User!
+  event: Event!
+}
+type EventRating {
+  id: ID!
+  event: Event!
+  userId: String!
+  scoreRating: Float! # Range from 1.0 to 5.0
+}
+
+#-----------------------------------------------------------------------------------------------#
   type Query {
-    getUsers: [User]
-    getUser(id: ID!): User
+    getUsers:UserQueryResponse
+    getUser(id: ID!): UserQueryResponse
   }
-
+#-----------------------------------------------------------------------------------------------#
   type Mutation {
     createUser(input: UserInput!): MutationResponse
     updateUser(id: ID!, userUpdates: UserUpdates): MutationResponse

@@ -132,7 +132,7 @@ export class EventCategories {
   @Column()
   categoryName: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamp" })
   createdAt: Date; // Fixed typo (creaedAt to createdAt)
 
   @ManyToOne(() => Event, (event) => event.categories)

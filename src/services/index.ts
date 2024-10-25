@@ -7,6 +7,7 @@ import {
 	EventNotifications,
 	EventBookmarks,
 } from "../entities/Event.js";
+import { User } from "../entities/User.js";
 import { AppDataSource } from "../data-source.js";
 import { EventService } from "./eventService.js";
 import { EventBookingService } from "./eventBookingService.js";
@@ -15,6 +16,7 @@ import { EventLikeService } from "./eventLikeService.js";
 import { EventNotificationService } from "./eventNotificationService.js";
 import { EventRatingService } from "./eventRatingService.js";
 import { EventCategoryService } from "./eventCategoryService.js";
+import { UserService } from "./userService.js";
 
 const repositories = {
 	event: AppDataSource.getRepository(Event),
@@ -24,6 +26,7 @@ const repositories = {
 	eventRatings: AppDataSource.getRepository(EventRatings),
 	eventNotifications: AppDataSource.getRepository(EventNotifications),
 	eventBookmarks: AppDataSource.getRepository(EventBookmarks),
+	userService: AppDataSource.getRepository(User)
 };
 
 export const services = {
@@ -34,4 +37,5 @@ export const services = {
 	categoriesService: new EventCategoryService(repositories.eventCategories),
 	ratingsService: new EventRatingService(repositories.eventRatings),
 	notificationService: new EventNotificationService(repositories.eventNotifications),
+	userService : new UserService(repositories.userService)
 };

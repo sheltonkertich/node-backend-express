@@ -30,7 +30,8 @@ export class UserService {
 
   async updateUser(id: number, userData: Partial<User>): Promise<User | null> {
     try {
-      const result = await this.userRepository.update(id, userData);
+      const result = await this.userRepository.update(id,userData)
+      
       if (result.affected === 0) {
         throw new Error(`User with id ${id} not found.`);
       }

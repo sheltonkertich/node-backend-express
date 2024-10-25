@@ -1,5 +1,5 @@
 import { services } from "../services/index.js";
-import { EventResponse, EventInputType, EventLikesType, MutationResponse, EventUpdatesType } from "../types/eventTypes.js";
+import { EventResponse, EventInputType, MutationResponse, EventUpdatesType } from "../types/eventTypes.js";
 
 export const eventResolvers = {
 	Query: {
@@ -36,7 +36,7 @@ export const eventResolvers = {
 					}
 				}
 				return {
-					success: true,
+					success: false,
 					message: `No event for event id ${id} in the DB`,
 					event: null
 				};
