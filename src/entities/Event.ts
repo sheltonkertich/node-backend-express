@@ -49,7 +49,7 @@ export class Event {
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {cascade:true, onDelete: "CASCADE", nullable:true})
   eventLikes: EventLikes[]
 
-  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event,{cascade:true, onDelete: "CASCADE"})
+  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event,{cascade:true, onDelete: "CASCADE", nullable:true})
   bookmarks: EventBookmarks[];
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event)
@@ -96,7 +96,7 @@ export class EventBookmarks {
   @ManyToOne(() => Event, (event) => event.bookmarks,{onDelete:"CASCADE"})
   event: Event;
 
-  @ManyToOne(() => User, (user) => user.bookmarks)
+  @ManyToOne(() => User, (user) => user.bookmarks,{nullable:true})
   user: Relation<User>
 }
 

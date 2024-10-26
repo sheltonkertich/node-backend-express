@@ -30,6 +30,10 @@ export class EventService {
     try {
       return await this.eventRepository.findOne({ where: { id }, relations: {
         eventLikes: true,
+        bookmarks:true,
+        bookings:true,
+        ratings:true,
+        notifications:true
       } });
     } catch (error) {
       console.error(`Error fetching event with id ${id}:`, error);

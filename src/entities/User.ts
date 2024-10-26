@@ -34,7 +34,7 @@ export class User {
   @OneToMany(() => EventLikes, (eventLike) => eventLike.user, {cascade:true, onDelete: "SET NULL", nullable: true })
   eventLikes: Relation<EventLikes[]>
 
-  @OneToMany(()=> EventBookmarks, (eventBookmark) => eventBookmark.user, {cascade:true, onDelete: "CASCADE"})
+  @OneToMany(()=> EventBookmarks, (eventBookmark) => eventBookmark.user, {cascade:true, onDelete: "SET NULL", nullable: true })
   bookmarks: Relation<EventBookmarks[]>
 
   @OneToMany(()=> EventBookings, (eventBooking) => eventBooking.user, { onDelete: "SET NULL", nullable: true })
