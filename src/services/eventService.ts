@@ -13,8 +13,9 @@ export class EventService {
       return await this.eventRepository.find({
         relations: {
           eventLikes: true,
+          bookmarks: true,
           // bookings: true,
-          // bookmarks: true,
+       
           // ratings: true,
           // notifications: true
         }

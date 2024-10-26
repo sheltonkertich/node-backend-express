@@ -1,5 +1,5 @@
 import {
-Entity,  PrimaryGeneratedColumn,Column,CreateDateColumn,UpdateDateColumn, Index, OneToMany, JoinColumn, Relation
+Entity,  PrimaryGeneratedColumn,Column,CreateDateColumn,UpdateDateColumn, Index, OneToMany,DeleteDateColumn, JoinColumn, Relation
 } from "typeorm";
 import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings } from "./Event.js";
 
@@ -21,6 +21,9 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
   @Column({ type: "int", nullable: true })
   age?: number; // Make age optional if it's not always provided
 
@@ -28,10 +31,10 @@ export class User {
   @Column({ type: "varchar", length: 100 })
   email: string;
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.user, { onDelete: "SET NULL", nullable: true })
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.user, {cascade:true, onDelete: "SET NULL", nullable: true })
   eventLikes: Relation<EventLikes[]>
 
-  @OneToMany(()=> EventBookmarks, (eventBookmark) => eventBookmark.user, { onDelete: "SET NULL", nullable: true })
+  @OneToMany(()=> EventBookmarks, (eventBookmark) => eventBookmark.user, {cascade:true, onDelete: "CASCADE"})
   bookmarks: Relation<EventBookmarks[]>
 
   @OneToMany(()=> EventBookings, (eventBooking) => eventBooking.user, { onDelete: "SET NULL", nullable: true })

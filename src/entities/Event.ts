@@ -1,5 +1,5 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, DeleteDateColumn, Relation, Unique
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, DeleteDateColumn, Relation, Unique, JoinTable
 } from "typeorm";
 import { User } from "./User.js";
 
@@ -46,16 +46,17 @@ export class Event {
   deletedAt?: Date;
 
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { onDelete: "SET NULL", nullable: true })
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {cascade:true, onDelete: "CASCADE", nullable:true})
   eventLikes: EventLikes[]
 
-  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event,{ onDelete: "SET NULL", nullable: true })
+  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event,{cascade:true, onDelete: "CASCADE"})
   bookmarks: EventBookmarks[];
 
   @OneToMany(() => EventBookings, (bookings) => bookings.event)
   bookings: EventBookings[]
 
-  @OneToMany(() => EventCategories, (categories) => categories.event)
+  @OneToMany(() => EventCategories, (categories) => categories.event,{cascade:["update"]})
+  @JoinTable()
   categories: EventCategories[];
 
   @OneToMany(() => EventRatings, (ratings) => ratings.event)
@@ -75,10 +76,10 @@ export class EventLikes {
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
-  @ManyToOne(() => Event, (event) => event.eventLikes)
+  @ManyToOne(() => Event, (event) => event.eventLikes,{onDelete:"CASCADE"})
   event: Relation<Event>;
 
-  @ManyToOne(() => User, (user) => user.eventLikes)
+  @ManyToOne(() => User, (user) => user.eventLikes,{nullable:true})
   user: Relation<User>;
 }
 
@@ -92,7 +93,7 @@ export class EventBookmarks {
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date; // Consistent naming (userId instead of userID)
 
-  @ManyToOne(() => Event, (event) => event.bookmarks)
+  @ManyToOne(() => Event, (event) => event.bookmarks,{onDelete:"CASCADE"})
   event: Event;
 
   @ManyToOne(() => User, (user) => user.bookmarks)

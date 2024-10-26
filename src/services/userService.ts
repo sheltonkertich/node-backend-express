@@ -46,11 +46,11 @@ export class UserService {
 
   async deleteUser(id: number): Promise<User | null> {
     try {
-      const user = await this.userRepository.findOneBy({ id });
+      const user = await this.userRepository.findOne({ where: { id } });
       if (!user) {
         throw new Error(`User with id ${id} not found.`);
       }
-      await this.userRepository.remove(user);
+      await this.userRepository.softDelete({id});
       return user;
     } catch (error:any) {
       const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
