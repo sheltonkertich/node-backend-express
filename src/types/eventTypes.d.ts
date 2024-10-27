@@ -1,4 +1,4 @@
-import {Event, EventBookmarks, EventCategories, EventLikes } from "../entities/Event";
+import {Event, EventBookmarks, EventCategories, EventLikes, EventNotifications, EventRatings, EventSlots } from "../entities/Event";
 
 
 export type MutationResponse = {
@@ -47,6 +47,9 @@ export type EventType = {
 
 export type EventInputType = {
     organizer: string;
+    time: Date; // ISO format for timestamp
+    startTime: Date;
+    endTime: Date;
     location: string;
     categories: EventCategories[];
     status: string;
@@ -56,6 +59,7 @@ export type EventInputType = {
     seatAvailable: number;
     createdAt: Date; // ISO format
     updatedAt: Date; // ISO format
+    slots?: EventSlots[]
 }
 
 

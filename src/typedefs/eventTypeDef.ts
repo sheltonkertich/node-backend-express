@@ -36,14 +36,17 @@ type Event {
   createdAt: String
   updatedAt: String
   eventLikes: [EventLike]
-  bookings: [EventBooking]
   bookmarks: [EventBookmark]
   ratings: [EventRating]
+  categories: [EventCategory]
   notifications: [EventNotification]
+  slots: [EventSlots]
 }
 input EventInput {
   organizer: String!
   time: String! # ISO format for timestamp
+  startTime: String!
+  endTime: String!
   location: String!
   category: String!
   status: String!
@@ -53,11 +56,37 @@ input EventInput {
   seatAvailable: Int!
   createdAt: String! # ISO format for timestamp
   updatedAt: String!
-  # likes: [EventLike]
-  # bookings: [EventBooking]
-  # bookmarks: [EventBookmark]
-  # ratings: [EventRating]
+  slots: [SlotsInput]
   # notifications: [EventNotification]
+}
+input SlotsInput {
+    startTime: String!
+    endTime: String!
+    capacity: Int!
+    vvipAvailable: Int!
+    vipAvailable: Int!
+    normalAvailable: Int!
+}
+type EventSlots {
+  id: ID!
+    startTime: String!
+    endTime: String!
+    capacity: Int!
+    vvipAvailable: Int!
+    vipAvailable: Int!
+    normalAvailable: Int!
+    tickets: [EventTickets!]!
+}
+type EventTickets {
+  id: ID!
+    ticketType: TicketType!
+    price: Float!
+    availability: Int!
+}
+ enum TicketType {
+  NORMAL
+  VIP
+  VVIP
 }
 input EventUpdates {
   organizer: String

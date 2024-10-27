@@ -1,8 +1,14 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, DeleteDateColumn, Relation, Unique, JoinTable
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn,AfterLoad, DeleteDateColumn, Relation, Unique, JoinTable
 } from "typeorm";
 import { User } from "./User.js";
 
+
+export enum TicketType {
+  NORMAL = "normal",
+  VIP = "vip",
+  VVIP = "vvip"
+}
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn()
@@ -13,6 +19,12 @@ export class Event {
 
   @Column({ type: "timestamp", nullable: true })
   time: Date;
+
+  @Column({nullable: true })
+  startTime: Date;
+
+  @Column({nullable: true })
+  endTime: Date;
 
   @Column({ type: "text", nullable: true })
   location: string;
@@ -46,16 +58,16 @@ export class Event {
   deletedAt?: Date;
 
 
-  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, {cascade:true, onDelete: "CASCADE", nullable:true})
+  @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { cascade: true, onDelete: "CASCADE", nullable: true })
   eventLikes: EventLikes[]
 
-  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event,{cascade:true, onDelete: "CASCADE", nullable:true})
+  @OneToMany(() => EventBookmarks, (bookmarks) => bookmarks.event, { cascade: true, onDelete: "CASCADE", nullable: true })
   bookmarks: EventBookmarks[];
 
-  @OneToMany(() => EventBookings, (bookings) => bookings.event)
-  bookings: EventBookings[]
+  @OneToMany(() => EventSlots, (slot) => slot.event, { cascade: true, onDelete: "CASCADE" })
+  slots: EventSlots[];
 
-  @OneToMany(() => EventCategories, (categories) => categories.event,{cascade:["update"]})
+  @OneToMany(() => EventCategories, (categories) => categories.event, { cascade: ["update"] })
   @JoinTable()
   categories: EventCategories[];
 
@@ -76,10 +88,10 @@ export class EventLikes {
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
-  @ManyToOne(() => Event, (event) => event.eventLikes,{onDelete:"CASCADE"})
+  @ManyToOne(() => Event, (event) => event.eventLikes, { onDelete: "CASCADE" })
   event: Relation<Event>;
 
-  @ManyToOne(() => User, (user) => user.eventLikes,{nullable:true})
+  @ManyToOne(() => User, (user) => user.eventLikes, { nullable: true })
   user: Relation<User>;
 }
 
@@ -93,16 +105,15 @@ export class EventBookmarks {
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date; // Consistent naming (userId instead of userID)
 
-  @ManyToOne(() => Event, (event) => event.bookmarks,{onDelete:"CASCADE"})
+  @ManyToOne(() => Event, (event) => event.bookmarks, { onDelete: "CASCADE" })
   event: Event;
 
-  @ManyToOne(() => User, (user) => user.bookmarks,{nullable:true})
+  @ManyToOne(() => User, (user) => user.bookmarks, { nullable: true })
   user: Relation<User>
 }
-
 // -----------------------------------------------------------------------------------------------------------------//
 @Entity()
-@Unique(["event", "user"])
+@Unique(["user"])
 export class EventBookings {
   @PrimaryGeneratedColumn()
   id: number;
@@ -110,11 +121,26 @@ export class EventBookings {
   @CreateDateColumn({ type: "timestamp" })
   bookedDate: Date;
 
-  @ManyToOne(() => Event, (event) => event.bookings)
-  event: Event;
+  @DeleteDateColumn()
+  deletedAt?: Date;
 
   @ManyToOne(() => User, (user) => user.bookings)
   user: Relation<User>
+
+  // @ManyToOne(() => EventSlots,slot => slot.bookings,{ onDelete: "SET NULL" })
+  // slot: EventSlots;
+
+  // @ManyToOne(() => EventTickets=>(ticket)=>ticket.bookings, { onDelete: "SET NULL" })
+  // ticket: EventTickets;
+
+  @Column({
+    type: "enum",
+    enum: TicketType,
+  })
+  ticketType: TicketType;
+
+  @Column()
+  status: string;
 
   @Column()
   slotSet: string;
@@ -122,6 +148,59 @@ export class EventBookings {
   @Column()
   slotsBooked: number; // Assuming this is a numeric value
 }
+// -----------------------------------------------------------------------------------------------------------------//
+@Entity()
+export class EventSlots {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() =>  Event, (event) => event.slots, { onDelete: "CASCADE" })
+  event: Event;
+
+  @Column()
+  capacity: number;
+
+  @Column({ default: 0 })
+  vvipAvailable: number; // VVIP tickets available
+
+  @Column({ default: 0 })
+  vipAvailable: number; // VIP tickets available
+
+  @Column({ default: 0 })
+  normalAvailable: number; // Normal tickets available
+
+  @OneToMany(() => EventTickets, ticket => ticket.slot, { cascade: true, onDelete: "CASCADE" })
+    tickets: EventTickets[];
+}
+
+// -----------------------------------------------------------------------------------------------------------------//
+@Entity()
+export class EventTickets {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
+  @ManyToOne(() => EventSlots, slot => slot.tickets)
+  slot: EventSlots;
+
+  @Column({
+    type: "enum",
+    enum: TicketType,
+  })
+  ticketType: TicketType;
+
+  @Column("decimal", { precision: 10, scale: 2 })
+  price: number;
+
+  @Column()
+  availability: number;
+
+}
+
 
 // -----------------------------------------------------------------------------------------------------------------//
 @Entity()

@@ -1,8 +1,9 @@
 import { Repository } from "typeorm";
-import { Event } from "../entities/Event";
+import { Event, EventSlots } from "../entities/Event";
 
 export class EventService {
   private eventRepository: Repository<Event>;
+  private slotsRepository: Repository<EventSlots>;
 
   constructor(eventRepository: Repository<Event>) {
     this.eventRepository = eventRepository;
@@ -15,7 +16,7 @@ export class EventService {
           eventLikes: true,
           bookmarks: true,
           // bookings: true,
-       
+
           // ratings: true,
           // notifications: true
         }
@@ -28,13 +29,14 @@ export class EventService {
 
   async getEventById(id: number): Promise<Event | null> {
     try {
-      return await this.eventRepository.findOne({ where: { id }, relations: {
-        eventLikes: true,
-        bookmarks:true,
-        bookings:true,
-        ratings:true,
-        notifications:true
-      } });
+      return await this.eventRepository.findOne({
+        where: { id }, relations: {
+          eventLikes: true,
+          bookmarks: true,
+          ratings: true,
+          notifications: true
+        }
+      });
     } catch (error) {
       console.error(`Error fetching event with id ${id}:`, error);
       throw new Error("Failed to retrieve event.");
@@ -44,7 +46,20 @@ export class EventService {
   async createEvent(eventData: Partial<Event>): Promise<Event> {
     try {
       const event = this.eventRepository.create(eventData);
-      return await this.eventRepository.save(event);
+      // Create slots for the event
+      const slots = eventData.slots?.map(slotData => {
+        return this.slotsRepository.create({
+          capacity: slotData.capacity,
+          vvipAvailable: slotData.vvipAvailable,
+          vipAvailable: slotData.vipAvailable,
+          normalAvailable: slotData.normalAvailable,
+          event: { id: event.id }
+        });
+      })??[];
+       // Save the event and its slots
+      event.slots = slots;
+      return await this.eventRepository.save(event);// This will also save the associated slots due to cascading
+
     } catch (error: any) {
       const errorCode = error.code || 'UNKNOWN_ERROR';
       const errorMessage = error.detail || 'An unexpected error occurred.';

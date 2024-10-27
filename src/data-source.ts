@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import {User} from "./entities/User.js";
+import { User, UserProfile } from "./entities/User.js";
 import Organizer from "./entities/Organizer.js";
 import {
   Event,
@@ -10,6 +10,8 @@ import {
   EventLikes,
   EventNotifications,
   EventRatings,
+  EventSlots,
+  EventTickets
 } from "./entities/Event.js";
 
 export const AppDataSource = new DataSource({
@@ -23,12 +25,15 @@ export const AppDataSource = new DataSource({
   //logging: true,
   entities: [
     User,
+    UserProfile,
     Organizer,
     Event,
-    EventBookings,
-    EventBookmarks,
-    EventCategories,
     EventLikes,
+    EventBookmarks,
+    EventSlots,
+    EventTickets,
+    EventBookings,
+    EventCategories,
     EventNotifications,
     EventRatings,
 
