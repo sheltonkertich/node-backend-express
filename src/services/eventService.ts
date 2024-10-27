@@ -45,21 +45,30 @@ export class EventService {
 
   async createEvent(eventData: Partial<Event>): Promise<Event> {
     try {
+      // First, create and save the event to get an ID
       const event = this.eventRepository.create(eventData);
-      // Create slots for the event
+      await this.eventRepository.save(event);
+  
+      // Now that the event has been saved, we can use its ID to create slots
+      console.log('slotsdata:', eventData.slots, 'eventid:', event.id);
       const slots = eventData.slots?.map(slotData => {
         return this.slotsRepository.create({
           capacity: slotData.capacity,
           vvipAvailable: slotData.vvipAvailable,
           vipAvailable: slotData.vipAvailable,
           normalAvailable: slotData.normalAvailable,
-          event: { id: event.id }
+          event: { id: event.id },
         });
-      })??[];
-       // Save the event and its slots
+      }) ?? [];
+  
+      // Save the slots to the database
+      await this.slotsRepository.save(slots);
+  
+      // Assign the slots to the event entity
       event.slots = slots;
-      return await this.eventRepository.save(event);// This will also save the associated slots due to cascading
-
+      
+      return event;
+  
     } catch (error: any) {
       const errorCode = error.code || 'UNKNOWN_ERROR';
       const errorMessage = error.detail || 'An unexpected error occurred.';
@@ -67,7 +76,7 @@ export class EventService {
       throw new Error(`Failed to create event. Error Code: ${errorCode}. Message: ${errorMessage}`);
     }
   }
-
+  
   async updateEvent(id: number, eventUpdates: Partial<Event> = {}): Promise<Event | null> {
     try {
       console.log('id:', id, 'eventUpdates:', eventUpdates);
