@@ -45,9 +45,6 @@ export class Event {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   cost: number;
 
-  @Column({ type: "numeric", nullable: true })
-  seatAvailable: number; // Assuming this is a numeric value
-
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
@@ -156,6 +153,9 @@ export class EventSlots {
 
   @ManyToOne(() =>  Event, (event) => event.slots, { onDelete: "CASCADE" })
   event: Event;
+  
+  @Column({nullable:true})
+  codeName: string
 
   @Column()
   capacity: number;

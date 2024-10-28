@@ -53,9 +53,6 @@ input EventInput {
   coverImage: String
   description: String!
   cost: Float!
-  seatAvailable: Int!
-  createdAt: String! # ISO format for timestamp
-  updatedAt: String!
   slots: [SlotsInput]
   # notifications: [EventNotification]
 }
@@ -71,6 +68,7 @@ type EventSlots {
   id: ID!
     startTime: String!
     endTime: String!
+    codeName:String!
     capacity: Int!
     vvipAvailable: Int!
     vipAvailable: Int!

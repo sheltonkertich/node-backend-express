@@ -46,9 +46,8 @@ export class User {
   @Column({ type: "varchar", length: 100 })
   email: string;
 
-  // @OneToOne((type) => UserProfile,{ cascade: true })
-  // @JoinColumn()
-  // profile: UserProfile;
+  @OneToOne(() => UserProfile,{ cascade: true })
+  profile: Relation<UserProfile>;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.user, { cascade: true, onDelete: "SET NULL", nullable: true })
   eventLikes: Relation<EventLikes[]>
@@ -71,8 +70,9 @@ export class UserProfile {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @OneToOne((type) => User, (user) => user.profile, { onDelete: "CASCADE" })
-  // user: User;
+  @OneToOne(() => User,{ onDelete: "CASCADE" })
+  @JoinColumn()
+  user: Relation<User>;
 
   @Column({ nullable: true })
   bio: string;
