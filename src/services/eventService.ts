@@ -1,6 +1,6 @@
-import { Repository } from "typeorm";
+import { Repository} from "typeorm";
 import { Event, EventSlots } from "../entities/Event";
-import { services } from ".";
+import { services } from "./index.js";
 import { MutationResponse } from "../types/eventTypes";
 
 export class EventService {
@@ -60,19 +60,26 @@ export class EventService {
     }
   }
 
-  async updateEvent(id: number, eventUpdates: Partial<Event> = {}): Promise<Event | null> {
+  async updateEvent(eventId: number, slotName: string,slostUpdates:Partial<EventSlots>, eventUpdates: Partial<Event> = {}): Promise<Event | null> {
     try {
-      console.log('id:', id, 'eventUpdates:', eventUpdates);
+      console.log('id:', eventId, 'eventUpdates:', eventUpdates, slotName);
       if (!Object.keys(eventUpdates).length) {
         throw new Error("No valid fields provided for update.");
       }
-
-      const result = await this.eventRepository.update(id, eventUpdates);
-      if (result.affected === 0) {
-        throw new Error(`Event with id ${id} not found.`);
+      const event = await this.eventRepository.findOne({ where: { id:eventId } })
+      if (!event) {
+        throw new Error(`Event with id ${eventId} not found.`);
       }
+      console.log(slostUpdates)
+     const slot = await services.slotsService.getEventSlot(slotName,slostUpdates);
+      //console.log(slot)
 
-      return await this.eventRepository.findOne({ where: { id } });
+      // const result = await this.eventRepository.update(eventId, eventUpdates);
+      // if (result.affected === 0) {
+      //   throw new Error(`Event with id ${eventId} not found.`);
+      // }
+console.log("vdgvdgvdgvdgvgdvdgvdgv")
+      return await this.eventRepository.findOne({ where: { id: eventId } });
     } catch (error: any) {
       const errorCode = error.code || 'UNKNOWN_ERROR';
       const errorMessage = error.detail || error.message || 'An unexpected error occurred.';

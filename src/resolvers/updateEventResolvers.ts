@@ -1,16 +1,16 @@
 import { services } from "../services/index.js";
-import { MutationResponse, EventUpdatesType } from "../types/eventTypes.js";
+import { MutationResponse, EventUpdatesType,SlotsUpdatesType } from "../types/eventTypes.js";
 
 export const updateEventResolvers = {
     Mutation:{
-        updateEvent: async (_: any, { id, eventUpdates }: { id: number, eventUpdates: EventUpdatesType }): Promise<MutationResponse> => {
+        updateEvent: async (_: any, { eventId,slotName,slotUpdates, eventUpdates, }: { eventId: number,slotName:string,slotUpdates:SlotsUpdatesType, eventUpdates: EventUpdatesType }): Promise<MutationResponse> => {
 			try {
-				const updatedEvent = await services.eventService.updateEvent(id, eventUpdates);
+				const updatedEvent = await services.eventService.updateEvent(eventId,slotName,slotUpdates, eventUpdates);
 
 				if (!updatedEvent) {
 					return {
 						success: false,
-						message: `Event with id ${id} not found. Update failed.`,
+						message: `Event with id ${eventId} not found. Update failed.`,
 						singleEvent: null,
 					};
 				}
@@ -22,7 +22,7 @@ export const updateEventResolvers = {
 				};
 
 			} catch (error: any) {
-				console.error(`Error in updateEvent resolver for id ${id}:`, error);
+				console.error(`Error in updateEvent resolver for id ${eventId}:`, error);
 
 				const errorCode = error.code || 'UNKNOWN_ERROR';
 				const errorMessage = error.message || 'An unexpected error occurred.';

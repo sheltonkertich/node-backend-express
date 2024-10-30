@@ -11,31 +11,9 @@ export class EventSlotsService {
     async getEventSlots() {
 
     }
-    async getEventSlot() {
-
+    async getEventSlot(slotName: string,slostUpdates:Partial<EventSlots>) {
+        console.log("tuko kwa slot service", slotName, slostUpdates)
     }
-
-    // async createEventSlots(eventID: number, slotsData: Partial<EventSlots>): Promise<EventSlots> {
-    //     try {
-    //         console.log('slotsData:', slotsData);
-    //         const slots = this.eventSlotsRepository.create({
-    //             event: { id: eventID },
-    //             capacity: slotsData.capacity,
-    //             vvipAvailable: slotsData.vvipAvailable,
-    //             vipAvailable: slotsData.vipAvailable,
-    //             normalAvailable: slotsData.normalAvailable,
-                
-    //         });
-    //        return await this.eventSlotsRepository.save(slots);
-
-    //     } catch (error: any) {
-    //         const errorCode = error.code || 'UNKNOWN_ERROR';
-    //         const errorMessage = error.detail || 'An unexpected error occurred.';
-    //         console.error(`Service Error creating eventslot: ${errorMessage}`, error);
-    //         throw new Error(`Failed to create eventslot. Error Code: ${errorCode}. Message: ${errorMessage}`);
-    //     }
-    // }
-
     async ddeleteEventSlot() {
 
     }

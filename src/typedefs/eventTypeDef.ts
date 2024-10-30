@@ -56,14 +56,44 @@ input EventInput {
   slots: [SlotsInput]
   # notifications: [EventNotification]
 }
+input EventUpdates {
+  organizer: String
+  time: String # ISO format for timestamp
+  location: String
+  category: String
+  status: String
+  coverImage: String
+  description: String
+  cost: Float
+  seatAvailable: Int
+  createdAt: String
+  updatedAt: String
+  slots: [SlotsUpdates]
+  # likes: [EventLike]
+  # bookings: [EventBooking]
+  # bookmarks: [EventBookmark]
+  # ratings: [EventRating]
+  # notifications: [EventNotification]
+}
 input SlotsInput {
     startTime: String!
     endTime: String!
     capacity: Int!
+    codeName: String
     vvipAvailable: Int!
     vipAvailable: Int!
     normalAvailable: Int!
 }
+input SlotsUpdates {
+    startTime: String
+    endTime: String
+    capacity: Int
+    codeName: String
+    vvipAvailable: Int
+    vipAvailable: Int
+    normalAvailable: Int
+}
+
 type EventSlots {
   id: ID!
     startTime: String!
@@ -86,24 +116,7 @@ type EventTickets {
   VIP
   VVIP
 }
-input EventUpdates {
-  organizer: String
-  time: String # ISO format for timestamp
-  location: String
-  category: String
-  status: String
-  coverImage: String
-  description: String
-  cost: Float
-  seatAvailable: Int
-  createdAt: String
-  updatedAt: String
-  # likes: [EventLike]
-  # bookings: [EventBooking]
-  # bookmarks: [EventBookmark]
-  # ratings: [EventRating]
-  # notifications: [EventNotification]
-}
+
 # Event Like Entity
 type EventLike {
   id: ID!
@@ -174,7 +187,7 @@ type Mutation {
   #deleteMultipleEvents()
   #deleteMultipleUsers()
   createEvent( input:EventInput! ): MutationResponse
-  updateEvent(id: ID!, eventUpdates:EventUpdates): MutationResponse
+  updateEvent(eventId: ID!,slotName:String, eventUpdates:EventUpdates, slotUpdates:SlotsUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
   deleteLike(id: ID!): MutationResponse

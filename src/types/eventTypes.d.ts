@@ -64,17 +64,25 @@ export type EventInputType = {
 
 
 export type EventUpdatesType = {
-    organizer: string;
-    time: Date; // ISO format for timestamp
-    location: string;
-    categories: EventCategories[];
-    status: string;
-    coverImage: string;
-    description: string;
-    cost: number;
-    seatAvailable: number;
-    createdAt: Date; // ISO format
-    updatedAt: Date; // ISO format
+    organizer?: string;
+    time?: Date; // ISO format for timestamp
+    location?: string;
+    categories?: EventCategories[];
+    status?: string;
+    coverImage?: string;
+    description?: string;
+    cost?: number;
+    seatAvailable?: number;
+    createdAt?: Date; // ISO format
+    updatedAt?: Date; // ISO format
+    //slots?: EventSlots[]
+}
+export type SlotsUpdatesType={
+    codeName?: string
+    capacity?: number;
+    vvipAvailable?: number; // VVIP tickets available
+    vipAvailable?: number; // VIP tickets available
+    normalAvailable?: number; // Normal tickets available
 }
 
 export type EventBookmarksType = {
