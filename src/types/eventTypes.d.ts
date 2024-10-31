@@ -6,6 +6,7 @@ export type MutationResponse = {
     message?: string;
     singleEvent?: Event | null;
     singleEventLike?:EventLikes | null
+    singleSlot?:EventSlots | null
     singleEventBookmark?:EventBookmarks | null
     errorCode?: string;
     errorDetail?: string;

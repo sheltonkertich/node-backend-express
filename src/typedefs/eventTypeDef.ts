@@ -5,6 +5,7 @@ type MutationResponse {
     message: String
     singleEvent:Event
     singleEventLike:EventLike
+    singleSlot:EventSlots
     singleEventBookmark: EventBookmark
     errorCode: String
     errorDetail: String
@@ -188,6 +189,7 @@ type Mutation {
   #deleteMultipleUsers()
   createEvent( input:EventInput! ): MutationResponse
   updateEvent(eventId: ID!,slotName:String, eventUpdates:EventUpdates, slotUpdates:SlotsUpdates): MutationResponse
+  updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
   deleteLike(id: ID!): MutationResponse
