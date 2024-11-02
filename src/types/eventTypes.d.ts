@@ -21,6 +21,8 @@ export type EventResponse = {
     eventLike?: EventLikes | null
     eventBookmarks?: EventBookmarks[] | null
     eventBookmark?: EventBookmarks | null
+    allSlots?:EventSlots[] | null
+    eventSlot?:EventSlots | null
     errorCode?: String
     errorDetail?: String
 }

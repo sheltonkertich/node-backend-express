@@ -16,10 +16,10 @@ export class EventService {
         relations: {
           eventLikes: true,
           bookmarks: true,
-          // bookings: true,
+          slots: true,
 
-          // ratings: true,
-          // notifications: true
+          ratings: true,
+          notifications: true
         }
       });
     } catch (error) {
@@ -35,7 +35,8 @@ export class EventService {
           eventLikes: true,
           bookmarks: true,
           ratings: true,
-          notifications: true
+          notifications: true,
+          slots:true
         }
       });
     } catch (error) {

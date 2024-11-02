@@ -19,6 +19,8 @@ type EventsResponse {
     eventLike:EventLike
     eventBookmarks:[EventBookmark]
     eventBookmark:EventBookmark
+    eventSlot:Slot
+    allSlots:[Slot]
     errorCode: String
     errorDetail: String
 }
@@ -106,6 +108,16 @@ type EventSlots {
     normalAvailable: Int!
     tickets: [EventTickets!]!
 }
+type Slot {
+  id: ID
+  event:Event
+    codeName:String
+    capacity: Int
+    vvipAvailable: Int
+    vipAvailable: Int
+    normalAvailable: Int
+    tickets: [EventTickets!]
+}
 type EventTickets {
   id: ID!
     ticketType: TicketType!
@@ -176,6 +188,8 @@ type Query {
     getAllLikes: EventsResponse
     getEventBookmark(id:ID!, userID: ID, eventID: ID):EventsResponse
     getAllEventBookmarks: EventsResponse
+    getAllslots: EventsResponse
+    getEventSlot(id:ID,codeName:String):EventsResponse
     
     getEventBookings: [EventBooking!]!
     getEventCategories: [EventCategory!]!
@@ -189,8 +203,8 @@ type Mutation {
   #deleteMultipleUsers()
   createEvent( input:EventInput! ): MutationResponse
   updateEvent(eventId: ID!,slotName:String, eventUpdates:EventUpdates, slotUpdates:SlotsUpdates): MutationResponse
-  updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
+  updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
   deleteLike(id: ID!): MutationResponse
   createEventBookmark(userId: ID!, eventId: ID!): MutationResponse
