@@ -71,6 +71,9 @@ export const createEventResolvers = {
 				};
 			}
 		},
+		bookEventTicket: async (_: any, { slotId, userId, ticketType, quantity }: { slotId: number, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
+
+		}
 
 	},
 };

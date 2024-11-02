@@ -169,12 +169,23 @@ export class EventSlots {
   @Column({ default: 0 })
   normalAvailable: number; // Normal tickets available
 
+  // New columns for pricing
+  @Column("decimal", { precision: 10, scale: 2 ,nullable:true},)
+  vvipPrice: number;
+
+  @Column("decimal", { precision: 10, scale: 2,nullable:true })
+  vipPrice: number;
+
+  @Column("decimal", { precision: 10, scale: 2,nullable:true })
+  normalPrice: number;
+
   @OneToMany(() => EventTickets, ticket => ticket.slot, { cascade: true, onDelete: "CASCADE" })
     tickets: EventTickets[];
 }
 
 // -----------------------------------------------------------------------------------------------------------------//
 @Entity()
+@Unique(["user"])
 export class EventTickets {
   @PrimaryGeneratedColumn()
   id: number;
@@ -187,6 +198,9 @@ export class EventTickets {
   @ManyToOne(() => EventSlots, slot => slot.tickets)
   slot: EventSlots;
 
+  @ManyToOne(() => User, (user) => user.tickets)
+  user: Relation<User>
+
   @Column({
     type: "enum",
     enum: TicketType,
@@ -197,7 +211,7 @@ export class EventTickets {
   price: number;
 
   @Column()
-  availability: number;
+  quantity: number;
 
 }
 

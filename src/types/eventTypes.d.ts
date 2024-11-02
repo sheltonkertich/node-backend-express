@@ -1,4 +1,4 @@
-import {Event, EventBookmarks, EventCategories, EventLikes, EventNotifications, EventRatings, EventSlots } from "../entities/Event";
+import {Event, EventBookmarks, EventCategories, EventLikes, EventNotifications, EventRatings, EventSlots, EventTickets } from "../entities/Event";
 
 
 export type MutationResponse = {
@@ -8,6 +8,7 @@ export type MutationResponse = {
     singleEventLike?:EventLikes | null
     singleSlot?:EventSlots | null
     singleEventBookmark?:EventBookmarks | null
+    singleTicket?:EventTickets | null
     errorCode?: string;
     errorDetail?: string;
 }

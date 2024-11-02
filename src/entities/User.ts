@@ -1,7 +1,7 @@
 import {
   Entity,Unique, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany, OneToOne, DeleteDateColumn, JoinColumn, Relation
 } from "typeorm";
-import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings } from "./Event.js";
+import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings, EventSlots, EventTickets } from "./Event.js";
 
 
 export enum UserType {
@@ -54,6 +54,9 @@ export class User {
 
   @OneToMany(() => EventBookmarks, (eventBookmark) => eventBookmark.user, { cascade: true, onDelete: "SET NULL", nullable: true })
   bookmarks: Relation<EventBookmarks[]>
+
+  @OneToMany(() => EventTickets, (ticket) => ticket.user, { cascade: true, onDelete: "SET NULL", nullable: true })
+  tickets: Relation<EventTickets[]>
 
   @OneToMany(() => EventBookings, (eventBooking) => eventBooking.user, { cascade: true, onDelete: "SET NULL", nullable: true })
   bookings: Relation<EventBookings[]>

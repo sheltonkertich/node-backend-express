@@ -83,9 +83,12 @@ input SlotsInput {
     endTime: String!
     capacity: Int!
     codeName: String
-    vvipAvailable: Int!
-    vipAvailable: Int!
-    normalAvailable: Int!
+    vvipAvailable: Int
+    vipAvailable: Int
+    normalAvailable: Int
+    vvipPrice:Int
+    vipPrice:Int
+    normalPrice:Int
 }
 input SlotsUpdates {
     startTime: String
@@ -122,7 +125,7 @@ type EventTickets {
   id: ID!
     ticketType: TicketType!
     price: Float!
-    availability: Int!
+    quantity: Int!
 }
  enum TicketType {
   NORMAL
@@ -204,11 +207,13 @@ type Mutation {
   createEvent( input:EventInput! ): MutationResponse
   updateEvent(eventId: ID!,slotName:String, eventUpdates:EventUpdates, slotUpdates:SlotsUpdates): MutationResponse
   deleteEvent(id: ID!): MutationResponse
-  updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
-  createEventLike(userId: ID!, eventId: ID!):MutationResponse
   deleteLike(id: ID!): MutationResponse
   createEventBookmark(userId: ID!, eventId: ID!): MutationResponse
   deleteEventBookmark(id: ID!): MutationResponse
+  updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
+  createEventLike(userId: ID!, eventId: ID!):MutationResponse
+  bookEventTicket(slotId:ID!, userId: ID!, ticketType: TicketType!, quantity: Int!):MutationResponse
+
   # --------first section trial
   createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
   createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!
