@@ -72,7 +72,25 @@ export const createEventResolvers = {
 			}
 		},
 		bookEventTicket: async (_: any, { slotId, userId, ticketType, quantity }: { slotId: number, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
-
+			try {
+				const eventBooking = await services.eventBookingService.createEventBooking( slotId, userId, ticketType, quantity);
+				return {
+					success: true,
+					message: "Event Ticket created successfully.",
+					singleTicket: eventBooking,
+				};
+			} catch (error: any) {
+				console.error("Error in CreatingEventBooking resolver:", error);
+				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+				const errorMessage = error.detail || 'default errer An unexpected error occurred.';
+				return {
+					success: false,
+					message: errorMessage,
+					singleTicket: null,
+					errorCode: errorCode,
+					errorDetail: error, // Optionally include the full error object for more details
+				};
+			}
 		}
 
 	},

@@ -7,7 +7,7 @@ export class EventTicketService {
     constructor(eventTicketRepository: Repository<EventTickets>) {
         this.eventTicketRepository = eventTicketRepository;
     }
-
+async createTicket(ticketName: string, eventId: number) {
 
 }
 
