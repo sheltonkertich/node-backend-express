@@ -71,9 +71,9 @@ export const createEventResolvers = {
 				};
 			}
 		},
-		bookEventTicket: async (_: any, { slotId, userId, ticketType, quantity }: { slotId: number, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
+		bookEventTicket: async (_: any, { slotId,slotName, userId, ticketType, quantity }: { slotId: number,slotName:string, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
 			try {
-				const eventBooking = await services.eventBookingService.createEventBooking( slotId, userId, ticketType, quantity);
+				const eventBooking = await services.ticketsService.createTicket( slotId,slotName, userId, ticketType, quantity);
 				return {
 					success: true,
 					message: "Event Ticket created successfully.",

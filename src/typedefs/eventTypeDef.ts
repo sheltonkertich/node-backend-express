@@ -212,10 +212,10 @@ type Mutation {
   deleteEventBookmark(id: ID!): MutationResponse
   updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
-  bookEventTicket(slotId:ID!, userId: ID!, ticketType: TicketType!, quantity: Int!):MutationResponse
+  bookEventTicket(slotId:ID!,slotName:String!, userId: ID!, ticketType: TicketType!, quantity: Int!):MutationResponse
 
   # --------first section trial
-  createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
+  #createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
   createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!
   createEventNotification(userId: String!, eventId: ID!, content: String!, status: String!): EventNotification!
 
