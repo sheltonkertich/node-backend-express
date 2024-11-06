@@ -2,6 +2,7 @@ import { Repository } from "typeorm";
 import { EventSlots, EventTickets } from "../entities/Event";
 import { services } from "./index.js";
 import { MutationResponse, EventUpdatesType, SlotsUpdatesType } from "../types/eventTypes.js";
+import { GraphQLError } from "graphql";
 
 export class EventTicketService {
     private eventTicketRepository: Repository<EventTickets>;
@@ -14,7 +15,7 @@ export class EventTicketService {
             const user = await services.userService.getUserById(userId)
             const slot = await services.slotsService.getEventSlot(slotId, slotName)
 
-            if (!user || !slot) throw new Error("User or slot not found");
+            if (!user || !slot) throw new GraphQLError( "User or slot not found");
 
             let availableTickets: number;
             let price;
@@ -36,14 +37,14 @@ export class EventTicketService {
                     price = slot.normalPrice;
                     break;
                 default:
-                    throw new Error(`Invalid ticket type: ${ticketType}`);
+                    throw new GraphQLError(`Invalid ticket type: ${ticketType}`);
 
             }
 
             // Check if enough tickets are available
             if (availableTickets < quantity) {
                 console.log("tunaangalia available tickets")
-                throw new Error("Not enough tickets available for this type");
+                throw new GraphQLError("Not enough tickets available for this type");
             }
 
             // Deduct available tickets based on type
@@ -59,11 +60,11 @@ export class EventTicketService {
                     break;
 
                 default:
-                    throw new Error(`error occured in calculating event slots availablee`);
+                    throw new GraphQLError(`error occured in calculating event slots availablee`);
             }
-            console.log(slot.vipAvailable)
-
-           await services.slotsService.updateEventSlot(slotId, slotName, slot)
+            // console.log()
+            // console.log(slotId, slotName, slot)
+            await services.slotsService.updateEventSlot(slot.event.id, slotName, slot)
 
             console.log(user?.id)
             console.log(slot?.normalAvailable)
@@ -74,7 +75,7 @@ export class EventTicketService {
             const errorCode = error.code || 'UNKNOWN_ERROR';
             const errorMessage = error.detail || error.message || 'An unexpected error occurred.';
             console.error(`booking service Error creating ticket: ${errorMessage}`, error);
-            throw new Error(`Failed to update slot. Error Code: ${errorCode}. Message: ${errorMessage}`);
+            throw new GraphQLError(`Failed to book slot. Error Code: ${errorCode}. Message: ${errorMessage}`);
         }
 
 

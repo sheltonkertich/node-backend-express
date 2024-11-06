@@ -5,8 +5,9 @@ import http from 'http';
 import cors from 'cors';
 import express, { Request, Response } from "express";
 import { AppDataSource } from "./data-source.js";
-import {User} from "./entities/User.js";
-import {schema} from "./schema/schema.js"
+import { User } from "./entities/User.js";
+import { schema } from "./schema/schema.js"
+import { GraphQLError } from 'graphql';
 
 interface MyContext {
   token?: string;
@@ -28,7 +29,9 @@ const httpServer = http.createServer(app);
 // for our httpServer.
 const apolloserver = new ApolloServer<MyContext>({
   schema,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  formatError: (error) => {
+    return error
+  },
 });
 // Ensure we wait for our server to start
 await apolloserver.start();

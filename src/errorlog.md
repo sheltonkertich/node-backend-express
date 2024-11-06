@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Entry 1]-ReferenceError-(#entry-1)
 - [Entry 2]- (#failed to build with packagemenager error)
+- [Entry 3]- (ERR_MODULE_NOT_FOUND)
 
 ---
 
@@ -43,5 +44,22 @@
 ### Notes
 - it affects macos, deleting the line helps
 
+## Entry 3
+**Date**: 2024-11-06  
+**ErrorName**: ERR_MODULE_NOT_FOUND  
+**Environment**: Node 20.17.0  
+**Error Message**: `Cannot find module 'D:\riz\node-backend-express\node_modules\graphql\error\index' imported from D:\riz\node-backend-express\dist\services\eventTicketService.js Did you mean to import "graphql/error/index.js"? `  
 
+### Solution
+1. add path in imports
+
+
+ `import { GraphQLError } from "graphql/error/index.js";` instead of `import { GraphQLError } from "graphql/error`
+ of optionally with es6 `import { GraphQLError } from "graphql"`
+
+2. solution link  `[local](https://futurestud.io/tutorials/node-js-how-to-fix-esm-error-directory-import-is-not-supported-resolving-es-modules-imported)`
+3. `https://graphql.org/graphql-js/error/`
+
+### Notes
+-working with esm modes
 *End of Log*

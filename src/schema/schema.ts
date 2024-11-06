@@ -7,7 +7,9 @@ import { createEventResolvers } from "../resolvers/createEventResolvers.js";
 import { updateEventResolvers } from "../resolvers/updateEventResolvers.js";
 import { queryEventResolvers } from "../resolvers/queryEventResolvers.js";
 
+
 export const schema: GraphQLSchema = makeExecutableSchema({
   typeDefs: [userTypeDefs, eventTypeDef],
   resolvers: [userResolvers,createEventResolvers, updateEventResolvers, queryEventResolvers],
+  
 });
