@@ -81,14 +81,15 @@ export const createEventResolvers = {
 				};
 			} catch (error: any) {
 				console.error("Error in CreatingEventBooking resolver:", error);
-				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-				const errorMessage = error.detail || 'default errer An unexpected error occurred.';
+				const errorCode = error.extensions.code || error.code || 'UNKNOWN_ERROR'; // Default code if none provided
+				const errorMessage = error.message || 'default errer An unexpected error occurred.';
+				const errorDetail = error
 				return {
 					success: false,
 					message: errorMessage,
 					singleTicket: null,
 					errorCode: errorCode,
-					errorDetail: error, // Optionally include the full error object for more details
+					errorDetail: errorDetail, // Optionally include the full error object for more details
 				};
 			}
 		}

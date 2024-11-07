@@ -15,8 +15,12 @@ export class EventTicketService {
             const user = await services.userService.getUserById(userId)
             const slot = await services.slotsService.getEventSlot(slotId, slotName)
 
-            if (!user || !slot) throw new GraphQLError( "User or slot not found");
-
+            if (!user) {
+                throw new GraphQLError("User not found");
+            } if (!slot) {
+                throw new GraphQLError(" slot not found");
+            } 
+            
             let availableTickets: number;
             let price;
 
@@ -30,7 +34,7 @@ export class EventTicketService {
                 case "VIP":
                     availableTickets = slot.vipAvailable;
                     price = slot.vipPrice;
-                    console.log("the price is", price)
+                    //console.log("the price is", price)
                     break;
                 case "NORMAL":
                     availableTickets = slot.normalAvailable;
@@ -43,7 +47,7 @@ export class EventTicketService {
 
             // Check if enough tickets are available
             if (availableTickets < quantity) {
-                console.log("tunaangalia available tickets")
+                //console.log("tunaangalia available tickets")
                 throw new GraphQLError("Not enough tickets available for this type");
             }
 
@@ -66,15 +70,16 @@ export class EventTicketService {
             // console.log(slotId, slotName, slot)
             await services.slotsService.updateEventSlot(slot.event.id, slotName, slot)
 
-            console.log(user?.id)
-            console.log(slot?.normalAvailable)
+           // console.log(user?.id)
+           // console.log(slot?.normalAvailable)
             return null;
 
 
         } catch (error: any) {
-            const errorCode = error.code || 'UNKNOWN_ERROR';
+            //console.log(error.code)
+            const errorCode = error.code || error.extensions.code || 'UNKNOWN_ERROR';
             const errorMessage = error.detail || error.message || 'An unexpected error occurred.';
-            console.error(`booking service Error creating ticket: ${errorMessage}`, error);
+          //  console.error(`booking service Error creating ticket: ${errorMessage}`, error);
             throw new GraphQLError(`Failed to book slot. Error Code: ${errorCode}. Message: ${errorMessage}`);
         }
 
