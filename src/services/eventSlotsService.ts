@@ -1,5 +1,7 @@
 import { Repository } from "typeorm";
 import { EventSlots } from "../entities/Event";
+import { GraphQLError } from "graphql";
+import { handleError } from "../utils/handleError.js";
 
 export class EventSlotsService {
     private eventSlotsRepository: Repository<EventSlots>;
@@ -16,8 +18,9 @@ export class EventSlotsService {
                 }
             });
         } catch (error) {
-            console.error("Error fetching all slots:", error);
-            throw new Error("Failed to retrieve slots.");
+            // console.error("Error fetching all slots:", error);
+
+            throw new GraphQLError(`Failed to retrieve slots.`);
         }
     }
     async getEventSlot(id: number, codeName: string): Promise<EventSlots | null> {
@@ -32,25 +35,25 @@ export class EventSlotsService {
                 if (codeName) {
                     queryOptions.codeName = codeName; // Assuming you want to search by codeName as well
                 }
-    
+
                 const eventSlot = await this.eventSlotsRepository.findOne({
                     where: queryOptions,
                     relations: {
                         event: true,
                     }
                 });
-    
+
                 if (!eventSlot) {
                     console.log(`No event slot found with slotID: ${id}, codeName: ${codeName}`);
+                    throw new GraphQLError(`No event slot found with slotID: ${id}, codeName: ${codeName}`, { extensions: { code: 'EVENT_NOT_FOUND' }, });
                     return null; // Explicit null return if not found
                 }
-    
+
                 //console.log('Event slot found:', eventSlot);
                 return eventSlot;
-    
+
             } catch (error) {
-                console.error('Error fetching event slot:', error);
-                throw error;
+                throw handleError(error);
             }
         } else {
             //console.log('No slotID or codeName provided');
@@ -69,19 +72,16 @@ export class EventSlotsService {
             if (slots) {
                 const result = await this.eventSlotsRepository.update(slots.id, slostUpdates);
                 if (result.affected === 0) {
-                    throw new Error(`slot found but updating it failed slot id ${slots.id}`);
+                    throw new GraphQLError(`slot found but updating it failed slot id ${slots.id}`);
                 }
             } else {
-                throw new Error(`slot with codename ${slotName} associated with event_id ${eventId} not found. Update failed`)
+                throw new GraphQLError(`slot with codename ${slotName} associated with event_id ${eventId} not found. Update failed`)
+
             }
             return await this.eventSlotsRepository.findOne({ where: { codeName: slotName, event: { id: eventId } }, })
 
-        } catch (error: any) {
-            const errorCode = error.code || 'UNKNOWN_ERROR';
-            const errorMessage = error.detail || error.message || 'An unexpected error occurred.';
-            console.error(`Slot Service Error updating slot: ${errorMessage}`, error);
-            throw new Error(`Failed to update slot. Error Code: ${errorCode}. Message: ${errorMessage}`);
-
+        } catch (error) {
+            throw handleError(error);
         }
 
     }

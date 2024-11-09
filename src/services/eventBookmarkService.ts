@@ -1,6 +1,8 @@
 import { Repository } from "typeorm";
 import { EventBookmarks } from "../entities/Event.js";
 import { Event } from "../entities/Event.js";
+import { GraphQLError } from "graphql";
+import { handleError } from "../utils/handleError.js";
 
 export class EventBookmarkService {
   private eventBookmarksRepository: Repository<EventBookmarks>;
@@ -18,8 +20,7 @@ export class EventBookmarkService {
         },
       });
     } catch (error) {
-      console.error("Error fetching all bookmarks:", error);
-      throw new Error("Failed to retrieve bookmarks.");
+      throw handleError(error);
     }
   }
 
@@ -48,16 +49,16 @@ export class EventBookmarkService {
       console.log('bookmark found:', eventBookmark);
       return eventBookmark;
     } catch (error) {
-      console.error('Error fetching bookmark:', error);
-      throw error;
+      throw handleError(error);
     }
   }
 
   async createEventBookmark(user: number, event: number): Promise<EventBookmarks> {
     try {
-      const bookmark = await this.eventBookmarksRepository.manager.findOne(Event,{where: {id:event}})
+      const bookmark = await this.eventBookmarksRepository.manager.findOne(Event, { where: { id: event } })
       if (!bookmark) {
-        throw new Error(`Event with id ${event} not found.`);
+        throw new GraphQLError(`Event with id ${event} not found.`, { extensions: { code: 'EVENT_NOT_FOUND' }, });
+
       }
 
       console.log('Booki marking with id:', event);
@@ -70,15 +71,14 @@ export class EventBookmarkService {
 
       return await this.eventBookmarksRepository.save(newBookmark);
     } catch (error) {
-      console.error('Error creating bookmark:', error);
-      throw error; // or handle the error as needed
+      throw handleError(error);
     }
   }
 
   async deleteEventBookmark(id: number): Promise<void> {
     const result = await this.eventBookmarksRepository.delete({ id: id });
     if (result.affected === 0) {
-      throw new Error(`bookmark with id ${id} not found.`);
+      throw new GraphQLError(`bookmark with id ${id} not found.`);
     }
   }
 }

@@ -31,11 +31,12 @@ const apolloserver = new ApolloServer<MyContext>({
   schema,
   formatError: (error) => {
     return {
+ 
       message: error.message,
       path: error.path,
       code: error.extensions?.code,
-      //stack: error.extensions?.stacktrace,
-      ...(process.env.NODE_ENV !== 'production' && { stack: error.path }),
+      stack: error.extensions?.stacktrace,
+      // ...(process.env.NODE_ENV !== 'production' && { stack: error.path }),
     };
   },
 });

@@ -3,6 +3,7 @@ import { EventSlots, EventTickets } from "../entities/Event";
 import { services } from "./index.js";
 import { MutationResponse, EventUpdatesType, SlotsUpdatesType } from "../types/eventTypes.js";
 import { GraphQLError } from "graphql";
+import { handleError } from "../utils/handleError.js";
 
 export class EventTicketService {
     private eventTicketRepository: Repository<EventTickets>;
@@ -48,7 +49,11 @@ export class EventTicketService {
             // Check if enough tickets are available
             if (availableTickets < quantity) {
                 //console.log("tunaangalia available tickets")
-                throw new GraphQLError("Not enough tickets available for this type");
+               
+                // throw new GraphQLError(`Not enough tickets available for this type. available tickets are ${availableTickets}`);
+                throw new GraphQLError( `Not enough tickets available for this type. available tickets are ${availableTickets}`, {
+                    extensions: { code: 'INSUFFICIENT_TICKETS' },
+                  });
             }
 
             // Deduct available tickets based on type
@@ -75,13 +80,9 @@ export class EventTicketService {
             return null;
 
 
-        } catch (error: any) {
-            //console.log(error.code)
-            const errorCode = error.code || error.extensions.code || 'UNKNOWN_ERROR';
-            const errorMessage = error.detail || error.message || 'An unexpected error occurred.';
-          //  console.error(`booking service Error creating ticket: ${errorMessage}`, error);
-            throw new GraphQLError(`Failed to book slot. Error Code: ${errorCode}. Message: ${errorMessage}`);
-        }
+        } catch (error) {
+            throw handleError(error);
+          }
 
 
 

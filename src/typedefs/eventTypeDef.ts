@@ -7,6 +7,7 @@ type MutationResponse {
     singleEventLike:EventLike
     singleSlot:EventSlots
     singleEventBookmark: EventBookmark
+    singleTicket: EventTickets
     errorCode: String
     errorDetail: String
 }
@@ -114,18 +115,18 @@ type EventSlots {
 type Slot {
   id: ID
   event:Event
-    codeName:String
-    capacity: Int
-    vvipAvailable: Int
-    vipAvailable: Int
-    normalAvailable: Int
-    tickets: [EventTickets!]
+  codeName:String
+  capacity: Int
+  vvipAvailable: Int
+  vipAvailable: Int
+  normalAvailable: Int
+  tickets: [EventTickets!]
 }
 type EventTickets {
   id: ID!
-    ticketType: TicketType!
-    price: Float!
-    quantity: Int!
+  ticketType: TicketType!
+  price: Float!
+  quantity: Int!
 }
  enum TicketType {
   NORMAL

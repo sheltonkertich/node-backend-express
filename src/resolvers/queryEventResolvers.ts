@@ -1,5 +1,6 @@
 import { services } from "../services/index.js";
 import { EventResponse} from "../types/eventTypes.js";
+import { handleGraphQLError } from "../utils/handleError.js";
 
 export const queryEventResolvers = {
     Query: {
@@ -20,10 +21,9 @@ export const queryEventResolvers = {
                     events: EventsResult,
                 };
     
-            } catch (error) {
-                console.error("Error in getEvents resolver:", error);
-                throw new Error("Could not retrieve events. Please try again later.");
-            }
+            } catch (error: any) {
+                return handleGraphQLError(error);
+			}
         },
         getEvent: async (_: any, { id }: { id: number }): Promise<EventResponse> => {
             try {
@@ -40,10 +40,9 @@ export const queryEventResolvers = {
                     message: `No event for event id ${id} in the DB`,
                     event: null
                 };
-            } catch (error) {
-                console.error(`Error in getEvent resolver for id ${id}:`, error);
-                throw new Error("Could not retrieve the event. Please check the user ID and try again.");
-            }
+            } catch (error: any) {
+                return handleGraphQLError(error);
+			}
         },
         getAllLikes: async (): Promise<EventResponse | null> => {
     
@@ -62,10 +61,9 @@ export const queryEventResolvers = {
                     eventLikes: EventLikesResult,
                 };
     
-            } catch (error) {
-                console.error("Error in getEvents resolver:", error);
-                throw new Error("Could not retrieve events. Please try again later.");
-            }
+            } catch (error: any) {
+                return handleGraphQLError(error);
+			}
         },
         getEventLike: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<EventResponse | null> => {
             try {
@@ -84,17 +82,8 @@ export const queryEventResolvers = {
                     eventLike: null
                 };
             } catch (error: any) {
-                console.error('Error fetching event like:', error);
-                const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
-                const errorCode = error.code || 'UNKNOWN_ERROR';
-                return {
-                    success: false,
-                    message: errorMessage,
-                    event: null,
-                    errorCode: errorCode,
-                    errorDetail: error, // Optionally include the full error object for more details
-                }; // or handle it according to your needs
-            }
+                return handleGraphQLError(error, { event: null });
+			}
         },
         getAllEventBookmarks: async (): Promise<EventResponse | null> => {
     
@@ -113,10 +102,9 @@ export const queryEventResolvers = {
                     eventBookmarks: EventBookmarks,
                 };
     
-            } catch (error) {
-                console.error("Error in getAllBookmarks resolver:", error);
-                throw new Error("Could not retrieve bookmarks. Please try again later.");
-            }
+            } catch (error: any) {
+				 return handleGraphQLError(error);
+			}
         },
         getEventBookmark: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<EventResponse | null> => {
             try {
@@ -135,17 +123,8 @@ export const queryEventResolvers = {
                     eventBookmark: null
                 };
             } catch (error: any) {
-                console.error('Error fetching event bookmark:', error);
-                const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
-                const errorCode = error.code || 'UNKNOWN_ERROR';
-                return {
-                    success: false,
-                    message: errorMessage,
-                    event: null,
-                    errorCode: errorCode,
-                    errorDetail: error, // Optionally include the full error object for more details
-                }; // or handle it according to your needs
-            }
+                return handleGraphQLError(error);
+			}
         },
         getAllslots: async (): Promise<EventResponse | null> => {
     
@@ -164,10 +143,9 @@ export const queryEventResolvers = {
                     allSlots: AllSlots,
                 };
     
-            } catch (error) {
-                console.error("Error in getAllSlots resolver:", error);
-                throw new Error("Could not retrieve slots. Please try again later.");
-            }
+            } catch (error: any) {
+                return handleGraphQLError(error);
+			}
         },
         getEventSlot: async (_: any, { id, codeName}: { id: number, codeName: string }): Promise<EventResponse | null> => {
             try {
@@ -186,17 +164,8 @@ export const queryEventResolvers = {
                     eventBookmark: null
                 };
             } catch (error: any) {
-                console.error('Error fetching event slot:', error);
-                const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
-                const errorCode = error.code || 'UNKNOWN_ERROR';
-                return {
-                    success: false,
-                    message: errorMessage,
-                    event: null,
-                    errorCode: errorCode,
-                    errorDetail: error, // Optionally include the full error object for more details
-                }; // or handle it according to your needs
-            }
+                return handleGraphQLError(error);
+			}
         },
     
         // getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),

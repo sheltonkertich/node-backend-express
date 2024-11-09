@@ -1,5 +1,6 @@
 import { services } from "../services/index.js";
 import { EventInputType, MutationResponse } from "../types/eventTypes.js";
+import { handleGraphQLError } from "../utils/handleError.js";
 
 export const createEventResolvers = {
 	Mutation: {
@@ -12,20 +13,9 @@ export const createEventResolvers = {
 					singleEvent: event,
 				};
 			} catch (error: any) {
-				console.error("Error in CreatingEvent resolver:", error);
-				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
-				return {
-					success: false,
-					message: errorMessage,
-					singleEvent: null,
-					errorCode: errorCode,
-					errorDetail: error, // Optionally include the full error object for more details
-				};
+				return handleGraphQLError(error, { singleEvent: null });
 			}
 		},
-
-
 		// Other mutation resolvers
 
 		createEventLike: async (_: any, { userId, eventId }: { userId: number, eventId: number }): Promise<MutationResponse> => {
@@ -37,16 +27,8 @@ export const createEventResolvers = {
 					singleEventLike: eventLike,
 				};
 			} catch (error: any) {
-				console.error("Error in CreatingEventLike resolver:", error);
-				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-				const errorMessage = error.detail || 'default erreo An unexpected error occurred.';
-				return {
-					success: false,
-					message: errorMessage,
-					singleEventLike: null,
-					errorCode: errorCode,
-					errorDetail: error, // Optionally include the full error object for more details
-				};
+				return handleGraphQLError(error, { singleEventLike: null });
+				
 			}
 		},
 
@@ -59,16 +41,7 @@ export const createEventResolvers = {
 					singleEventBookmark: eventBookmark,
 				};
 			} catch (error: any) {
-				console.error("Error in CreatingEventBookmark resolver:", error);
-				const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-				const errorMessage = error.detail || 'default errer An unexpected error occurred.';
-				return {
-					success: false,
-					message: errorMessage,
-					singleEventBookmark: null,
-					errorCode: errorCode,
-					errorDetail: error, // Optionally include the full error object for more details
-				};
+				return handleGraphQLError(error, { singleEventBookmark: null });
 			}
 		},
 		bookEventTicket: async (_: any, { slotId,slotName, userId, ticketType, quantity }: { slotId: number,slotName:string, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
@@ -80,17 +53,8 @@ export const createEventResolvers = {
 					singleTicket: eventBooking,
 				};
 			} catch (error: any) {
-				console.error("Error in CreatingEventBooking resolver:", error);
-				const errorCode = error.extensions.code || error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-				const errorMessage = error.message || 'default errer An unexpected error occurred.';
-				const errorDetail = error
-				return {
-					success: false,
-					message: errorMessage,
-					singleTicket: null,
-					errorCode: errorCode,
-					errorDetail: errorDetail, // Optionally include the full error object for more details
-				};
+				return handleGraphQLError(error);
+
 			}
 		}
 

@@ -1,6 +1,8 @@
 import { Repository } from "typeorm";
 import { EventLikes } from "../entities/Event.js";
 import { Event } from "../entities/Event.js";
+import { handleError } from "../utils/handleError.js";
+import { GraphQLError } from "graphql";
 
 export class EventLikeService {
   private eventLikesRepository: Repository<EventLikes>;
@@ -17,8 +19,7 @@ export class EventLikeService {
         },
       });
     } catch (error) {
-      console.error("Error fetching all likes:", error);
-      throw new Error("Failed to retrieve likes.");
+      throw handleError(error);
     }
   }
   async getEventLike(eventID: number, userID: number, id: number): Promise<EventLikes | null> {
@@ -46,8 +47,7 @@ export class EventLikeService {
       console.log('Like found:', eventLike);
       return eventLike;
     } catch (error) {
-      console.error('Error fetching like:', error);
-      throw error;
+      throw handleError(error);
     }
   }
   
@@ -56,7 +56,7 @@ export class EventLikeService {
     try {
       const like = await this.eventLikesRepository.manager.findOne(Event, { where: { id: event } });
       if (!like) {
-        throw new Error(`Event with id ${event} not found.`);
+        throw new GraphQLError(`Event with id ${event} not found.`);
       }
 
       console.log('User liking the event with id:', event);
@@ -68,9 +68,8 @@ export class EventLikeService {
       });
 
       return await this.eventLikesRepository.save(newLike);
-    } catch (error) {
-      console.error('Error creating like:', error);
-      throw error; // or handle the error as needed
+    }catch (error) {
+      throw handleError(error);
     }
   }
 
@@ -78,7 +77,7 @@ export class EventLikeService {
   async deleteLike(id: number): Promise<void> {
     const result = await this.eventLikesRepository.delete({ id: id });
     if (result.affected === 0) {
-      throw new Error(`Like with id ${id} not found.`);
+      throw new GraphQLError(`Like with id ${id} not found.`);
     }
 
   }

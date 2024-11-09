@@ -1,5 +1,6 @@
 import { services } from "../services/index.js";
 import { MutationResponse } from "../types/eventTypes.js";
+import { handleGraphQLError } from "../utils/handleError.js";
 
 export const deleteEventResolver = {
     Mutation: {
@@ -13,15 +14,9 @@ export const deleteEventResolver = {
                     singleEvent: deletedEvent,
 
                 }; // Return a confirmation message or the deleted event
-            } catch (error) {
-                console.error("Error deleting event:", error);
-                return {
-                    success: false,
-                    message: `Event with id ${id} not found. Delete failed.`,
-                    singleEvent: null,
-                };
-
-            }
+            }catch (error: any) {
+                return handleGraphQLError(error, { singleEvent: null });
+			}
         },
         deleteLike: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
             try {
@@ -32,15 +27,9 @@ export const deleteEventResolver = {
                     singleEventLike: null,
 
                 }; // Return a confirmation message or the deleted event
-            } catch (error) {
-                console.error("Error deleting event like:", error);
-                return {
-                    success: false,
-                    message: `like with id ${id} not found. Delete failed.`,
-                    singleEventLike: null,
-                };
-
-            }
+            } catch (error: any) {
+                return handleGraphQLError(error, { singleEventLike: null });
+			}
         },
         deleteEventBookmark: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
             try {
@@ -51,15 +40,9 @@ export const deleteEventResolver = {
                     singleEventBookmark: null,
 
                 }; // Return a confirmation message or the deleted event
-            } catch (error) {
-                console.error("Error deleting event bookmark:", error);
-                return {
-                    success: false,
-                    message: `bookmark with id ${id} not found. Delete failed.`,
-                    singleEventBookmark: null,
-                };
-
-            }
+            } catch (error: any) {
+                return handleGraphQLError(error, { singleEventBookmark: null });
+			}
         },
     }
 }
