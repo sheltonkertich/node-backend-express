@@ -8,6 +8,7 @@ type MutationResponse {
     singleSlot:EventSlots
     singleEventBookmark: EventBookmark
     singleTicket: EventTickets
+    singleRating:EventRating
     errorCode: String
     errorDetail: String
 }
@@ -173,6 +174,7 @@ type EventRating {
   event: Event!
   userId: String!
   scoreRating: Float! # Range from 1.0 to 5.0
+  review: String
 }
 
 # Event Notification Entity
@@ -214,10 +216,11 @@ type Mutation {
   updateEventSlots(eventId: ID!,slotName:String,slotUpdates:SlotsUpdates): MutationResponse
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
   bookEventTicket(slotId:ID!,slotName:String!, userId: ID!, ticketType: TicketType!, quantity: Int!):MutationResponse
+  createEventRating(userId: ID!, eventId: ID!, scoreRating: Float!,review: String): MutationResponse!
 
   # --------first section trial
   #createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
-  createEventRating(userId: String!, eventId: ID!, scoreRating: Float!): EventRating!
+  
   createEventNotification(userId: String!, eventId: ID!, content: String!, status: String!): EventNotification!
 
   deleteEventBooking(id: ID!): Boolean!

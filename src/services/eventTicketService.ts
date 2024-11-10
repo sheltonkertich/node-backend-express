@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { EventSlots, EventTickets } from "../entities/Event";
+import { EventSlots, EventTickets, TicketType } from "../entities/Event.js";
 import { services } from "./index.js";
 import { MutationResponse, EventUpdatesType, SlotsUpdatesType } from "../types/eventTypes.js";
 import { GraphQLError } from "graphql";
@@ -20,8 +20,8 @@ export class EventTicketService {
                 throw new GraphQLError("User not found");
             } if (!slot) {
                 throw new GraphQLError(" slot not found");
-            } 
-            
+            }
+
             let availableTickets: number;
             let price;
 
@@ -47,42 +47,58 @@ export class EventTicketService {
             }
 
             // Check if enough tickets are available
-            if (availableTickets < quantity) {
-                //console.log("tunaangalia available tickets")
-               
-                // throw new GraphQLError(`Not enough tickets available for this type. available tickets are ${availableTickets}`);
-                throw new GraphQLError( `Not enough tickets available for this type. available tickets are ${availableTickets}`, {
-                    extensions: { code: 'INSUFFICIENT_TICKETS' },
-                  });
+            if (quantity == 0 || quantity < 0) {
+                throw new GraphQLError(`quantity must be greater than 0`);
+            } else if (quantity > availableTickets) {
+                throw new GraphQLError(`Not enough tickets available for this type. available tickets are ${availableTickets}`);
+            }
+            else if (availableTickets === 0) {
+                throw new GraphQLError(`the slots are fully booked`);
             }
 
             // Deduct available tickets based on type
             switch (ticketType) {
                 case "VVIP":
                     slot.vvipAvailable -= quantity;
+                    price = quantity* price;
                     break;
                 case "VIP":
                     slot.vipAvailable -= quantity;
+                    price = quantity* price;
                     break;
                 case "NORMAL":
                     slot.normalAvailable -= quantity;
+                    price = quantity* price;
                     break;
 
                 default:
                     throw new GraphQLError(`error occured in calculating event slots availablee`);
             }
-            // console.log()
-            // console.log(slotId, slotName, slot)
-            await services.slotsService.updateEventSlot(slot.event.id, slotName, slot)
-
-           // console.log(user?.id)
-           // console.log(slot?.normalAvailable)
+            const newTicket = this.eventTicketRepository.create({
+                slot: {id:slotId }, 
+                user: { id: userId },
+                ticketType: TicketType[ticketType],
+                price: price,
+                quantity: quantity,
+                slotName: slotName
+              })
+            //console.log(newTicket)
+            try {
+               const savedTicket = await this.eventTicketRepository.save(newTicket);
+                if (!savedTicket) {
+                    throw new GraphQLError("Error creating event ticket");
+                } await services.slotsService.updateEventSlot(slot.event.id, slotName, slot)
+            } catch (error) {
+                throw handleError(error);
+            }
+            // console.log(user?.id)
+            // console.log(slot?.normalAvailable)
             return null;
 
 
         } catch (error) {
             throw handleError(error);
-          }
+        }
 
 
 

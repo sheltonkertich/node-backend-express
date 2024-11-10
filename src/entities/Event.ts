@@ -1,5 +1,5 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn,AfterLoad, DeleteDateColumn, Relation, Unique, JoinTable
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, AfterLoad, DeleteDateColumn, Relation, Unique, JoinTable
 } from "typeorm";
 import { User } from "./User.js";
 
@@ -20,10 +20,10 @@ export class Event {
   @Column({ type: "timestamp", nullable: true })
   time: Date;
 
-  @Column({nullable: true })
+  @Column({ nullable: true })
   startTime: Date;
 
-  @Column({nullable: true })
+  @Column({ nullable: true })
   endTime: Date;
 
   @Column({ type: "text", nullable: true })
@@ -151,10 +151,10 @@ export class EventSlots {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() =>  Event, (event) => event.slots, { onDelete: "CASCADE" })
+  @ManyToOne(() => Event, (event) => event.slots, { onDelete: "CASCADE" })
   event: Event;
-  
-  @Column({nullable:true})
+
+  @Column({ nullable: true })
   codeName: string
 
   @Column()
@@ -170,22 +170,22 @@ export class EventSlots {
   normalAvailable: number; // Normal tickets available
 
   // New columns for pricing
-  @Column("decimal", { precision: 10, scale: 2 ,nullable:true},)
+  @Column("decimal", { precision: 10, scale: 2, nullable: true },)
   vvipPrice: number;
 
-  @Column("decimal", { precision: 10, scale: 2,nullable:true })
+  @Column("decimal", { precision: 10, scale: 2, nullable: true })
   vipPrice: number;
 
-  @Column("decimal", { precision: 10, scale: 2,nullable:true })
+  @Column("decimal", { precision: 10, scale: 2, nullable: true })
   normalPrice: number;
 
   @OneToMany(() => EventTickets, ticket => ticket.slot, { cascade: true, onDelete: "CASCADE" })
-    tickets: EventTickets[];
+  tickets: EventTickets[];
 }
 
 // -----------------------------------------------------------------------------------------------------------------//
 @Entity()
-@Unique(["user"])
+//@Unique(["user"])
 export class EventTickets {
   @PrimaryGeneratedColumn()
   id: number;
@@ -196,7 +196,7 @@ export class EventTickets {
   deletedAt?: Date;
 
   @ManyToOne(() => EventSlots, slot => slot.tickets)
-  slot: EventSlots;
+  slot: Relation<EventSlots>;
 
   @ManyToOne(() => User, (user) => user.tickets)
   user: Relation<User>
@@ -206,6 +206,9 @@ export class EventTickets {
     enum: TicketType,
   })
   ticketType: TicketType;
+
+  @Column({ nullable: true })
+  slotName: string;
 
   @Column("decimal", { precision: 10, scale: 2 })
   price: number;
@@ -251,6 +254,9 @@ export class EventRatings {
 
   @Column({ type: "decimal", precision: 2, scale: 1 })
   scoreRating: number; // Assuming a rating system from 1.0 to 5.0
+  
+  @Column({ type: "text", nullable: true })
+  review: string;  // Optional review comment
 }
 
 

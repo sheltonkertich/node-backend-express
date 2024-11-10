@@ -56,6 +56,18 @@ export const createEventResolvers = {
 				return handleGraphQLError(error);
 
 			}
+		},
+		createEventRating: async(_:any, { userId, eventId, scoreRating, review }: { userId: number, eventId: number, scoreRating: number, review: string }): Promise<MutationResponse> => {
+			try {
+				const eventRating = await services.ratingsService.createRating(userId, eventId, scoreRating, review);
+				return {
+					success: true,
+					message: "Event Rated successfully.",
+					singleRating: eventRating,
+				};
+			} catch (error: any) {
+				return handleGraphQLError(error, { singleEventRating: null });
+			}
 		}
 
 	},
