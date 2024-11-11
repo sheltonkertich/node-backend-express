@@ -4,6 +4,7 @@ import { services } from "./index.js";
 import { MutationResponse, EventUpdatesType, SlotsUpdatesType } from "../types/eventTypes.js";
 import { GraphQLError } from "graphql";
 import { handleError } from "../utils/handleError.js";
+import validateUserEventSlot from "../utils/validateUserAndEvent.js";
 
 export class EventTicketService {
     private eventTicketRepository: Repository<EventTickets>;
@@ -13,6 +14,7 @@ export class EventTicketService {
     }
     async createTicket(slotId: number, slotName: string, userId: number, ticketType: string, quantity: number): Promise<EventTickets | null> {
         try {
+            
             const user = await services.userService.getUserById(userId)
             const slot = await services.slotsService.getEventSlot(slotId, slotName)
 

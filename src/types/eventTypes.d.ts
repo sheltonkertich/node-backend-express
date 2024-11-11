@@ -10,6 +10,7 @@ export type MutationResponse = {
     singleEventBookmark?:EventBookmarks | null
     singleTicket?:EventTickets | null
     singleRating?:EventRatings | null
+    singleNotification?:EventNotifications | null
     errorCode?: string;
    errorDetail?: object;
 }

@@ -134,6 +134,18 @@ type EventTickets {
   VIP
   VVIP
 }
+enum NotificationStatus {
+  READ
+  UNREAD
+}
+enum NotificationType {
+  EVENT_REMINDER,
+  BOOKING_CONFIRMATION,
+  TICKET_UPDATE,
+  FRIEND_REQUEST,
+  SYSTEM_ALERT,
+  PROMOTIONAL
+}
 
 # Event Like Entity
 type EventLike {
@@ -217,12 +229,9 @@ type Mutation {
   createEventLike(userId: ID!, eventId: ID!):MutationResponse
   bookEventTicket(slotId:ID!,slotName:String!, userId: ID!, ticketType: TicketType!, quantity: Int!):MutationResponse
   createEventRating(userId: ID!, eventId: ID!, scoreRating: Float!,review: String): MutationResponse!
+  createEventNotification(userId: ID!, eventId: ID!, content: String!, status: NotificationStatus!,type:NotificationType): EventNotification!
 
-  # --------first section trial
-  #createEventBooking(userId: String!, eventId: ID!, slotSet: String!, slotsBooked: Int!): EventBooking!
-  
-  createEventNotification(userId: String!, eventId: ID!, content: String!, status: String!): EventNotification!
-
+  # --------first section trial 
   deleteEventBooking(id: ID!): Boolean!
   deleteEventLike(id: ID!): Boolean!
   deleteEventRating(id: ID!): Boolean!

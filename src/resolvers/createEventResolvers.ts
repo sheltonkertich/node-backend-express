@@ -28,7 +28,7 @@ export const createEventResolvers = {
 				};
 			} catch (error: any) {
 				return handleGraphQLError(error, { singleEventLike: null });
-				
+
 			}
 		},
 
@@ -44,9 +44,9 @@ export const createEventResolvers = {
 				return handleGraphQLError(error, { singleEventBookmark: null });
 			}
 		},
-		bookEventTicket: async (_: any, { slotId,slotName, userId, ticketType, quantity }: { slotId: number,slotName:string, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
+		bookEventTicket: async (_: any, { slotId, slotName, userId, ticketType, quantity }: { slotId: number, slotName: string, userId: number, ticketType: string, quantity: number }): Promise<MutationResponse> => {
 			try {
-				const eventBooking = await services.ticketsService.createTicket( slotId,slotName, userId, ticketType, quantity);
+				const eventBooking = await services.ticketsService.createTicket(slotId, slotName, userId, ticketType, quantity);
 				return {
 					success: true,
 					message: "Event Ticket created successfully.",
@@ -57,7 +57,7 @@ export const createEventResolvers = {
 
 			}
 		},
-		createEventRating: async(_:any, { userId, eventId, scoreRating, review }: { userId: number, eventId: number, scoreRating: number, review: string }): Promise<MutationResponse> => {
+		createEventRating: async (_: any, { userId, eventId, scoreRating, review }: { userId: number, eventId: number, scoreRating: number, review: string }): Promise<MutationResponse> => {
 			try {
 				const eventRating = await services.ratingsService.createRating(userId, eventId, scoreRating, review);
 				return {
@@ -68,7 +68,17 @@ export const createEventResolvers = {
 			} catch (error: any) {
 				return handleGraphQLError(error, { singleEventRating: null });
 			}
-		}
-
-	},
-};
+		},
+		createEventNotification: async (_: any, { userId, eventId, content, status, notificationType }: { userId: number, eventId: number, content: string, status: string, notificationType: string }): Promise<MutationResponse> => {
+			try {
+				const eventNotification = await services.notificationService.createNotification(userId, eventId, content, status, notificationType);
+				return {
+					success: true,
+					message: "Event Rated successfully.",
+					singleNotification: eventNotification,
+				};
+			} catch (error: any) {
+				return handleGraphQLError(error, { singleEventNotification: null });
+			}
+		},
+	}};

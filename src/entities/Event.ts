@@ -2,12 +2,25 @@ import {
   Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, AfterLoad, DeleteDateColumn, Relation, Unique, JoinTable
 } from "typeorm";
 import { User } from "./User.js";
+import { type } from "os";
 
 
 export enum TicketType {
   NORMAL = "normal",
   VIP = "vip",
   VVIP = "vvip"
+}
+export enum NotificationStatus {
+  UNREAD = "unread",
+  READ = "read"
+}
+export enum NotificationType {
+  EVENT_REMINDER = "event_reminder",
+  BOOKING_CONFIRMATION = "booking_confirmation",
+  TICKET_UPDATE = "ticket_update",
+  FRIEND_REQUEST = "friend_request",
+  SYSTEM_ALERT = "system_alert",
+  PROMOTIONAL = "promotional"
 }
 @Entity()
 export class Event {
@@ -254,7 +267,7 @@ export class EventRatings {
 
   @Column({ type: "decimal", precision: 2, scale: 1 })
   scoreRating: number; // Assuming a rating system from 1.0 to 5.0
-  
+
   @Column({ type: "text", nullable: true })
   review: string;  // Optional review comment
 }
@@ -269,17 +282,30 @@ export class EventNotifications {
 
   @CreateDateColumn()
   createdAt: Date; // Fixed typo (creaedAt to createdAt)
+  @UpdateDateColumn()
+  updatedAt: Date
 
   @ManyToOne(() => Event, (event) => event.notifications)
   event: Event;
 
   @ManyToOne(() => User, (user) => user.notifications)
   user: Relation<User>
-
+  
   @Column({ type: "text" })
   content: string;
 
-  @Column()
-  status: string;
+  @Column({
+    type: "enum",
+    enum: NotificationType
+  })
+  type: NotificationType;
+
+  @Column({
+    type: "enum",
+    enum: NotificationStatus,
+  })
+  status: NotificationStatus
+
+ 
 }
 
