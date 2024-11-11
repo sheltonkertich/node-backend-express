@@ -22,7 +22,8 @@ export class User {
 
   @Column({ type: "varchar", length: 50, nullable: true })
   lastName: string;
-
+  
+  @Index()
   @Column({
     type: "enum",
     enum: UserType,
@@ -45,7 +46,7 @@ export class User {
   @Index({ unique: true }) // Ensure email is unique
   @Column({ type: "varchar", length: 100 })
   email: string;
-
+  
   @OneToOne(() => UserProfile,{ cascade: true })
   profile: Relation<UserProfile>;
 

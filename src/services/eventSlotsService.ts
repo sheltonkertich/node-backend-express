@@ -24,7 +24,7 @@ export class EventSlotsService {
         }
     }
     async getEventSlot(id: number, codeName: string): Promise<EventSlots | null> {
-        console.log(id)
+       // console.log(id)
         if (id || codeName) { // Correctly check for truthy values
             try {
                 // Build query options based on provided parameters
@@ -62,7 +62,7 @@ export class EventSlotsService {
 
     }
     async updateEventSlot(eventId: number, slotName: string, slostUpdates: Partial<EventSlots>) {
-        console.log(eventId,)
+        //console.log(eventId,)
         try {
             if (!Object.keys(slostUpdates).length) {
                 throw new Error("No valid fields provided for slots update.");

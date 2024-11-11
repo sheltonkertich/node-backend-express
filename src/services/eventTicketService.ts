@@ -1,7 +1,6 @@
 import { Repository } from "typeorm";
-import { EventSlots, EventTickets, TicketType } from "../entities/Event.js";
+import { EventTickets, TicketType } from "../entities/Event.js";
 import { services } from "./index.js";
-import { MutationResponse, EventUpdatesType, SlotsUpdatesType } from "../types/eventTypes.js";
 import { GraphQLError } from "graphql";
 import { handleError } from "../utils/handleError.js";
 import validateUserEventSlot from "../utils/validateUserAndEvent.js";
