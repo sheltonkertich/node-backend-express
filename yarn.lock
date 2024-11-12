@@ -1612,6 +1612,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/validator@npm:^13.12.2":
+  version: 13.12.2
+  resolution: "@types/validator@npm:13.12.2"
+  checksum: 4e989f76e155a93a94f53c2362d5695f0a95fb6f36e05f215b1af893e1dc70a7db2d8422c9a0c14dadb4fd3c32a7698c86bce3b81ff99116c8c7f21888875a2f
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -2002,6 +2009,7 @@ __metadata:
     "@types/express": ^4.17.21
     "@types/graphql": ^14.5.0
     "@types/node": ^22.5.4
+    "@types/validator": ^13.12.2
     body-parser: ^1.20.3
     common-js: ^0.3.8
     cors: ^2.8.5
@@ -2021,6 +2029,7 @@ __metadata:
     ts-node: ^10.9.2
     typeorm: ^0.3.20
     typescript: ^5.6.2
+    validator: ^13.12.0
   languageName: unknown
   linkType: soft
 
@@ -6231,6 +6240,13 @@ __metadata:
     "@types/istanbul-lib-coverage": ^2.0.1
     convert-source-map: ^2.0.0
   checksum: ded42cd535d92b7fd09a71c4c67fb067487ef5551cc227bfbf2a1f159a842e4e4acddaef20b955789b8d3b455b9779d036853f4a27ce15007f6364a4d30317ae
+  languageName: node
+  linkType: hard
+
+"validator@npm:^13.12.0":
+  version: 13.12.0
+  resolution: "validator@npm:13.12.0"
+  checksum: fb8f070724770b1449ea1a968605823fdb112dbd10507b2802f8841cda3e7b5c376c40f18c84e6a7b59de320a06177e471554101a85f1fa8a70bac1a84e48adf
   languageName: node
   linkType: hard
 

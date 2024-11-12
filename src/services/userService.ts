@@ -1,5 +1,8 @@
 import { Repository } from "typeorm";
-import {User} from "../entities/User.js";
+import { User } from "../entities/User.js";
+import { handleError } from "../utils/handleError.js";
+import { GraphQLError } from "graphql";
+
 
 export class UserService {
   private userRepository: Repository<User>;
@@ -20,27 +23,21 @@ export class UserService {
     try {
       const user = this.userRepository.create(userData);
       return await this.userRepository.save(user);
-    } catch (error:any) {
-      const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-      const errorMessage = error.detail || 'An unexpected error occurred.';
-      console.error(`Service Error creating user: ${errorMessage}`, error);
-      throw new Error(`Failed to create user. Error Code: ${errorCode}. Message: ${errorMessage}`);
+    } catch (error) {
+      throw handleError(error);
     }
   }
 
   async updateUser(id: number, userData: Partial<User>): Promise<User | null> {
     try {
-      const result = await this.userRepository.update(id,userData)
-      
+      const result = await this.userRepository.update(id, userData)
+
       if (result.affected === 0) {
         throw new Error(`User with id ${id} not found.`);
       }
       return await this.userRepository.findOneBy({ id });
-    } catch (error:any) {
-      const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-      const errorMessage = error.detail || 'An unexpected error occurred.';
-      console.error(`Service Error updating user: ${errorMessage}`, error);
-      throw new Error(`Failed to update user. Error Code: ${errorCode}. Message: ${errorMessage}`);
+    } catch (error) {
+      throw handleError(error);
     }
   }
 
@@ -50,13 +47,10 @@ export class UserService {
       if (!user) {
         throw new Error(`User with id ${id} not found.`);
       }
-      await this.userRepository.softDelete({id});
+      await this.userRepository.softDelete({ id });
       return user;
-    } catch (error:any) {
-      const errorCode = error.code || 'UNKNOWN_ERROR'; // Default code if none provided
-      const errorMessage = error.detail || 'An unexpected error occurred.';
-      console.error(`Service Error deleting user: ${errorMessage}`, error);
-      throw new Error(`Failed to delete user. Error Code: ${errorCode}. Message: ${errorMessage}`);
+    } catch (error) {
+      throw handleError(error);
     }
   }
 }

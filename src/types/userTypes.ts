@@ -1,7 +1,7 @@
 // types.ts
 
 import { EventBookmarks, EventLikes, EventRatings } from "../entities/Event";
-import { User } from "../entities/User";
+import { User, UserProfile } from "../entities/User";
 
 // User entity type
 // export type User = {
@@ -43,10 +43,10 @@ export type UserQueryResponse = {
   
   // Input type for updating an existing user
   export type UserUpdates = {
-    firstName?: string; // Optional
-    lastName?: string;  // Optional
-    age?: number;       // Optional
-    email?: string;     // Optional
+    firstName?: string; 
+    lastName?: string;
+    email?: string; 
+    profile?: UserProfile
   };
   
   // Response type for mutations

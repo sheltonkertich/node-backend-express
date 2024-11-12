@@ -1,5 +1,5 @@
 import {
-  Entity,Unique, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany, OneToOne, DeleteDateColumn, JoinColumn, Relation
+  Entity, Unique, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany, OneToOne, DeleteDateColumn, JoinColumn, Relation
 } from "typeorm";
 import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings, EventSlots, EventTickets } from "./Event.js";
 
@@ -22,7 +22,7 @@ export class User {
 
   @Column({ type: "varchar", length: 50, nullable: true })
   lastName: string;
-  
+
   @Index()
   @Column({
     type: "enum",
@@ -40,14 +40,11 @@ export class User {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @Column({ type: "int", nullable: true })
-  age?: number; // Make age optional if it's not always provided
-
   @Index({ unique: true }) // Ensure email is unique
   @Column({ type: "varchar", length: 100 })
   email: string;
-  
-  @OneToOne(() => UserProfile,{ cascade: true })
+
+  @OneToOne(() => UserProfile, { cascade: true })
   profile: Relation<UserProfile>;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.user, { cascade: true, onDelete: "SET NULL", nullable: true })
@@ -74,16 +71,39 @@ export class UserProfile {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User,{ onDelete: "CASCADE" })
+  @Column({ unique: true, length: 50 })
+  username: string;  // Username is unique, length 50
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
+  @OneToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn()
   user: Relation<User>;
 
   @Column({ nullable: true })
   bio: string;
 
-  @Column({ nullable: true })
-  profilePicture: string;
+  @Column({ length: 255, nullable: true })
+  profile_picture: string;
 
-  @Column({ nullable: true })
+  @Column({ length: 20, nullable: true })
+  phone_number: string;
+
+  @Column({ length: 100, nullable: true })
   location: string;
+
+  @Column('text', { array: true, nullable: true })
+  interests: string[];  // Array of interests/hobbies
+
+  @Column({ type: "int", nullable: true })
+  age?: number; // Make age optional if it's not always provided
+
+
 }

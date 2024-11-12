@@ -1,35 +1,42 @@
 // userTypeDefs.ts
 
 export const userTypeDefs = `#graphql
-  type User {
+type User {
     id: ID!
     firstName: String
     lastName: String
-    age: Int
     email: String
   }
 
-  input UserInput {
+input UserInput {
     firstName: String!
     lastName: String
-    age: Int
     email: String!
   }
 
-  input UserUpdates {
+input UserUpdates {
     firstName: String
     lastName: String
     age: Int
     email: String
+    profile: UserProfile
   }
-
-  type MutationResponse {
+input UserProfile {  
+    username: String!
+    bio: String
+    profile_picture: String
+    phone_number: String
+    location: String
+    interests: [String]
+    age: Int
+}
+type MutationResponse {
     success: Boolean
     message: String
     singleUser: User
   }
 #-----------------------------------------------------------------------------------------------#
-  type UserQueryResponse{
+type UserQueryResponse{
     success: Boolean
     message: String
     users:[User]
@@ -44,7 +51,7 @@ export const userTypeDefs = `#graphql
     UserErrorDetail: String
   }
 
-  type EventLike {
+type EventLike {
   id: ID!
   event: Event!
   user: User!
@@ -62,7 +69,7 @@ type EventRating {
 }
 
 #-----------------------------------------------------------------------------------------------#
-  type Query {
+type Query {
     getUsers:UserQueryResponse
     getUser(id: ID!): UserQueryResponse
   }
