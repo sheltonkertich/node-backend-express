@@ -22,6 +22,7 @@ export class UserService {
   async createUser(userData: Partial<User>): Promise<User> {
     try {
       const user = this.userRepository.create(userData);
+      console.log(user.id);
       return await this.userRepository.save(user);
     } catch (error) {
       throw handleError(error);
@@ -33,7 +34,7 @@ export class UserService {
       const result = await this.userRepository.update(id, userData)
 
       if (result.affected === 0) {
-        throw new Error(`User with id ${id} not found.`);
+        throw new GraphQLError(`User with id ${id} not found.`);
       }
       return await this.userRepository.findOneBy({ id });
     } catch (error) {
@@ -45,7 +46,7 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({ where: { id } });
       if (!user) {
-        throw new Error(`User with id ${id} not found.`);
+        throw new GraphQLError(`User with id ${id} not found.`);
       }
       await this.userRepository.softDelete({ id });
       return user;

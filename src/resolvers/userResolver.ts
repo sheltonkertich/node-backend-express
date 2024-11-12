@@ -75,8 +75,8 @@ export const userResolvers = {
       try {
 
         if (Object.keys(userUpdates).includes('profile')) {
-          if (validateUsername(String(userUpdates.profile?.username))) { console.log("gvgdvgd") }
-          console.log("tuko na profile");
+          if (!validateUsername(String(userUpdates.profile?.username))) { throw new GraphQLError("Invalid username.", { extensions: { code: "BAD_USER_INPUT" } } ) }
+          
         }
 
         const updatedUser = await services.userService.updateUser(id, userUpdates);
