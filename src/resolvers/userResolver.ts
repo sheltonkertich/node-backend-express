@@ -5,6 +5,7 @@ import { UserInput, UserUpdates, UserMutationResponse, UserQueryResponse } from 
 import { handleGraphQLError } from "../utils/handleError.js";
 import isEmail from 'validator/lib/isEmail.js';
 import { validateUsername } from "../utils/fieldsValidator.js";
+import { generateUsername } from "../utils/fieldsGenerator.js";
 
 ;
 
@@ -60,6 +61,13 @@ export const userResolvers = {
           throw new GraphQLError("Invalid email address.", { extensions: { code: "BAD_USER_INPUT" } });
         }
         const user = await services.userService.createUser(input);
+        try {
+          const username = generateUsername(user.firstName, user.id)
+          console.log(username)
+          await services.userProfileService.createUserProfile( user.id,{username} )
+        } catch (error: any) {
+          return handleGraphQLError(error, { singleProfile: null });
+        }
         return {
           success: true,
           message: "User created successfully.",
@@ -75,8 +83,8 @@ export const userResolvers = {
       try {
 
         if (Object.keys(userUpdates).includes('profile')) {
-          if (!validateUsername(String(userUpdates.profile?.username))) { throw new GraphQLError("Invalid username.", { extensions: { code: "BAD_USER_INPUT" } } ) }
-          
+          if (!validateUsername(String(userUpdates.profile?.username))) { throw new GraphQLError("Invalid username.", { extensions: { code: "BAD_USER_INPUT" } }) }
+
         }
 
         const updatedUser = await services.userService.updateUser(id, userUpdates);

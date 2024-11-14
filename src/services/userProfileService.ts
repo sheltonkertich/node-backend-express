@@ -1,6 +1,8 @@
 import { Repository } from "typeorm";
 import {  UserProfile } from "../entities/User.js";
 import { handleError } from "../utils/handleError.js";
+import { services } from "./index.js";
+import { GraphQLError } from "graphql";
 
 
 export class UserProfileService {
@@ -9,10 +11,19 @@ export class UserProfileService {
   constructor(userProfileRepository: Repository<UserProfile>) {
     this.userProfileRepository = userProfileRepository;
   }
-  async createUser(profileData: Partial<UserProfile>): Promise<UserProfile> {
+  async createUserProfile(userId: number, profileData:Partial<UserProfile>): Promise<UserProfile> {
     try {
-      const profile = this.userProfileRepository.create(profileData);
-      return await this.userProfileRepository.save(profileData);
+      const user = await services.userService.getUserById(userId); 
+      if (!user) {
+        throw new GraphQLError(`user with id${userId} not found.cant create profile`);
+      }
+      const newProfile = this.userProfileRepository.create({
+        username: profileData.username,
+        user: { id: userId },
+      });
+      console.log(userId)
+      console.log(newProfile);
+      return await this.userProfileRepository.save(newProfile);
     } catch (error) {
       throw handleError(error);
     }

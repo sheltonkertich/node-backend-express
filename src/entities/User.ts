@@ -45,6 +45,7 @@ export class User {
   email: string;
 
   @OneToOne(() => UserProfile, { cascade: true })
+  @JoinColumn()
   profile: Relation<UserProfile>;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.user, { cascade: true, onDelete: "SET NULL", nullable: true })
@@ -84,7 +85,6 @@ export class UserProfile {
   deletedAt?: Date;
 
   @OneToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn()
   user: Relation<User>;
 
   @Column({ nullable: true })

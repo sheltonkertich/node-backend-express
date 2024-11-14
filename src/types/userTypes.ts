@@ -15,6 +15,7 @@ import { User, UserProfile } from "../entities/User";
     success?: boolean;
     message?: string;
     singleUser?: User | null;
+    singleProfile?: UserProfile | null;
     errorCode?: string;
     errorDetail?: string;
 };

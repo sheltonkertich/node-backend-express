@@ -16,15 +16,21 @@ export class UserService {
   }
 
   async getUserById(id: number): Promise<User | null> {
-    return await this.userRepository.findOneBy({ id });
+    try {
+  
+      return await this.userRepository.findOne({ where: { id }, relations: { profile: true } });
+    }
+    catch (error:any) {
+      throw handleError(error);
+    }
+
   }
 
   async createUser(userData: Partial<User>): Promise<User> {
     try {
       const user = this.userRepository.create(userData);
-      console.log(user.id);
       return await this.userRepository.save(user);
-    } catch (error) {
+    } catch (error:any) {
       throw handleError(error);
     }
   }

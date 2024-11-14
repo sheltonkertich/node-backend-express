@@ -6,6 +6,7 @@ type User {
     firstName: String
     lastName: String
     email: String
+    profile: UserProfile
   }
 
 input UserInput {
@@ -13,15 +14,25 @@ input UserInput {
     lastName: String
     email: String!
   }
+  input UserProfileInput {
+    username: String!
+    bio: String
+    profile_picture: String
+    phone_number: String
+    location: String
+    interests: [String]
+    age: Int
+  }
 
 input UserUpdates {
     firstName: String
     lastName: String
     age: Int
     email: String
-    profile: UserProfile
+    profile: UserProfileInput
   }
-input UserProfile {  
+type UserProfile {  
+  id: ID,
     username: String!
     bio: String
     profile_picture: String
