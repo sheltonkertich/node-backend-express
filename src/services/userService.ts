@@ -18,7 +18,8 @@ export class UserService {
   async getUserById(id: number): Promise<User | null> {
     try {
   
-      return await this.userRepository.findOne({ where: { id }, relations: { profile: true } });
+     return await this.userRepository.findOne({ where: { id }, relations: { profile: true } });
+ 
     }
     catch (error:any) {
       throw handleError(error);

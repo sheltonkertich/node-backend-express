@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { User } from "../entities/User.js";
+import { User, UserProfile } from "../entities/User.js";
 import { services } from "../services/index.js";
 import { UserInput, UserUpdates, UserMutationResponse, UserQueryResponse } from "../types/userTypes.js";
 import { handleGraphQLError } from "../utils/handleError.js";
@@ -64,7 +64,7 @@ export const userResolvers = {
         try {
           const username = generateUsername(user.firstName, user.id)
           console.log(username)
-          await services.userProfileService.createUserProfile( user.id,{username} )
+          const userProfile = await services.userProfileService.createUserProfile( user.id,{username} )
         } catch (error: any) {
           return handleGraphQLError(error, { singleProfile: null });
         }
