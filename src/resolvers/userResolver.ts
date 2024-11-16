@@ -64,7 +64,7 @@ export const userResolvers = {
         try {
           const username = generateUsername(user.firstName, user.id)
           console.log(username)
-          const userProfile = await services.userProfileService.createUserProfile( user.id,{username} )
+          const userProfile = await services.userProfileService.createUserProfile(user.id, { username })
         } catch (error: any) {
           return handleGraphQLError(error, { singleProfile: null });
         }
@@ -78,16 +78,11 @@ export const userResolvers = {
 
       }
     },
-    updateUser: async (_: any, { id, userUpdates }: { id: number; userUpdates: Partial<UserUpdates> }): Promise<UserMutationResponse> => {
+    updateUser: async (_: any, { id, userUpdates, profileUpdates }: { id: number; userUpdates: Partial<UserUpdates>; profileUpdates: Partial<UserProfile> }): Promise<UserMutationResponse> => {
 
       try {
-
-        if (Object.keys(userUpdates).includes('profile')) {
-          if (!validateUsername(String(userUpdates.profile?.username))) { throw new GraphQLError("Invalid username.", { extensions: { code: "BAD_USER_INPUT" } }) }
-
-        }
-
-        const updatedUser = await services.userService.updateUser(id, userUpdates);
+       const updatedProfile = await services.userProfileService.updateUserProfile(id, profileUpdates);
+       const updatedUser = await services.userService.updateUser(id, userUpdates);
         if (!updatedUser) {
           return {
             success: false,
@@ -99,6 +94,7 @@ export const userResolvers = {
           success: true,
           message: "User updated successfully.",
           singleUser: updatedUser,
+          singleProfile: updatedProfile
         };
       } catch (error: any) {
         return handleGraphQLError(error, { singleUser: null });

@@ -18,8 +18,11 @@ export class UserService {
   async getUserById(id: number): Promise<User | null> {
     try {
 
-      return await this.userRepository.findOne({ where: { id }, relations: { profile: true, tickets: true } });
-
+      const user =  await this.userRepository.findOne({ where: { id }, relations: { profile: true, tickets: true } });
+      if (!user) {
+        throw new GraphQLError(`User with id ${id} not found.`);
+      }
+      return user
     }
     catch (error: any) {
       throw handleError(error);

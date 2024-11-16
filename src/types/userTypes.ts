@@ -47,7 +47,6 @@ export type UserQueryResponse = {
     firstName?: string; 
     lastName?: string;
     email?: string; 
-    profile?: UserProfile
   };
   
   // Response type for mutations

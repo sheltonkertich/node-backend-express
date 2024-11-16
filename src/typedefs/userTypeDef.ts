@@ -15,7 +15,7 @@ input UserInput {
     email: String!
   }
   input UserProfileInput {
-    username: String!
+    username: String
     bio: String
     profile_picture: String
     phone_number: String
@@ -27,13 +27,11 @@ input UserInput {
 input UserUpdates {
     firstName: String
     lastName: String
-    age: Int
     email: String
-    profile: UserProfileInput
   }
 type UserProfile {  
-  id: ID,
-    username: String!
+    id: ID!,
+    username: String
     bio: String
     profile_picture: String
     phone_number: String
@@ -45,6 +43,7 @@ type MutationResponse {
     success: Boolean
     message: String
     singleUser: User
+    singleProfile: UserProfile
   }
 #-----------------------------------------------------------------------------------------------#
 type UserQueryResponse{
@@ -98,7 +97,7 @@ type Query {
 #-----------------------------------------------------------------------------------------------#
   type Mutation {
     createUser(input: UserInput!): MutationResponse
-    updateUser(id: ID!, userUpdates: UserUpdates): MutationResponse
+    updateUser(id: ID!, userUpdates: UserUpdates,profileUpdates:UserProfileInput): MutationResponse
     deleteUser(id: ID!): MutationResponse
   }
 `;
