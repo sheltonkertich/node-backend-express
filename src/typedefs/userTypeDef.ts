@@ -54,6 +54,7 @@ type UserQueryResponse{
     user:User
     userEventLikes:[EventLike]
     userEventLike:EventLike
+    tickets:[EventTickets]
     UserEventBookmarks:[EventBookmark]
     UserEventBookmark:EventBookmark
     UserEventRatings:[EventRating]
@@ -78,7 +79,17 @@ type EventRating {
   userId: String!
   scoreRating: Float! # Range from 1.0 to 5.0
 }
-
+type EventTickets {
+  id: ID!
+  ticketType: TicketType!
+  price: Float!
+  quantity: Int!
+}
+ enum TicketType {
+  NORMAL
+  VIP
+  VVIP
+}
 #-----------------------------------------------------------------------------------------------#
 type Query {
     getUsers:UserQueryResponse

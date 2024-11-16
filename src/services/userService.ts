@@ -17,11 +17,11 @@ export class UserService {
 
   async getUserById(id: number): Promise<User | null> {
     try {
-  
-     return await this.userRepository.findOne({ where: { id }, relations: { profile: true } });
- 
+
+      return await this.userRepository.findOne({ where: { id }, relations: { profile: true, tickets: true } });
+
     }
-    catch (error:any) {
+    catch (error: any) {
       throw handleError(error);
     }
 
@@ -31,7 +31,7 @@ export class UserService {
     try {
       const user = this.userRepository.create(userData);
       return await this.userRepository.save(user);
-    } catch (error:any) {
+    } catch (error: any) {
       throw handleError(error);
     }
   }

@@ -44,8 +44,7 @@ export class User {
   @Column({ type: "varchar", length: 100 })
   email: string;
 
-  @OneToOne(() => UserProfile, { cascade: true })
-  @JoinColumn()
+  @OneToOne(() => UserProfile, userProfile=>userProfile.user, {nullable:true})
   profile: Relation<UserProfile>;
 
   @OneToMany(() => EventLikes, (eventLike) => eventLike.user, { cascade: true, onDelete: "SET NULL", nullable: true })
@@ -84,8 +83,9 @@ export class UserProfile {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @OneToOne(() => User, { onDelete: "CASCADE" })
-  user: Relation<User>;
+  @OneToOne(() => User, (user) => user.profile,{onDelete: "CASCADE"})
+  @JoinColumn()
+  user: Relation<User>
 
   @Column({ nullable: true })
   bio: string;
