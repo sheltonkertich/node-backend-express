@@ -1,54 +1,54 @@
-import {
-	Event,
-	EventBookings,
-	EventCategories,
-	EventLikes,
-	EventRatings,
-	EventNotifications,
-	EventBookmarks,
-	EventSlots,
-	EventTickets
-} from "../entities/Event.js";
-import { User, UserProfile } from "../entities/User.js";
 import { AppDataSource } from "../data-source.js";
+import { 
+  Event, 
+  EventCategories, 
+  EventLikes,
+  EventBookmarks,
+  EventTickets,
+  EventRatings,
+  EventNotifications,
+  EventSlots
+} from "../entities/Event.js";
+import { User } from "../entities/User.js";
+import { UserProfile } from "../entities/User.js";
 import { EventService } from "./eventService.js";
-import { EventBookingService } from "./eventBookingService.js";
-import { EventBookmarkService } from "./eventBookmarkService.js";
+import { CategoryService } from "./categoryService.js";
 import { EventLikeService } from "./eventLikeService.js";
-import { EventNotificationService } from "./eventNotificationService.js";
+import { EventBookmarkService } from "./eventBookmarkService.js";
+import { EventTicketService } from "./eventTicketService.js";
 import { EventRatingService } from "./eventRatingService.js";
-import { EventCategoryService } from "./eventCategoryService.js";
+import { EventNotificationService } from "./eventNotificationService.js";
 import { EventSlotsService } from "./eventSlotsService.js";
 import { UserService } from "./userService.js";
-import { EventTicketService } from "./eventTicketService.js";
-import { UserProfileService } from "./userProfileService.js";
-
+import { UserProfileService } from './userProfileService.js';
+import { Repository } from "typeorm";
 
 const repositories = {
-	event: AppDataSource.getRepository(Event),
-	eventBookings: AppDataSource.getRepository(EventBookings),
-	eventCategories: AppDataSource.getRepository(EventCategories),
-	eventLikes: AppDataSource.getRepository(EventLikes),
-	eventSlots: AppDataSource.getRepository(EventSlots),
-	eventRatings: AppDataSource.getRepository(EventRatings),
-	eventNotifications: AppDataSource.getRepository(EventNotifications),
-	eventBookmarks: AppDataSource.getRepository(EventBookmarks),
-	userService: AppDataSource.getRepository(User),
-	tickets:AppDataSource.getRepository(EventTickets),
-	userProfile: AppDataSource.getRepository(UserProfile)
-};
+  event: AppDataSource.getRepository(Event),
+  eventCategory: AppDataSource.getRepository(EventCategories),
+  eventLikes: AppDataSource.getRepository(EventLikes),
+  eventBookmarks: AppDataSource.getRepository(EventBookmarks),
+  eventTickets: AppDataSource.getRepository(EventTickets),
+  eventRatings: AppDataSource.getRepository(EventRatings),
+  eventNotifications: AppDataSource.getRepository(EventNotifications),
+  eventSlots: AppDataSource.getRepository(EventSlots),
+  user: AppDataSource.getRepository(User),
+  userProfile: AppDataSource.getRepository(UserProfile) as Repository<UserProfile>
+} as const;
 
 export const services = {
-	eventService: new EventService(repositories.event),
-	bookmarkService: new EventBookmarkService(repositories.eventBookmarks),
-	bookingsService: new EventBookingService(repositories.eventBookings),
-	likesService: new EventLikeService(repositories.eventLikes),
-	slotsService: new EventSlotsService(repositories.eventSlots),
-	categoriesService: new EventCategoryService(repositories.eventCategories),
-	ratingsService: new EventRatingService(repositories.eventRatings),
-	notificationService: new EventNotificationService(repositories.eventNotifications),
-	userService : new UserService(repositories.userService),
-	ticketsService : new EventTicketService(repositories.tickets),
-	userProfileService : new UserProfileService(repositories.userProfile)
+  eventService: new EventService(repositories.event),
+  categoryService: new CategoryService(repositories.eventCategory),
+  likesService: new EventLikeService(repositories.eventLikes),
+  bookmarkService: new EventBookmarkService(repositories.eventBookmarks),
+  ticketsService: new EventTicketService(repositories.eventTickets),
+  ratingsService: new EventRatingService(repositories.eventRatings),
+  notificationService: new EventNotificationService(repositories.eventNotifications),
+  slotsService: new EventSlotsService(repositories.eventSlots),
+  userService: new UserService(repositories.user),
+  userProfileService: new UserProfileService(repositories.userProfile)
+} as const;
 
-};
+export type Services = typeof services;
+
+export default services;

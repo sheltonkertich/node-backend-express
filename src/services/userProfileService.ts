@@ -1,79 +1,95 @@
 import { Repository } from "typeorm";
 import { UserProfile } from "../entities/User.js";
-import { handleError } from "../utils/handleError.js";
 import { services } from "./index.js";
-import { GraphQLError } from "graphql";
 import { validateUsername } from "../utils/fieldsValidator.js";
-import { getManager } from "typeorm";
+import { BaseService } from "./baseService.js";
 
-
-export class UserProfileService {
-  private userProfileRepository: Repository<UserProfile>;
-
+export class UserProfileService extends BaseService<UserProfile> {
   constructor(userProfileRepository: Repository<UserProfile>) {
-    this.userProfileRepository = userProfileRepository;
+    super(userProfileRepository);
   }
+
+  private async checkUsernameAvailability(username: string, excludeId?: number): Promise<void> {
+    const normalizedUsername = username.trim();
+    const query = this.repository
+      .createQueryBuilder('profile')
+      .where('LOWER(profile.username) = LOWER(:username)', { 
+        username: normalizedUsername 
+      });
+
+    if (excludeId) {
+      query.andWhere('profile.id != :id', { id: excludeId });
+    }
+
+    const existingProfile = await query.getOne();
+
+    if (existingProfile) {
+      this.throwValidationError("Username is already taken.");
+    }
+  }
+
+  private async validateAndNormalizeUsername(username: string): Promise<string> {
+    if (!validateUsername(username)) {
+      this.throwValidationError("Invalid username.");
+    }
+    return username.trim();
+  }
+
   async createUserProfile(userId: number, profileData: Partial<UserProfile>): Promise<UserProfile> {
-    try {
-      const user = await services.userService.getUserById(userId);
-      if (!user) {
-        throw new GraphQLError(`user with id${userId} not found.cant create profile`);
+    return this.executeOperation(async () => {
+      await services.userService.getUserById(userId);
+
+      if (profileData.username) {
+        await this.checkUsernameAvailability(profileData.username);
+        profileData.username = profileData.username.trim();
       }
-      const newProfile = this.userProfileRepository.create({
-        username: profileData.username,
+
+      const newProfile = this.repository.create({
+        ...profileData,
         user: { id: userId },
       });
-      console.log(userId)
-      console.log(newProfile);
-      return await this.userProfileRepository.save(newProfile);
-    } catch (error) {
-      throw handleError(error);
-    }
+      
+      return await this.repository.save(newProfile);
+    });
   }
+
   async getProfile(username: string): Promise<UserProfile | null> {
-    const profile = await this.userProfileRepository.findOne({ where: { username }, });
-    return profile
+    return this.executeOperation(() => 
+      this.repository
+        .createQueryBuilder('profile')
+        .where('LOWER(profile.username) = LOWER(:username)', { 
+          username: username.trim() 
+        })
+        .getOne()
+    );
   }
+
   async updateUserProfile(id: number, profileData: Partial<UserProfile>): Promise<UserProfile | null> {
-    try {
-
-      if (Object.keys(profileData).length) {
-        if ((profileData?.username)) {
-          if (!validateUsername(String(profileData?.username))) {
-            throw new GraphQLError("Invalid username.", {
-              extensions: { code: "BAD_USER_INPUT" }
-            })
-          }
-          
-          const trimmedName = profileData.username.trim().toLowerCase();
-         
-          const userProfile = await this.getProfile(profileData?.username);
-          const existingProfileName = userProfile?.username? userProfile.username.trim().toLowerCase() : null
-          console.log(trimmedName)
-          console.log(existingProfileName)
-          if (userProfile) {
-            throw new GraphQLError("Username is already taken.", {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
-          }
-          const user = await services.userService.getUserById(id);
-          const profileID = user?.profile ? user.profile.id : null;
-          if (!profileID) {
-            return await this.createUserProfile(id, profileData);
-          }
-          const updatedProfile = await this.userProfileRepository.update(profileID, profileData);
-          if (updatedProfile.affected === 0) {
-            throw new GraphQLError(`update failed on userprofile with id ${user?.profile.id ?? 0}`);
-          }
-          return await this.userProfileRepository.findOne({ where: { id: profileID } });
-        }
-
+    return this.executeOperation(async () => {
+      if (!Object.keys(profileData).length || !profileData.username) {
+        return null;
       }
-      return null
-    } catch (error) {
-      throw handleError(error);
-    }
 
+      const user = await services.userService.getUserById(id);
+      const profileID = user?.profile?.id;
+      const normalizedUsername = await this.validateAndNormalizeUsername(profileData.username);
+      
+      // Check username availability, excluding current profile if it exists
+      await this.checkUsernameAvailability(normalizedUsername, profileID);
+
+      if (!profileID) {
+        return this.createUserProfile(id, { 
+          ...profileData, 
+          username: normalizedUsername 
+        });
+      }
+
+      await this.repository.update(profileID, {
+        ...profileData,
+        username: normalizedUsername
+      });
+
+      return await this.findOneByIdOrThrow(profileID);
+    });
   }
-
 }

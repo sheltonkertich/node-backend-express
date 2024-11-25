@@ -1,92 +1,121 @@
 import { Repository } from "typeorm";
-import { Event } from "../entities/Event";
+import { Event } from "../entities/Event.js";
+import { BaseService } from "./baseService.js";
+import { EventInputType, EventUpdateInput, EventStatus } from "../types/eventTypes.js";
 import { GraphQLError } from "graphql";
-import { handleError } from "../utils/handleError.js";
 
-export class EventService {
-  private eventRepository: Repository<Event>;
-
-
+export class EventService extends BaseService<Event> {
   constructor(eventRepository: Repository<Event>) {
-    this.eventRepository = eventRepository;
+    super(eventRepository);
+  }
+
+  async createEvent(input: EventInputType): Promise<Event> {
+    return this.executeOperation(async () => {
+      this.validateEventStatus(input.status);
+
+      const event = this.repository.create({
+        ...input,
+        categories: input.categories || []
+      });
+
+      return this.repository.save(event);
+    });
+  }
+
+  async updateEvent(id: number, updates: EventUpdateInput): Promise<Event> {
+    return this.executeOperation(async () => {
+      const event = await this.findOneByIdOrThrow(id);
+
+      if (updates.status) {
+        this.validateEventStatus(updates.status);
+      }
+
+      Object.assign(event, updates);
+      return this.repository.save(event);
+    });
   }
 
   async getAllEvents(): Promise<Event[]> {
-    try {
-      return await this.eventRepository.find({
+    return this.executeOperation(() => 
+      this.repository.find({
         relations: {
           eventLikes: true,
           bookmarks: true,
           slots: true,
-
-          ratings: true,
-          notifications: true
-        }
-      });
-    }  catch (error) {
-      throw handleError(error);
-    }
-  }
-
-  async getEventById(id: number): Promise<Event | null> {
-    try {
-      return await this.eventRepository.findOne({
-        where: { id }, relations: {
-          eventLikes: true,
-          bookmarks: true,
           ratings: true,
           notifications: true,
-          slots:true
+          categories: true
+        }
+      })
+    );
+  }
+
+  async getEventById(id: number): Promise<Event> {
+    return this.executeOperation(async () => {
+      const event = await this.repository.findOne({
+        where: { id },
+        relations: {
+          eventLikes: true,
+          bookmarks: true,
+          slots: true,
+          ratings: true,
+          notifications: true,
+          categories: true
         }
       });
-    }  catch (error) {
-      throw handleError(error);
-    }
-  }
 
-  async createEvent(eventData: Partial<Event>): Promise<Event> {
-    try {
-      // First, create and save the event to get an ID
-      const event = this.eventRepository.create(eventData);
-      await this.eventRepository.save(event);
+      if (!event) {
+        throw new GraphQLError("Event not found", {
+          extensions: {
+            code: 'NOT_FOUND',
+            field: 'id'
+          }
+        });
+      }
+
       return event;
+    });
+  }
 
-    }  catch (error) {
-      throw handleError(error);
+  async deleteEvent(id: number): Promise<Event> {
+    return this.executeOperation(async () => {
+      const event = await this.findOneByIdOrThrow(id);
+      await this.repository.softDelete(id);
+      return event;
+    });
+  }
+
+  private validateEventStatus(status: string): void {
+    if (!Object.values(EventStatus).includes(status as EventStatus)) {
+      throw new GraphQLError("Invalid event status", {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          field: 'status',
+          validStatuses: Object.values(EventStatus)
+        }
+      });
     }
   }
 
-  async updateEvent(eventId: number,eventUpdates: Partial<Event> = {}): Promise<Event | null> {
-    try {
-
-      if (!Object.keys(eventUpdates).length) {
-        throw new GraphQLError("No valid fields provided for event update.",{extensions:{code:"BAD_USER_INPUT"}});
-      }
-      const event = await this.eventRepository.findOne({ where: { id: eventId } });
-      if (!event) {
-        throw new GraphQLError(`Event with id ${eventId} not found.`);
-      }
-      const result = await this.eventRepository.update(eventId, eventUpdates);
-
-      if (result.affected === 0) {
-        throw new GraphQLError(`update failed on event with id ${eventId}`);
-      }
-      return await this.eventRepository.findOne({ where: { id: eventId } });
-    }  catch (error) {
-      throw handleError(error);
-    }
+  async getAvailableEvents(): Promise<Event[]> {
+    return this.executeOperation(() => 
+      this.repository.find({
+        where: {
+          status: EventStatus.ACTIVE
+        }
+      })
+    );
   }
 
-  async deleteEvent(id: number): Promise<Event | null> {
+  async updateEventStatuses(): Promise<void> {
     try {
-      const event = await this.eventRepository.findOne({ where: { id } });
-      if (!event) {
-        throw new GraphQLError(`Event with id ${id} not found.`);
+      const events = await this.repository.find();
+      for (const event of events) {
+        event.updateStatus();
+        await this.repository.save(event);
       }
-      await this.eventRepository.softDelete({ id });
-      return event; // Consider returning a confirmation message instead
     } catch (error) {
-      throw handleError(error);
+      throw new Error(`Failed to update event statuses: ${error.message}`);
     }
   }
 }

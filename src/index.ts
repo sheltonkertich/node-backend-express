@@ -1,13 +1,12 @@
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+
 import http from 'http';
 import cors from 'cors';
-import express, { Request, Response } from "express";
+import express from "express";
 import { AppDataSource } from "./data-source.js";
-import { User } from "./entities/User.js";
+
 import { schema } from "./schema/schema.js"
-import { GraphQLError } from 'graphql';
 
 interface MyContext {
   token?: string;

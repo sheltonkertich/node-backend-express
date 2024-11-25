@@ -1,48 +1,57 @@
 import { services } from "../services/index.js";
 import { MutationResponse } from "../types/eventTypes.js";
-import { handleGraphQLError } from "../utils/handleError.js";
+import { BaseResolver } from "./baseResolver.js";
+
+export class DeleteEventResolver extends BaseResolver {
+  static Mutation = {
+    deleteEvent: async (
+      _: any, 
+      { id }: { id: number }
+    ): Promise<MutationResponse> => {
+      return this.executeResolver<MutationResponse>(async () => {
+        const numericId = this.validateId(id);
+        const deletedEvent = await services.eventService.deleteEvent(numericId);
+        return {
+          singleEvent: deletedEvent,
+          message: `Event with id ${id} deleted successfully`
+        };
+      });
+    },
+
+    deleteLike: async (
+      _: any, 
+      { eventId, userId, id }: { eventId: number; userId: number; id: number }
+    ): Promise<MutationResponse> => {
+      return this.executeResolver<MutationResponse>(async () => {
+        const like = await services.likesService.getEventLike(eventId, userId, id);
+        if (like) {
+          await services.likesService.deleteLike(id);
+        }
+        return {
+          singleEventLike: like,
+          message: `Event like with id ${id} deleted successfully`
+        };
+      });
+    },
+
+    deleteEventBookmark: async (
+      _: any, 
+      { eventId, userId, id }: { eventId: number; userId: number; id: number }
+    ): Promise<MutationResponse> => {
+      return this.executeResolver<MutationResponse>(async () => {
+        const bookmark = await services.bookmarkService.getBookmark(eventId, userId, id);
+        if (bookmark) {
+          await services.bookmarkService.deleteBookmark(id);
+        }
+        return {
+          singleEventBookmark: bookmark,
+          message: `Event bookmark with id ${id} deleted successfully`
+        };
+      });
+    },
+  };
+}
 
 export const deleteEventResolver = {
-    Mutation: {
-
-        deleteEvent: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
-            try {
-                const deletedEvent = await services.eventService.deleteEvent(id);
-                return {
-                    success: true,
-                    message: "Event deleted successfully.",
-                    singleEvent: deletedEvent,
-
-                }; // Return a confirmation message or the deleted event
-            }catch (error: any) {
-                return handleGraphQLError(error, { singleEvent: null });
-			}
-        },
-        deleteLike: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
-            try {
-                await services.likesService.deleteLike(id)
-                return {
-                    success: true,
-                    message: "Event Like deleted successfully.",
-                    singleEventLike: null,
-
-                }; // Return a confirmation message or the deleted event
-            } catch (error: any) {
-                return handleGraphQLError(error, { singleEventLike: null });
-			}
-        },
-        deleteEventBookmark: async (_: any, { id }: { id: number }): Promise<MutationResponse> => {
-            try {
-                await services.bookmarkService.deleteEventBookmark(id)
-                return {
-                    success: true,
-                    message: "Event Bookmark deleted successfully.",
-                    singleEventBookmark: null,
-
-                }; // Return a confirmation message or the deleted event
-            } catch (error: any) {
-                return handleGraphQLError(error, { singleEventBookmark: null });
-			}
-        },
-    }
-}
+  Mutation: DeleteEventResolver.Mutation
+};

@@ -1,9 +1,16 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, JoinColumn, AfterLoad, DeleteDateColumn, Relation, Unique, JoinTable
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, Index, DeleteDateColumn, Relation, Unique, JoinTable,
+  ManyToMany
 } from "typeorm";
 import { User } from "./User.js";
-import { type } from "os";
 
+
+export enum EventStatus {
+  ACTIVE = "active",
+  ENDED = "ended",
+  CANCELLED = "cancelled",
+  DRAFT = "draft"
+}
 
 export enum TicketType {
   NORMAL = "normal",
@@ -46,8 +53,12 @@ export class Event {
   @Column({ type: "text", nullable: true })
   category: string;
 
-  @Column({ type: "text", nullable: true })
-  status: string;
+  @Column({
+    type: "enum",
+    enum: EventStatus,
+    default: EventStatus.ACTIVE
+  })
+  status: EventStatus;
 
   @Column()
   coverImage: string;
@@ -67,7 +78,6 @@ export class Event {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-
   @OneToMany(() => EventLikes, (eventLike) => eventLike.event, { cascade: true, onDelete: "CASCADE", nullable: true })
   eventLikes: EventLikes[]
 
@@ -77,7 +87,7 @@ export class Event {
   @OneToMany(() => EventSlots, (slot) => slot.event, { cascade: true, onDelete: "CASCADE" })
   slots: EventSlots[];
 
-  @OneToMany(() => EventCategories, (categories) => categories.event, { cascade: ["update"] })
+  @ManyToMany(() => EventCategories)
   @JoinTable()
   categories: EventCategories[];
 
@@ -87,6 +97,22 @@ export class Event {
   @OneToMany(() => EventNotifications, (notifications) => notifications.event)
   notifications: EventNotifications[];
 
+  // Optional: Helper method to check if event is available
+  isAvailable(): boolean {
+    return this.status === EventStatus.ACTIVE;
+  }
+
+  // Optional: Helper method to automatically update status based on dates
+  updateStatus(): void {
+    const now = new Date();
+    if (this.endTime && now > this.endTime) {
+      this.status = EventStatus.ENDED;
+    } else if (this.startTime && now >= this.startTime) {
+      this.status = EventStatus.ACTIVE;
+    } else {
+      this.status = EventStatus.ACTIVE;
+    }
+  }
 }
 // -----------------------------------------------------------------------------------------------------------------//
 @Entity()
@@ -234,19 +260,21 @@ export class EventTickets {
 
 // -----------------------------------------------------------------------------------------------------------------//
 @Entity()
-@Unique(["event"])
 export class EventCategories {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   categoryName: string;
 
-  @CreateDateColumn({ type: "timestamp" })
-  createdAt: Date; // Fixed typo (creaedAt to createdAt)
+  @Column({ nullable: true })
+  description?: string;
 
-  @ManyToOne(() => Event, (event) => event.categories)
-  event: Event;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ManyToMany(() => Event,{nullable:true})
+  event: Event[];
 }
 
 // -----------------------------------------------------------------------------------------------------------------//

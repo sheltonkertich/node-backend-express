@@ -1,33 +1,26 @@
 import { Repository } from "typeorm";
-import { EventLikes } from "../entities/Event.js";
-import { Event } from "../entities/Event.js";
-import { handleError } from "../utils/handleError.js";
-import { GraphQLError } from "graphql";
+import { EventLikes, Event } from "../entities/Event.js";
+import { BaseService } from "./baseService.js";
 
-export class EventLikeService {
-  private eventLikesRepository: Repository<EventLikes>;
-
+export class EventLikeService extends BaseService<EventLikes> {
   constructor(eventLikesRepository: Repository<EventLikes>) {
-    this.eventLikesRepository = eventLikesRepository;
+    super(eventLikesRepository);
   }
+
   async getAllLikes(): Promise<EventLikes[]> {
-    try {
-      return await this.eventLikesRepository.find({
+    return this.executeOperation(() => 
+      this.repository.find({
         relations: {
           event: true,
           user: true
         },
-      });
-    } catch (error) {
-      throw handleError(error);
-    }
+      })
+    );
   }
+
   async getEventLike(eventID: number, userID: number, id: number): Promise<EventLikes | null> {
-    try {
-      console.log(`Fetching like for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
-      
-      // Fetch the eventLike record directly with relationships
-      const eventLike = await this.eventLikesRepository.findOne({
+    return this.executeOperation(async () => {
+      const eventLike = await this.repository.findOne({
         where: {
           id,
           event: { id: eventID },
@@ -36,49 +29,52 @@ export class EventLikeService {
         relations: {
           event: true,
           user: true
-        }, // Ensure relations are loaded
+        },
       });
-  
-      if (!eventLike) {
-        console.log(`No like found for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
-        return null; // Explicit null return if not found
-      }
-  
-      console.log('Like found:', eventLike);
+
       return eventLike;
-    } catch (error) {
-      throw handleError(error);
-    }
+    });
   }
-  
 
-  async createLike(user: number, event: number): Promise<EventLikes> {
-    try {
-      const like = await this.eventLikesRepository.manager.findOne(Event, { where: { id: event } });
-      if (!like) {
-        throw new GraphQLError(`Event with id ${event} not found.`);
-      }
-
-      console.log('User liking the event with id:', event);
-
-      // Create a single like object
-      const newLike = this.eventLikesRepository.create({
-        event: { id: event },
-        user: { id: user },
+  async createLike(userId: number, eventId: number): Promise<EventLikes> {
+    return this.executeOperation(async () => {
+      // Check if event exists
+      const event = await this.repository.manager.findOne(Event, { 
+        where: { id: eventId } 
       });
 
-      return await this.eventLikesRepository.save(newLike);
-    }catch (error) {
-      throw handleError(error);
-    }
-  }
+      if (!event) {
+        this.throwNotFoundError("Event", eventId);
+      }
 
+      // Check if like already exists
+      const existingLike = await this.repository.findOne({
+        where: {
+          event: { id: eventId },
+          user: { id: userId },
+        }
+      });
+
+      if (existingLike) {
+        this.throwValidationError("User has already liked this event");
+      }
+
+      const newLike = this.repository.create({
+        event: { id: eventId },
+        user: { id: userId },
+      });
+
+      return await this.repository.save(newLike);
+    });
+  }
 
   async deleteLike(id: number): Promise<void> {
-    const result = await this.eventLikesRepository.delete({ id: id });
-    if (result.affected === 0) {
-      throw new GraphQLError(`Like with id ${id} not found.`);
-    }
-
+    return this.executeOperation(async () => {
+      const result = await this.repository.delete({ id });
+      
+      if (result.affected === 0) {
+        this.throwNotFoundError("EventLike", id);
+      }
+    });
   }
 }

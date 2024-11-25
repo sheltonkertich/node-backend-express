@@ -1,179 +1,124 @@
 import { services } from "../services/index.js";
-import { EventResponse} from "../types/eventTypes.js";
-import { handleGraphQLError } from "../utils/handleError.js";
+import { EventResponse } from "../types/eventTypes.js";
+import { BaseResolver } from "./baseResolver.js";
 
-export const queryEventResolvers = {
-    Query: {
-        getEvents: async (): Promise<EventResponse | null> => {
-    
-            try {
-                const EventsResult = await services.eventService.getAllEvents()
-                if (!EventsResult) {
-                    return {
-                        success: false,
-                        message: "no events found",
-                        events: null
-                    }
-                }
-                return {
-                    success: true,
-                    message: " events found",
-                    events: EventsResult,
-                };
-    
-            } catch (error: any) {
-                return handleGraphQLError(error);
-			}
-        },
-        getEvent: async (_: any, { id }: { id: number }): Promise<EventResponse> => {
-            try {
-                const EventsResult = await services.eventService.getEventById(id);
-                if (EventsResult) {
-                    return {
-                        success: true,
-                        message: "event fetch successfully.",
-                        event: EventsResult,
-                    }
-                }
-                return {
-                    success: false,
-                    message: `No event for event id ${id} in the DB`,
-                    event: null
-                };
-            } catch (error: any) {
-                return handleGraphQLError(error);
-			}
-        },
-        getAllLikes: async (): Promise<EventResponse | null> => {
-    
-            try {
-                const EventLikesResult = await services.likesService.getAllLikes()
-                if (!EventLikesResult) {
-                    return {
-                        success: false,
-                        message: "no event likes found",
-                        eventLikes: null
-                    }
-                }
-                return {
-                    success: true,
-                    message: " events likes found",
-                    eventLikes: EventLikesResult,
-                };
-    
-            } catch (error: any) {
-                return handleGraphQLError(error);
-			}
-        },
-        getEventLike: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<EventResponse | null> => {
-            try {
-                const eventLike = await services.likesService.getEventLike(eventID, userID, id);
-                console.log(eventLike)
-                if (eventLike) {
-                    return {
-                        success: true,
-                        message: "eventLike fetch successfully.",
-                        eventLike: eventLike
-                    };
-                }
-                return {
-                    success: false,
-                    message: "no like found",
-                    eventLike: null
-                };
-            } catch (error: any) {
-                return handleGraphQLError(error, { event: null });
-			}
-        },
-        getAllEventBookmarks: async (): Promise<EventResponse | null> => {
-    
-            try {
-                const EventBookmarks = await services.bookmarkService.getAllEventBookmarks()
-                if (!EventBookmarks) {
-                    return {
-                        success: false,
-                        message: "no Bookmarks found",
-                        eventLikes: null
-                    }
-                }
-                return {
-                    success: true,
-                    message: " events bookmarks found",
-                    eventBookmarks: EventBookmarks,
-                };
-    
-            } catch (error: any) {
-				 return handleGraphQLError(error);
-			}
-        },
-        getEventBookmark: async (_: any, { eventID, userID, id }: { eventID: number, userID: number, id: number }): Promise<EventResponse | null> => {
-            try {
-                const eventBookmark = await services.bookmarkService.getEventBookmark(eventID, userID, id);
-               // console.log(eventBookmark)
-                if (eventBookmark) {
-                    return {
-                        success: true,
-                        message: "eventBookmark fetch successfully.",
-                        eventBookmark: eventBookmark
-                    };
-                }
-                return {
-                    success: false,
-                    message: "no bookmark found",
-                    eventBookmark: null
-                };
-            } catch (error: any) {
-                return handleGraphQLError(error);
-			}
-        },
-        getAllslots: async (): Promise<EventResponse | null> => {
-    
-            try {
-                const AllSlots = await services.slotsService.getEventSlots()
-                if (!AllSlots) {
-                    return {
-                        success: false,
-                        message: "no eventSlots found",
-                        eventLikes: null
-                    }
-                }
-                return {
-                    success: true,
-                    message: " events slots found",
-                    allSlots: AllSlots,
-                };
-    
-            } catch (error: any) {
-                return handleGraphQLError(error);
-			}
-        },
-        getEventSlot: async (_: any, { id, codeName}: { id: number, codeName: string }): Promise<EventResponse | null> => {
-            try {
-                const eventSlot = await services.slotsService.getEventSlot(id, codeName);
-                //console.log(eventBookmark)
-                if (eventSlot) {
-                    return {
-                        success: true,
-                        message: "eventSlot fetch successfully.",
-                        eventSlot: eventSlot
-                    };
-                }
-                return {
-                    success: false,
-                    message: `no slot found, for codename ${codeName} or id ${id}. check your input`,
-                    eventBookmark: null
-                };
-            } catch (error: any) {
-                return handleGraphQLError(error);
-			}
-        },
-    
-        // getBookmarks: async () => await services.bookmarkService.getAllBookmarks(),
-        // getEventBookings: async () => await services.bookingsService.getAllBookings(),
-        // getEventCategories: async () => await services.categoriesService.getAllCategories(),
-        // getEventRatings: async () => await services.ratingsService.getAllRatings(),
-        // getEventNotifications: async () => await services.notificationService.getAllNotifications(),
+export class QueryEventResolver extends BaseResolver {
+  static Query = {
+    getEvents: async (): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const events = await services.eventService.getAllEvents();
+        return {
+          events,
+          message: events.length ? "Events found" : "No events found"
+        };
+      });
     },
 
+    getEvent: async (_: any, { id }: { id: number }): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const numericId = this.validateId(id);
+        const event = await services.eventService.getEventById(numericId);
+        return {
+          event,
+          message: "Event fetched successfully"
+        };
+      });
+    },
+
+    getAllLikes: async (): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const likes = await services.likesService.getAllLikes();
+        return {
+          eventLikes: likes,
+          message: likes.length ? "Event likes found" : "No event likes found"
+        };
+      });
+    },
+
+    getEventLike: async (
+      _: any,
+      { eventID, userID, id }: { eventID: number; userID: number; id: number }
+    ): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const eventLike = await services.likesService.getEventLike(eventID, userID, id);
+        return {
+          eventLike,
+          message: eventLike ? "Event like found" : "No like found"
+        };
+      });
+    },
+
+    getAllEventBookmarks: async (): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const bookmarks = await services.bookmarkService.getBookmarks();
+        return {
+          eventBookmarks: bookmarks,
+          message: bookmarks.length ? "Event bookmarks found" : "No bookmarks found"
+        };
+      });
+    },
+
+    getEventBookmark: async (
+      _: any,
+      { eventID, userID, id }: { eventID: number; userID: number; id: number }
+    ): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const bookmark = await services.bookmarkService.getBookmark(eventID, userID, id);
+        return {
+          eventBookmark: bookmark,
+          message: bookmark ? "Event bookmark found" : "No bookmark found"
+        };
+      });
+    },
+
+    getAllslots: async (): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const slots = await services.slotsService.getEventSlots();
+        return {
+          allSlots: slots,
+          message: slots.length ? "Event slots found" : "No event slots found"
+        };
+      });
+    },
+
+    getEventSlot: async (
+      _: any,
+      { id, codeName }: { id: number; codeName: string }
+    ): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const slot = await services.slotsService.getEventSlot(id, codeName);
+        return {
+          eventSlot: slot,
+          message: slot ? "Event slot found" : `No slot found for codename ${codeName} or id ${id}`
+        };
+      });
+    },
+
+    getAllCategories: async (): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const categories = await services.categoryService.getAllCategories();
+        return {
+          categories,
+          message: categories.length ? "Event categories found" : "No event categories found"
+        };
+      });
+    },
+    getCategory: async (
+      _: any,
+      { id }: { id: number }
+    ): Promise<EventResponse> => {
+      return this.executeResolver<EventResponse>(async () => {
+        const category = await services.categoryService.getCategoryById(id);
+        return {
+          category,
+          message: category ? "Event category found" : "No event category found"
+        };
+      });
+    }
+  };
 }
+
+export const queryEventResolvers = {
+  Query: QueryEventResolver.Query
+};
 

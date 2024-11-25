@@ -1,67 +1,50 @@
 import { Repository } from "typeorm";
 import { User } from "../entities/User.js";
-import { handleError } from "../utils/handleError.js";
-import { GraphQLError } from "graphql";
+import { BaseService } from "./baseService.js";
 
-
-export class UserService {
-  private userRepository: Repository<User>;
-
+export class UserService extends BaseService<User> {
   constructor(userRepository: Repository<User>) {
-    this.userRepository = userRepository;
+    super(userRepository);
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await this.userRepository.find();
+    return this.executeOperation(() => 
+      this.repository.find({
+        relations: { profile: true, tickets: true }
+      })
+    );
   }
 
-  async getUserById(id: number): Promise<User | null> {
-    try {
-
-      const user =  await this.userRepository.findOne({ where: { id }, relations: { profile: true, tickets: true } });
-      if (!user) {
-        throw new GraphQLError(`User with id ${id} not found.`);
-      }
-      return user
-    }
-    catch (error: any) {
-      throw handleError(error);
-    }
-
+  async getUserById(id: number): Promise<User> {
+    return this.executeOperation(() => 
+      this.findOneByIdOrThrow(id, ['profile', 'tickets'])
+    );
   }
 
   async createUser(userData: Partial<User>): Promise<User> {
-    try {
-      const user = this.userRepository.create(userData);
-      return await this.userRepository.save(user);
-    } catch (error: any) {
-      throw handleError(error);
-    }
+    return this.executeOperation(async () => {
+      const user = this.repository.create(userData);
+      return await this.repository.save(user);
+    });
   }
 
-  async updateUser(id: number, userData: Partial<User>): Promise<User | null> {
-    try {
-      const result = await this.userRepository.update(id, userData)
+  async updateUser(id: number, userData: Partial<User>): Promise<User> {
+    return this.executeOperation(async () => {
+      const result = await this.repository.update(id, userData);
 
       if (result.affected === 0) {
-        throw new GraphQLError(`User with id ${id} not found.`);
+        this.throwNotFoundError("User", id);
       }
-      return await this.userRepository.findOneBy({ id });
-    } catch (error) {
-      throw handleError(error);
-    }
+
+      return await this.findOneByIdOrThrow(id, ['profile', 'tickets']);
+    });
   }
 
-  async deleteUser(id: number): Promise<User | null> {
-    try {
-      const user = await this.userRepository.findOne({ where: { id } });
-      if (!user) {
-        throw new GraphQLError(`User with id ${id} not found.`);
-      }
-      await this.userRepository.softDelete({ id });
+  async deleteUser(id: number): Promise<User> {
+    return this.executeOperation(async () => {
+      const user = await this.findOneByIdOrThrow(id);
+      await this.repository.softDelete({ id });
       return user;
-    } catch (error) {
-      throw handleError(error);
-    }
+    });
   }
 }

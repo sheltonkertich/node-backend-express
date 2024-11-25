@@ -1,7 +1,7 @@
 import {
-  Entity, Unique, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany, OneToOne, DeleteDateColumn, JoinColumn, Relation
+  Entity,  PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, OneToMany, OneToOne, DeleteDateColumn, JoinColumn, Relation
 } from "typeorm";
-import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings, EventSlots, EventTickets } from "./Event.js";
+import { EventBookings, EventBookmarks, EventLikes, EventNotifications, EventRatings, EventTickets } from "./Event.js";
 
 
 export enum UserType {

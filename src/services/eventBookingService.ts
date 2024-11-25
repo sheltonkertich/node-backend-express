@@ -22,7 +22,7 @@ export class EventBookingService {
    
   }
 
-  async deleteBooking(id: number){
-   
+  async deleteBooking(id: number) {
+    return await this.eventBookingsRepository.delete(id);
   }
 }

@@ -1,109 +1,144 @@
 import { Repository } from "typeorm";
-import { EventTickets, TicketType } from "../entities/Event.js";
+import { EventTickets, EventSlots, TicketType } from "../entities/Event.js";
 import { services } from "./index.js";
+import { BaseService } from "./baseService.js";
 import { GraphQLError } from "graphql";
-import { handleError } from "../utils/handleError.js";
-import validateUserEventSlot from "../utils/validateUserAndEvent.js";
 
-export class EventTicketService {
-    private eventTicketRepository: Repository<EventTickets>;
+interface TicketPricing {
+  price: number;
+  availableTickets: number;
+}
 
-    constructor(eventTicketRepository: Repository<EventTickets>) {
-        this.eventTicketRepository = eventTicketRepository;
-    }
-    async createTicket(slotId: number, slotName: string, userId: number, ticketType: string, quantity: number): Promise<EventTickets | null> {
-        try {
-            
-            const user = await services.userService.getUserById(userId)
-            const slot = await services.slotsService.getEventSlot(slotId, slotName)
+export class EventTicketService extends BaseService<EventTickets> {
+  constructor(eventTicketRepository: Repository<EventTickets>) {
+    super(eventTicketRepository);
+  }
 
-            if (!user) {
-                throw new GraphQLError("User not found");
-            } if (!slot) {
-                throw new GraphQLError(" slot not found");
-            }
-
-            let availableTickets: number;
-            let price;
-
-            // Determine available tickets and price based on ticket type
-            switch (ticketType) {
-                case "VVIP":
-
-                    availableTickets = slot.vvipAvailable;
-                    price = slot.vvipPrice;
-                    break;
-                case "VIP":
-                    availableTickets = slot.vipAvailable;
-                    price = slot.vipPrice;
-                    //console.log("the price is", price)
-                    break;
-                case "NORMAL":
-                    availableTickets = slot.normalAvailable;
-                    price = slot.normalPrice;
-                    break;
-                default:
-                    throw new GraphQLError(`Invalid ticket type: ${ticketType}`);
-
-            }
-
-            // Check if enough tickets are available
-            if (quantity == 0 || quantity < 0) {
-                throw new GraphQLError(`quantity must be greater than 0`);
-            } else if (quantity > availableTickets) {
-                throw new GraphQLError(`Not enough tickets available for this type. available tickets are ${availableTickets}`);
-            }
-            else if (availableTickets === 0) {
-                throw new GraphQLError(`the slots are fully booked`);
-            }
-
-            // Deduct available tickets based on type
-            switch (ticketType) {
-                case "VVIP":
-                    slot.vvipAvailable -= quantity;
-                    price = quantity* price;
-                    break;
-                case "VIP":
-                    slot.vipAvailable -= quantity;
-                    price = quantity* price;
-                    break;
-                case "NORMAL":
-                    slot.normalAvailable -= quantity;
-                    price = quantity* price;
-                    break;
-
-                default:
-                    throw new GraphQLError(`error occured in calculating event slots availablee`);
-            }
-            const newTicket = this.eventTicketRepository.create({
-                slot: {id:slotId }, 
-                user: { id: userId },
-                ticketType: TicketType[ticketType],
-                price: price,
-                quantity: quantity,
-                slotName: slotName
-              })
-            //console.log(newTicket)
-            try {
-               const savedTicket = await this.eventTicketRepository.save(newTicket);
-                if (!savedTicket) {
-                    throw new GraphQLError("Error creating event ticket");
-                } await services.slotsService.updateEventSlot(slot.event.id, slotName, slot)
-            } catch (error) {
-                throw handleError(error);
-            }
-            // console.log(user?.id)
-            // console.log(slot?.normalAvailable)
-            return null;
-
-
-        } catch (error) {
-            throw handleError(error);
+  private validateTicketQuantity(
+    quantity: number, 
+    availableTickets: number, 
+    ticketType: keyof typeof TicketType
+  ): void {
+    if (quantity <= 0) {
+      throw new GraphQLError("Quantity must be greater than 0", {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          field: 'quantity'
         }
-
-
-
+      });
     }
+
+    if (quantity > availableTickets) {
+      throw new GraphQLError(
+        `Not enough ${ticketType} tickets available. Only ${availableTickets} tickets left`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            field: 'quantity',
+            available: availableTickets
+          }
+        }
+      );
+    }
+  }
+
+  private calculateTicketPrice(
+    ticketType: keyof typeof TicketType, 
+    slot: EventSlots
+  ): TicketPricing {
+    if (!Object.keys(TicketType).includes(ticketType)) {
+      throw new GraphQLError(`Invalid ticket type: ${ticketType}`, {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          field: 'ticketType',
+          validTypes: Object.keys(TicketType)
+        }
+      });
+    }
+
+    const pricing: Record<keyof typeof TicketType, TicketPricing> = {
+      VVIP: { 
+        price: slot.vvipPrice, 
+        availableTickets: slot.vvipAvailable 
+      },
+      VIP: { 
+        price: slot.vipPrice, 
+        availableTickets: slot.vipAvailable 
+      },
+      NORMAL: { 
+        price: slot.normalPrice, 
+        availableTickets: slot.normalAvailable 
+      }
+    };
+
+    return pricing[ticketType];
+  }
+
+  async createTicket(
+    slotId: number, 
+    slotName: string, 
+    userId: number, 
+    ticketType: keyof typeof TicketType, 
+    quantity: number
+  ): Promise<EventTickets> {
+    return this.executeOperation(async () => {
+      if (!slotName?.trim()) {
+        throw new GraphQLError("Slot name is required", {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            field: 'slotName'
+          }
+        });
+      }
+
+      // Fetch user and slot in parallel
+      const [, slot] = await Promise.all([
+        services.userService.getUserById(userId),
+        services.slotsService.getEventSlot(slotId, slotName)
+      ]).catch((error) => {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
+        throw new GraphQLError("Failed to fetch user or slot", {
+          extensions: {
+            code: 'INTERNAL_SERVER_ERROR'
+          }
+        });
+      });
+
+      if (!slot) {
+        throw new GraphQLError(`No slot found with ID ${slotId} and name ${slotName}`, {
+          extensions: {
+            code: 'NOT_FOUND',
+            field: 'slotId'
+          }
+        });
+      }
+
+      const { price, availableTickets } = this.calculateTicketPrice(ticketType, slot);
+      this.validateTicketQuantity(quantity, availableTickets, ticketType);
+
+      const newTicket = this.repository.create({
+        slot: { id: slotId },
+        user: { id: userId },
+        ticketType: TicketType[ticketType],
+        price: price * quantity,
+        quantity,
+        slotName
+      });
+
+      try {
+        const savedTicket = await this.repository.save(newTicket);
+        await services.slotsService.updateEventSlot(slot.event.id, slotName, slot);
+        return savedTicket;
+      } catch (error) {
+        throw new GraphQLError("Failed to create ticket", {
+          extensions: {
+            code: 'INTERNAL_SERVER_ERROR'
+          }
+        });
+      }
+    });
+  }
 }
 
 

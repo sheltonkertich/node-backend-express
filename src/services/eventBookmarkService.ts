@@ -1,84 +1,54 @@
 import { Repository } from "typeorm";
 import { EventBookmarks } from "../entities/Event.js";
-import { Event } from "../entities/Event.js";
+import { BaseService } from "./baseService.js";
 import { GraphQLError } from "graphql";
-import { handleError } from "../utils/handleError.js";
 
-export class EventBookmarkService {
-  private eventBookmarksRepository: Repository<EventBookmarks>;
-
-  constructor(eventBookmarksRepository: Repository<EventBookmarks>) {
-    this.eventBookmarksRepository = eventBookmarksRepository;
+export class EventBookmarkService extends BaseService<EventBookmarks> {
+  constructor(repository: Repository<EventBookmarks>) {
+    super(repository);
   }
 
-  async getAllEventBookmarks(): Promise<EventBookmarks[]> {
-    try {
-      return await this.eventBookmarksRepository.find({
-        relations: {
-          event: true,
-          user: true
-        },
-      });
-    } catch (error) {
-      throw handleError(error);
-    }
-  }
-
-  async getEventBookmark(eventID: number, userID: number, id: number): Promise<EventBookmarks | null> {
-    try {
-      console.log(`Fetching bookmark for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
-
-      // Fetch the eventLike record directly with relationships
-      const eventBookmark = await this.eventBookmarksRepository.findOne({
+  async createEventBookmark(userId: number, eventId: number): Promise<EventBookmarks> {
+    return this.executeOperation(async () => {
+      const existingBookmark = await this.repository.findOne({
         where: {
-          id,
-          event: { id: eventID },
-          user: { id: userID },
-        },
-        relations: {
-          event: true,
-          user: true
-        }, // Ensure relations are loaded
+          user: { id: userId },
+          event: { id: eventId }
+        }
       });
 
-      if (!eventBookmark) {
-        console.log(`No bookmark found for eventId: ${eventID}, userId: ${userID}, id: ${id}`);
-        return null; // Explicit null return if not found
+      if (existingBookmark) {
+        throw new GraphQLError("Event already bookmarked", {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        });
       }
 
-      console.log('bookmark found:', eventBookmark);
-      return eventBookmark;
-    } catch (error) {
-      throw handleError(error);
-    }
-  }
-
-  async createEventBookmark(user: number, event: number): Promise<EventBookmarks> {
-    try {
-      const bookmark = await this.eventBookmarksRepository.manager.findOne(Event, { where: { id: event } })
-      if (!bookmark) {
-        throw new GraphQLError(`Event with id ${event} not found.`, { extensions: { code: 'EVENT_NOT_FOUND' }, });
-
-      }
-
-      console.log('Booki marking with id:', event);
-
-      // Create a single like object
-      const newBookmark = this.eventBookmarksRepository.create({
-        event: { id: event },
-        user: { id: user },
+      const bookmark = this.repository.create({
+        user: { id: userId },
+        event: { id: eventId }
       });
 
-      return await this.eventBookmarksRepository.save(newBookmark);
-    } catch (error) {
-      throw handleError(error);
-    }
+      return this.repository.save(bookmark);
+    });
   }
 
-  async deleteEventBookmark(id: number): Promise<void> {
-    const result = await this.eventBookmarksRepository.delete({ id: id });
-    if (result.affected === 0) {
-      throw new GraphQLError(`bookmark with id ${id} not found.`);
-    }
+  async getBookmarks(): Promise<EventBookmarks[]> {
+    return this.repository.find();
+  }
+
+  async getBookmark(eventId: number, userId: number, id: number): Promise<EventBookmarks | null> {
+    return this.repository.findOne({
+      where: { 
+        id,
+        event: { id: eventId },
+        user: { id: userId }
+      }
+    });
+  }
+
+  async deleteBookmark(id: number): Promise<void> {
+    await this.repository.delete(id);
   }
 }
