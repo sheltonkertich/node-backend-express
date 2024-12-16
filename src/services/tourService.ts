@@ -1,145 +1,146 @@
 import { databases, DATABASE_ID, COLLECTIONS } from '../config/appwrite';
 import { ID, Query } from 'node-appwrite';
 
-interface EventData {
+interface TourData {
   title: string;
   description: string;
   location: string;
   startDate: string;
   endDate: string;
-  registrationDeadline: string;
-  capacity: number;
   price: number;
-  isFree: boolean;
+  capacity: number;
   category: string;
   tags?: string[];
   status: 'draft' | 'published' | 'cancelled' | 'completed';
   organizerId: string;
   organizerName: string;
+  includedServices?: string[];
+  excludedServices?: string[];
+  itinerary?: string[];
 }
 
-export class EventService {
-  async createEvent(eventData: EventData) {
+export class TourService {
+  async createTour(tourData: TourData) {
     try {
-      const event = await databases.createDocument(
+      const tour = await databases.createDocument(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
+        COLLECTIONS.TOURS,
         ID.unique(),
         {
-          ...eventData,
+          ...tourData,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
       );
-      return event;
+      return tour;
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error('Error creating tour:', error);
       throw error;
     }
   }
 
-  async getEventById(eventId: string) {
+  async getTourById(tourId: string) {
     try {
       return await databases.getDocument(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        eventId
+        COLLECTIONS.TOURS,
+        tourId
       );
     } catch (error) {
-      console.error('Error getting event:', error);
+      console.error('Error getting tour:', error);
       throw error;
     }
   }
 
-  async getAllEvents(queries: string[] = []) {
+  async getAllTours(queries: string[] = []) {
     try {
-      const events = await databases.listDocuments(
+      const tours = await databases.listDocuments(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
+        COLLECTIONS.TOURS,
         queries
       );
-      return events.documents;
+      return tours.documents;
     } catch (error) {
-      console.error('Error getting events:', error);
+      console.error('Error getting tours:', error);
       throw error;
     }
   }
 
-  async updateEvent(eventId: string, eventData: Partial<EventData>) {
+  async updateTour(tourId: string, tourData: Partial<TourData>) {
     try {
       return await databases.updateDocument(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        eventId,
+        COLLECTIONS.TOURS,
+        tourId,
         {
-          ...eventData,
+          ...tourData,
           updatedAt: new Date().toISOString(),
         }
       );
     } catch (error) {
-      console.error('Error updating event:', error);
+      console.error('Error updating tour:', error);
       throw error;
     }
   }
 
-  async deleteEvent(eventId: string) {
+  async deleteTour(tourId: string) {
     try {
       await databases.deleteDocument(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        eventId
+        COLLECTIONS.TOURS,
+        tourId
       );
       return true;
     } catch (error) {
-      console.error('Error deleting event:', error);
+      console.error('Error deleting tour:', error);
       throw error;
     }
   }
 
-  // Additional methods for event-specific operations
-  async getEventsByOrganizer(organizerId: string) {
+  // Additional methods for tour-specific operations
+  async getToursByOrganizer(organizerId: string) {
     try {
-      const events = await databases.listDocuments(
+      const tours = await databases.listDocuments(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
+        COLLECTIONS.TOURS,
         [Query.equal('organizerId', organizerId)]
       );
-      return events.documents;
+      return tours.documents;
     } catch (error) {
-      console.error('Error getting events by organizer:', error);
+      console.error('Error getting tours by organizer:', error);
       throw error;
     }
   }
 
-  async getEventsByCategory(category: string) {
+  async getToursByCategory(category: string) {
     try {
-      const events = await databases.listDocuments(
+      const tours = await databases.listDocuments(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
+        COLLECTIONS.TOURS,
         [Query.equal('category', category)]
       );
-      return events.documents;
+      return tours.documents;
     } catch (error) {
-      console.error('Error getting events by category:', error);
+      console.error('Error getting tours by category:', error);
       throw error;
     }
   }
 
-  async getUpcomingEvents() {
+  async getUpcomingTours() {
     try {
       const now = new Date().toISOString();
-      const events = await databases.listDocuments(
+      const tours = await databases.listDocuments(
         DATABASE_ID,
-        COLLECTIONS.EVENTS,
+        COLLECTIONS.TOURS,
         [
           Query.greaterThan('startDate', now),
           Query.equal('status', 'published')
         ]
       );
-      return events.documents;
+      return tours.documents;
     } catch (error) {
-      console.error('Error getting upcoming events:', error);
+      console.error('Error getting upcoming tours:', error);
       throw error;
     }
   }
-}
+} 

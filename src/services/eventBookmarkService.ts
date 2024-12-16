@@ -1,54 +1,97 @@
-import { Repository } from "typeorm";
-import { EventBookmarks } from "../entities/Event.js";
-import { BaseService } from "./baseService.js";
-import { GraphQLError } from "graphql";
+import { databases, DATABASE_ID, COLLECTIONS } from '../config/appwrite';
+import { ID, Query } from 'node-appwrite';
 
-export class EventBookmarkService extends BaseService<EventBookmarks> {
-  constructor(repository: Repository<EventBookmarks>) {
-    super(repository);
-  }
+interface EventBookmarkData {
+  userId: string;
+  eventId: string;
+}
 
-  async createEventBookmark(userId: number, eventId: number): Promise<EventBookmarks> {
-    return this.executeOperation(async () => {
-      const existingBookmark = await this.repository.findOne({
-        where: {
-          user: { id: userId },
-          event: { id: eventId }
+export class EventBookmarkService {
+  async bookmarkEvent(data: EventBookmarkData) {
+    try {
+      const bookmark = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTIONS.EVENT_BOOKMARKS,
+        ID.unique(),
+        {
+          ...data,
+          createdAt: new Date().toISOString(),
         }
-      });
+      );
+      return bookmark;
+    } catch (error) {
+      console.error('Error bookmarking event:', error);
+      throw error;
+    }
+  }
 
-      if (existingBookmark) {
-        throw new GraphQLError("Event already bookmarked", {
-          extensions: {
-            code: 'BAD_USER_INPUT'
-          }
-        });
+  async removeBookmark(userId: string, eventId: string) {
+    try {
+      const bookmarks = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.EVENT_BOOKMARKS,
+        [
+          Query.equal('userId', userId),
+          Query.equal('eventId', eventId)
+        ]
+      );
+
+      if (bookmarks.documents.length > 0) {
+        await databases.deleteDocument(
+          DATABASE_ID,
+          COLLECTIONS.EVENT_BOOKMARKS,
+          bookmarks.documents[0].$id
+        );
       }
-
-      const bookmark = this.repository.create({
-        user: { id: userId },
-        event: { id: eventId }
-      });
-
-      return this.repository.save(bookmark);
-    });
+      return true;
+    } catch (error) {
+      console.error('Error removing bookmark:', error);
+      throw error;
+    }
   }
 
-  async getBookmarks(): Promise<EventBookmarks[]> {
-    return this.repository.find();
+  async getEventBookmarks(eventId: string) {
+    try {
+      const bookmarks = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.EVENT_BOOKMARKS,
+        [Query.equal('eventId', eventId)]
+      );
+      return bookmarks.documents;
+    } catch (error) {
+      console.error('Error getting event bookmarks:', error);
+      throw error;
+    }
   }
 
-  async getBookmark(eventId: number, userId: number, id: number): Promise<EventBookmarks | null> {
-    return this.repository.findOne({
-      where: { 
-        id,
-        event: { id: eventId },
-        user: { id: userId }
-      }
-    });
+  async getUserBookmarks(userId: string) {
+    try {
+      const bookmarks = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.EVENT_BOOKMARKS,
+        [Query.equal('userId', userId)]
+      );
+      return bookmarks.documents;
+    } catch (error) {
+      console.error('Error getting user bookmarks:', error);
+      throw error;
+    }
   }
 
-  async deleteBookmark(id: number): Promise<void> {
-    await this.repository.delete(id);
+  async hasUserBookmarkedEvent(userId: string, eventId: string) {
+    try {
+      const bookmarks = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.EVENT_BOOKMARKS,
+        [
+          Query.equal('userId', userId),
+          Query.equal('eventId', eventId)
+        ]
+      );
+      return bookmarks.documents.length > 0;
+    } catch (error) {
+      console.error('Error checking if user bookmarked event:', error);
+      throw error;
+    }
   }
 }
