@@ -1,32 +1,31 @@
 import express from 'express';
-import { graphqlHTTP } from 'express-graphql';
 import cors from 'cors';
-import { schema } from './schema/schema';
+import routes from './routes';
 
 const app = express();
 
-// Enable CORS
+// Middleware
 app.use(cors());
-
-// Parse JSON bodies
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// GraphQL endpoint
-app.use(
-  '/graphql',
-  graphqlHTTP({
-    schema,
-    graphiql: true, // Enable GraphiQL interface for testing
-  })
-);
+// Routes
+app.use('/api', routes);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+// Error handling
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(err.stack);
+    res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}/graphql`);
-}); 
+    console.log(`Server running on port ${PORT}`);
+});
+
+export default app; 

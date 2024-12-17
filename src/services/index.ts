@@ -1,29 +1,20 @@
+import { AuthService } from './authService';
 import { UserService } from './userService';
 import { EventService } from './eventService';
-import { TourService } from './tourService';
-import { OrganizerService } from './organizerService';
 import { EventLikeService } from './eventLikeService';
 import { EventBookmarkService } from './eventBookmarkService';
+import { OrganizerService } from './organizerService';
+import { StorageService } from './storageService';
 
-// Initialize services
-export const services = {
-  userService: new UserService(),
-  eventService: new EventService(),
-  tourService: new TourService(),
-  organizerService: new OrganizerService(),
-  eventLikeService: new EventLikeService(),
-  eventBookmarkService: new EventBookmarkService(),
-};
+const services = {
+    auth: new AuthService(),
+    user: new UserService(),
+    event: new EventService(),
+    eventLike: new EventLikeService(),
+    eventBookmark: new EventBookmarkService(),
+    organizer: new OrganizerService(),
+    storage: new StorageService()
+} as const;
 
-// Export service types
 export type Services = typeof services;
-
-// Export individual services for direct imports
-export {
-  UserService,
-  EventService,
-  TourService,
-  OrganizerService,
-  EventLikeService,
-  EventBookmarkService,
-};
+export default services;

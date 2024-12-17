@@ -1,145 +1,89 @@
-import { databases, DATABASE_ID, COLLECTIONS } from '../config/appwrite';
+import { databases, storage, DATABASE_ID, COLLECTIONS, STORAGE_BUCKETS } from '../config/appwrite';
 import { ID, Query } from 'node-appwrite';
-
-interface EventData {
-  title: string;
-  description: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  registrationDeadline: string;
-  capacity: number;
-  price: number;
-  isFree: boolean;
-  category: string;
-  tags?: string[];
-  status: 'draft' | 'published' | 'cancelled' | 'completed';
-  organizerId: string;
-  organizerName: string;
-}
+import { AppwriteEvent, CreateInput, UpdateInput } from '../types/appwrite';
 
 export class EventService {
-  async createEvent(eventData: EventData) {
-    try {
-      const event = await databases.createDocument(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        ID.unique(),
-        {
-          ...eventData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+    async createEvent(eventData: CreateInput<AppwriteEvent>) {
+        try {
+            const event = await databases.createDocument<AppwriteEvent>(
+                DATABASE_ID,
+                COLLECTIONS.EVENTS,
+                ID.unique(),
+                eventData
+            );
+            return event;
+        } catch (error) {
+            console.error('Error creating event:', error);
+            throw error;
         }
-      );
-      return event;
-    } catch (error) {
-      console.error('Error creating event:', error);
-      throw error;
     }
-  }
 
-  async getEventById(eventId: string) {
-    try {
-      return await databases.getDocument(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        eventId
-      );
-    } catch (error) {
-      console.error('Error getting event:', error);
-      throw error;
-    }
-  }
-
-  async getAllEvents(queries: string[] = []) {
-    try {
-      const events = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        queries
-      );
-      return events.documents;
-    } catch (error) {
-      console.error('Error getting events:', error);
-      throw error;
-    }
-  }
-
-  async updateEvent(eventId: string, eventData: Partial<EventData>) {
-    try {
-      return await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        eventId,
-        {
-          ...eventData,
-          updatedAt: new Date().toISOString(),
+    async uploadEventImage(file: File) {
+        try {
+            const upload = await storage.createFile(
+                STORAGE_BUCKETS.EVENT_IMAGES,
+                ID.unique(),
+                file
+            );
+            return storage.getFileView(STORAGE_BUCKETS.EVENT_IMAGES, upload.$id);
+        } catch (error) {
+            console.error('Error uploading event image:', error);
+            throw error;
         }
-      );
-    } catch (error) {
-      console.error('Error updating event:', error);
-      throw error;
     }
-  }
 
-  async deleteEvent(eventId: string) {
-    try {
-      await databases.deleteDocument(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        eventId
-      );
-      return true;
-    } catch (error) {
-      console.error('Error deleting event:', error);
-      throw error;
+    async getEventById(eventId: string) {
+        try {
+            return await databases.getDocument<AppwriteEvent>(
+                DATABASE_ID,
+                COLLECTIONS.EVENTS,
+                eventId
+            );
+        } catch (error) {
+            console.error('Error getting event:', error);
+            throw error;
+        }
     }
-  }
 
-  // Additional methods for event-specific operations
-  async getEventsByOrganizer(organizerId: string) {
-    try {
-      const events = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        [Query.equal('organizerId', organizerId)]
-      );
-      return events.documents;
-    } catch (error) {
-      console.error('Error getting events by organizer:', error);
-      throw error;
+    async getAllEvents(queries: string[] = []) {
+        try {
+            const events = await databases.listDocuments<AppwriteEvent>(
+                DATABASE_ID,
+                COLLECTIONS.EVENTS,
+                queries
+            );
+            return events.documents;
+        } catch (error) {
+            console.error('Error getting events:', error);
+            throw error;
+        }
     }
-  }
 
-  async getEventsByCategory(category: string) {
-    try {
-      const events = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        [Query.equal('category', category)]
-      );
-      return events.documents;
-    } catch (error) {
-      console.error('Error getting events by category:', error);
-      throw error;
+    async updateEvent(eventId: string, updates: UpdateInput<AppwriteEvent>) {
+        try {
+            return await databases.updateDocument<AppwriteEvent>(
+                DATABASE_ID,
+                COLLECTIONS.EVENTS,
+                eventId,
+                updates
+            );
+        } catch (error) {
+            console.error('Error updating event:', error);
+            throw error;
+        }
     }
-  }
 
-  async getUpcomingEvents() {
-    try {
-      const now = new Date().toISOString();
-      const events = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.EVENTS,
-        [
-          Query.greaterThan('startDate', now),
-          Query.equal('status', 'published')
-        ]
-      );
-      return events.documents;
-    } catch (error) {
-      console.error('Error getting upcoming events:', error);
-      throw error;
+    async deleteEvent(eventId: string) {
+        try {
+            await databases.deleteDocument(
+                DATABASE_ID,
+                COLLECTIONS.EVENTS,
+                eventId
+            );
+            return true;
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            throw error;
+        }
     }
-  }
 }
