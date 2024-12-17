@@ -1,7 +1,7 @@
 import services from '../services';
 import { Request, Response } from 'express';
 import { STORAGE_BUCKETS } from '../config/appwrite';
-import { CreateInput } from '../types/appwrite';
+import { CreateEventInput } from '../types/models';
 import { UploadedFile } from 'express-fileupload';
 
 // Add interface for request with files
@@ -22,29 +22,29 @@ export class EventController {
                 location,
                 price,
                 capacity,
-                category 
+                category
             } = req.body;
 
             const imageFile = req.files?.image as UploadedFile;
 
             // Upload image if provided
-            let imageUrl: string | undefined;
+            let image: string | undefined;
             if (imageFile) {
                 const uploadResult = await services.storage.uploadFile(
                     STORAGE_BUCKETS.EVENT_IMAGES,
                     imageFile
                 );
-                imageUrl = uploadResult.toString();
+                image = uploadResult.toString();
             }
 
             // Create event
-            const eventData = {
+            const eventData: CreateEventInput = {
                 title,
                 description,
                 startDate,
                 endDate,
                 location,
-                imageUrl,
+                image,
                 organizerId: req.user!.$id,
                 status: 'draft',
                 price: Number(price),

@@ -7,8 +7,7 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@tests/*": ["src/tests/*"]
+      "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
     "allowJs": true,
@@ -16,8 +15,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.test.ts",
-    "src/tests/**/*.ts"
+    "src/**/*.test.ts"
   ],
   "exclude": [
     "node_modules",

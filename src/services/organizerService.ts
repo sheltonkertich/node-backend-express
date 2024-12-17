@@ -1,115 +1,83 @@
-import { databases, storage, DATABASE_ID, COLLECTIONS, STORAGE_BUCKETS } from '../config/appwrite';
 import { ID, Query } from 'node-appwrite';
-import { AppwriteOrganizer, CreateInput, UpdateInput } from '../types/appwrite';
+import { databases } from '../config/appwrite';
+import { DATABASE_ID, COLLECTIONS } from '../config/appwrite';
+import { AppwriteOrganizer, CreateOrganizerInput } from '../types/models';
 
 export class OrganizerService {
-    async createOrganizer(organizerData: CreateInput<AppwriteOrganizer>) {
-        try {
-            const existingOrganizer = await this.getOrganizerByEmail(organizerData.email);
-            if (existingOrganizer) {
-                throw new Error('Organizer with this email already exists');
-            }
-
-            const organizer = await databases.createDocument<AppwriteOrganizer>(
-                DATABASE_ID,
-                COLLECTIONS.ORGANIZERS,
-                ID.unique(),
-                organizerData
-            );
-            return organizer;
-        } catch (error) {
-            console.error('Error creating organizer:', error);
-            throw error;
+    async createOrganizer(organizerData: CreateOrganizerInput): Promise<AppwriteOrganizer> {
+        // Check if organizer with email already exists
+        const existingOrganizer = await this.getOrganizerByEmail(organizerData.email);
+        if (existingOrganizer) {
+            throw new Error('Organizer with this email already exists');
         }
+
+        return await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.ORGANIZERS,
+            ID.unique(),
+            organizerData
+        );
     }
 
-    async uploadOrganizerImage(file: File) {
-        try {
-            const upload = await storage.createFile(
-                STORAGE_BUCKETS.ORGANIZER_IMAGES,
-                ID.unique(),
-                file
-            );
-            return storage.getFileView(STORAGE_BUCKETS.ORGANIZER_IMAGES, upload.$id);
-        } catch (error) {
-            console.error('Error uploading organizer image:', error);
-            throw error;
-        }
+    async getOrganizerById(organizerId: string): Promise<AppwriteOrganizer> {
+        return await databases.getDocument(
+            DATABASE_ID,
+            COLLECTIONS.ORGANIZERS,
+            organizerId
+        );
     }
 
-    async getOrganizerById(organizerId: string) {
+    async getOrganizerByEmail(email: string): Promise<AppwriteOrganizer | null> {
         try {
-            return await databases.getDocument<AppwriteOrganizer>(
-                DATABASE_ID,
-                COLLECTIONS.ORGANIZERS,
-                organizerId
-            );
-        } catch (error) {
-            console.error('Error getting organizer:', error);
-            throw error;
-        }
-    }
-
-    async getOrganizerByEmail(email: string) {
-        try {
-            const organizers = await databases.listDocuments<AppwriteOrganizer>(
+            const organizers = await databases.listDocuments(
                 DATABASE_ID,
                 COLLECTIONS.ORGANIZERS,
                 [Query.equal('email', email)]
             );
-            return organizers.documents[0] || null;
+
+            return organizers.documents[0] as AppwriteOrganizer || null;
         } catch (error) {
             console.error('Error getting organizer by email:', error);
-            throw error;
+            return null;
         }
     }
 
-    async updateOrganizer(organizerId: string, updates: UpdateInput<AppwriteOrganizer>) {
-        try {
-            if (updates.email) {
-                const existingOrganizer = await this.getOrganizerByEmail(updates.email);
-                if (existingOrganizer && existingOrganizer.$id !== organizerId) {
-                    throw new Error('Email already in use');
-                }
+    async updateOrganizer(organizerId: string, updates: Partial<CreateOrganizerInput>): Promise<AppwriteOrganizer> {
+        // If email is being updated, check if new email is already in use
+        if (updates.email) {
+            const existingOrganizer = await this.getOrganizerByEmail(updates.email);
+            if (existingOrganizer && existingOrganizer.$id !== organizerId) {
+                throw new Error('Email is already in use');
             }
-
-            return await databases.updateDocument<AppwriteOrganizer>(
-                DATABASE_ID,
-                COLLECTIONS.ORGANIZERS,
-                organizerId,
-                updates
-            );
-        } catch (error) {
-            console.error('Error updating organizer:', error);
-            throw error;
         }
+
+        return await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.ORGANIZERS,
+            organizerId,
+            updates
+        );
     }
 
-    async deleteOrganizer(organizerId: string) {
-        try {
-            await databases.deleteDocument(
-                DATABASE_ID,
-                COLLECTIONS.ORGANIZERS,
-                organizerId
-            );
-            return true;
-        } catch (error) {
-            console.error('Error deleting organizer:', error);
-            throw error;
-        }
+    async deleteOrganizer(organizerId: string): Promise<boolean> {
+        await databases.deleteDocument(
+            DATABASE_ID,
+            COLLECTIONS.ORGANIZERS,
+            organizerId
+        );
+        return true;
     }
 
-    async searchOrganizers(query: string) {
-        try {
-            const organizers = await databases.listDocuments<AppwriteOrganizer>(
-                DATABASE_ID,
-                COLLECTIONS.ORGANIZERS,
-                [Query.search('name', query)]
-            );
-            return organizers.documents;
-        } catch (error) {
-            console.error('Error searching organizers:', error);
-            throw error;
-        }
+    async listOrganizers(queries: string[] = []): Promise<{ total: number; organizers: AppwriteOrganizer[] }> {
+        const response = await databases.listDocuments(
+            DATABASE_ID,
+            COLLECTIONS.ORGANIZERS,
+            queries
+        );
+
+        return {
+            total: response.total,
+            organizers: response.documents as AppwriteOrganizer[]
+        };
     }
 } 

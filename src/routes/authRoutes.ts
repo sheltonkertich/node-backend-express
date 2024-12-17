@@ -8,16 +8,17 @@ const authController = new AuthController();
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
+router.get('/user', authController.getCurrentUser);
 
 // Password recovery
-router.post('/recovery', authController.createRecovery);
-router.post('/recovery/confirm', authController.updateRecovery);
+router.post('/recovery', authController.sendPasswordRecovery);
+router.post('/recovery/confirm', authController.completePasswordRecovery);
 
-// Email verification
-router.post('/verify', authController.createVerification);
-router.post('/verify/confirm', authController.completeVerification);
+// Magic link
+router.post('/magic-link', authController.sendMagicLink);
+router.post('/magic-link/confirm', authController.completeMagicLink);
 
-// OAuth routes
-router.get('/oauth/:provider', authController.createOAuth2Session);
+// OAuth
+router.get('/oauth/:provider', authController.createOAuthSession);
 
 export default router; 

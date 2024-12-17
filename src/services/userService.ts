@@ -1,115 +1,83 @@
-import { databases, storage, account, DATABASE_ID, COLLECTIONS, STORAGE_BUCKETS } from '../config/appwrite';
 import { ID, Query } from 'node-appwrite';
-import { AppwriteUser, CreateInput, UpdateInput } from '../types/appwrite';
+import { databases } from '../config/appwrite';
+import { DATABASE_ID, COLLECTIONS } from '../config/appwrite';
+import { AppwriteUser, CreateUserInput } from '../types/models';
 
 export class UserService {
-    async createUser(userData: CreateInput<AppwriteUser>) {
-        try {
-            const existingUser = await this.getUserByEmail(userData.email);
-            if (existingUser) {
-                throw new Error('User with this email already exists');
-            }
-
-            const user = await databases.createDocument<AppwriteUser>(
-                DATABASE_ID,
-                COLLECTIONS.USERS,
-                ID.unique(),
-                userData
-            );
-            return user;
-        } catch (error) {
-            console.error('Error creating user:', error);
-            throw error;
+    async createUser(userData: CreateUserInput): Promise<AppwriteUser> {
+        // Check if user with email already exists
+        const existingUser = await this.getUserByEmail(userData.email);
+        if (existingUser) {
+            throw new Error('User with this email already exists');
         }
+
+        return await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            ID.unique(),
+            userData
+        );
     }
 
-    async uploadAvatar(file: File) {
-        try {
-            const upload = await storage.createFile(
-                STORAGE_BUCKETS.USER_AVATARS,
-                ID.unique(),
-                file
-            );
-            return storage.getFileView(STORAGE_BUCKETS.USER_AVATARS, upload.$id);
-        } catch (error) {
-            console.error('Error uploading avatar:', error);
-            throw error;
-        }
+    async getUserById(userId: string): Promise<AppwriteUser> {
+        return await databases.getDocument(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            userId
+        );
     }
 
-    async getUserById(userId: string) {
+    async getUserByEmail(email: string): Promise<AppwriteUser | null> {
         try {
-            return await databases.getDocument<AppwriteUser>(
-                DATABASE_ID,
-                COLLECTIONS.USERS,
-                userId
-            );
-        } catch (error) {
-            console.error('Error getting user:', error);
-            throw error;
-        }
-    }
-
-    async getUserByEmail(email: string) {
-        try {
-            const users = await databases.listDocuments<AppwriteUser>(
+            const users = await databases.listDocuments(
                 DATABASE_ID,
                 COLLECTIONS.USERS,
                 [Query.equal('email', email)]
             );
-            return users.documents[0] || null;
+
+            return users.documents[0] as AppwriteUser || null;
         } catch (error) {
             console.error('Error getting user by email:', error);
-            throw error;
+            return null;
         }
     }
 
-    async updateUser(userId: string, updates: UpdateInput<AppwriteUser>) {
-        try {
-            if (updates.email) {
-                const existingUser = await this.getUserByEmail(updates.email);
-                if (existingUser && existingUser.$id !== userId) {
-                    throw new Error('Email already in use');
-                }
+    async updateUser(userId: string, updates: Partial<CreateUserInput>): Promise<AppwriteUser> {
+        // If email is being updated, check if new email is already in use
+        if (updates.email) {
+            const existingUser = await this.getUserByEmail(updates.email);
+            if (existingUser && existingUser.$id !== userId) {
+                throw new Error('Email is already in use');
             }
-
-            return await databases.updateDocument<AppwriteUser>(
-                DATABASE_ID,
-                COLLECTIONS.USERS,
-                userId,
-                updates
-            );
-        } catch (error) {
-            console.error('Error updating user:', error);
-            throw error;
         }
+
+        return await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            userId,
+            updates
+        );
     }
 
-    async deleteUser(userId: string) {
-        try {
-            await databases.deleteDocument(
-                DATABASE_ID,
-                COLLECTIONS.USERS,
-                userId
-            );
-            return true;
-        } catch (error) {
-            console.error('Error deleting user:', error);
-            throw error;
-        }
+    async deleteUser(userId: string): Promise<boolean> {
+        await databases.deleteDocument(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            userId
+        );
+        return true;
     }
 
-    async searchUsers(query: string) {
-        try {
-            const users = await databases.listDocuments<AppwriteUser>(
-                DATABASE_ID,
-                COLLECTIONS.USERS,
-                [Query.search('name', query)]
-            );
-            return users.documents;
-        } catch (error) {
-            console.error('Error searching users:', error);
-            throw error;
-        }
+    async listUsers(queries: string[] = []): Promise<{ total: number; users: AppwriteUser[] }> {
+        const response = await databases.listDocuments(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            queries
+        );
+
+        return {
+            total: response.total,
+            users: response.documents as AppwriteUser[]
+        };
     }
 }

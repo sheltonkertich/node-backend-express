@@ -1,156 +1,115 @@
-import services from '../services';
 import { Request, Response } from 'express';
-import { CreateInput } from '../types/appwrite';
+import services from '../services';
+import { CreateUserInput } from '../types/models';
 
 export class AuthController {
     async register(req: Request, res: Response) {
         try {
             const { email, password, name } = req.body;
 
-            // Create Appwrite account
-            const account = await services.auth.createAccount(email, password, name);
+            // Create account in Appwrite
+            const account = await services.auth.register({ email, password, name });
 
-            // Create user profile in database
-            const userData = {
-                name,
+            // Create user document
+            const userData: CreateUserInput = {
                 email,
-                imageUrl: undefined
+                password,
+                name
             };
             await services.user.createUser(userData);
 
             // Create session
-            await services.auth.createSession(email, password);
+            await services.auth.login(email, password);
 
-            return res.status(201).json({
-                success: true,
-                message: 'Registration successful',
-                user: account
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'Registration failed'
-            });
+            res.status(201).json({ message: 'Account created successfully', account });
+        } catch (error) {
+            res.status(400).json({ message: 'Failed to create account', error });
         }
     }
 
     async login(req: Request, res: Response) {
         try {
             const { email, password } = req.body;
-            const session = await services.auth.createSession(email, password);
-            const user = await services.auth.getCurrentUser();
 
-            return res.status(200).json({
-                success: true,
-                message: 'Login successful',
-                session,
-                user
-            });
-        } catch (error: any) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
+            const session = await services.auth.login(email, password);
+            res.status(200).json({ message: 'Login successful', session });
+        } catch (error) {
+            res.status(401).json({ message: 'Login failed', error });
         }
     }
 
     async logout(req: Request, res: Response) {
         try {
             await services.auth.logout();
-            return res.json({
-                success: true,
-                message: 'Logged out successfully'
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'Logout failed'
-            });
+            res.status(200).json({ message: 'Logout successful' });
+        } catch (error) {
+            res.status(500).json({ message: 'Logout failed', error });
         }
     }
 
-    async createRecovery(req: Request, res: Response) {
+    async getCurrentUser(req: Request, res: Response) {
         try {
-            const { email, url } = req.body;
-            await services.auth.createRecovery(email, url);
-            return res.json({
-                success: true,
-                message: 'Recovery email sent'
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'Recovery failed'
-            });
+            const user = await services.auth.getCurrentUser();
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(401).json({ message: 'Failed to get current user', error });
         }
     }
 
-    async updateRecovery(req: Request, res: Response) {
+    async sendPasswordRecovery(req: Request, res: Response) {
         try {
-            const { userId, secret, password, confirmPassword } = req.body;
-            await services.auth.updateRecovery(userId, secret, password, confirmPassword);
-            return res.json({
-                success: true,
-                message: 'Password updated successfully'
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'Recovery update failed'
-            });
+            const { email } = req.body;
+            const url = process.env.PASSWORD_RECOVERY_URL || 'http://localhost:3000/reset-password';
+
+            await services.auth.sendPasswordRecovery(email, url);
+            res.status(200).json({ message: 'Password recovery email sent' });
+        } catch (error) {
+            res.status(400).json({ message: 'Failed to send recovery email', error });
         }
     }
 
-    async createVerification(req: Request, res: Response) {
+    async completePasswordRecovery(req: Request, res: Response) {
         try {
-            const { url } = req.body;
-            await services.auth.createVerification(url);
-            return res.json({
-                success: true,
-                message: 'Verification email sent'
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'Verification failed'
-            });
+            const { userId, secret, password } = req.body;
+
+            await services.auth.completePasswordRecovery(userId, secret, password);
+            res.status(200).json({ message: 'Password updated successfully' });
+        } catch (error) {
+            res.status(400).json({ message: 'Failed to update password', error });
         }
     }
 
-    async completeVerification(req: Request, res: Response) {
+    async sendMagicLink(req: Request, res: Response) {
+        try {
+            const { email } = req.body;
+            const url = process.env.MAGIC_LINK_URL || 'http://localhost:3000/verify';
+
+            await services.auth.sendMagicLink(email, url);
+            res.status(200).json({ message: 'Magic link sent' });
+        } catch (error) {
+            res.status(400).json({ message: 'Failed to send magic link', error });
+        }
+    }
+
+    async completeMagicLink(req: Request, res: Response) {
         try {
             const { userId, secret } = req.body;
-            await services.auth.completeVerification(userId, secret);
-            return res.json({
-                success: true,
-                message: 'Email verified successfully'
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'Verification failed'
-            });
+
+            await services.auth.completeMagicLink(userId, secret);
+            res.status(200).json({ message: 'Magic link verification successful' });
+        } catch (error) {
+            res.status(400).json({ message: 'Failed to verify magic link', error });
         }
     }
 
-    async createOAuth2Session(req: Request, res: Response) {
+    async createOAuthSession(req: Request, res: Response) {
         try {
             const { provider } = req.params;
-            const { success, failure } = req.query;
-            await services.auth.createOAuth2Session(
-                provider as 'google' | 'github' | 'facebook',
-                success as string,
-                failure as string
-            );
-            return res.json({
-                success: true,
-                message: 'OAuth session created'
-            });
-        } catch (error: any) {
-            return res.status(400).json({
-                success: false,
-                message: error?.message || 'OAuth failed'
-            });
+
+            await services.auth.createOAuthSession(provider);
+            res.status(200).json({ message: 'OAuth session created' });
+        } catch (error) {
+            res.status(400).json({ message: 'Failed to create OAuth session', error });
         }
     }
 } 
